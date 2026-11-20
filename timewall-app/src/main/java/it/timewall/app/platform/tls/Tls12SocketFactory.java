@@ -151,9 +151,8 @@ public final class Tls12SocketFactory extends SSLSocketFactory {
     }
 
     /**
-     * Abilita esclusivamente TLS 1.2 sul socket delegato; nella diagnostica registra anche le suite
-     * supportate e abilitate. Se il protocollo non è disponibile chiude il socket e propaga un
-     * IOException.
+     * Abilita esclusivamente TLS 1.2 sul socket delegato, senza registrare dati nei log. Se il
+     * protocollo non è disponibile chiude il socket e propaga un IOException.
      *
      * @param socket socket TLS o connessione sottostante a cui applicare il comportamento
      * @return stesso socket ricevuto, configurato per TLS 1.2

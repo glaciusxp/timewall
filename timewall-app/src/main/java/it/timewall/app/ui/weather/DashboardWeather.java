@@ -22,6 +22,7 @@ import it.timewall.app.domain.model.WeatherConditions;
 import it.timewall.app.domain.model.WeatherPlace;
 import it.timewall.app.localization.I18n;
 import it.timewall.app.localization.TimeDisplay;
+import it.timewall.app.platform.logging.WeatherLog;
 
 import java.text.NumberFormat;
 import java.util.List;
@@ -200,10 +201,7 @@ public final class DashboardWeather {
                             try {
                                 received = OpenMeteoClient.current(activity, requested);
                             } catch (Exception | LinkageError exception) {
-                                android.util.Log.w(
-                                        "TimeWallWeather",
-                                        "Aggiornamento meteo fallito",
-                                        exception);
+                                WeatherLog.warn(WeatherLog.Operation.FORECAST, exception);
                             }
                             WeatherConditions result = received;
                             handler.post(
@@ -624,10 +622,8 @@ public final class DashboardWeather {
                                 try {
                                     found = OpenMeteoClient.search(activity, text);
                                 } catch (Exception | LinkageError exception) {
-                                    android.util.Log.w(
-                                            "TimeWallWeather",
-                                            "Ricerca località fallita",
-                                            exception);
+                                    WeatherLog.warn(
+                                            WeatherLog.Operation.LOCATION_SEARCH, exception);
                                 }
                                 List<WeatherPlace> response = found;
                                 handler.post(

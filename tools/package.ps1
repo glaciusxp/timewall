@@ -16,7 +16,7 @@ foreach ($project in $Projects) {
     $archive = New-Object System.IO.Compression.ZipArchive($stream, [System.IO.Compression.ZipArchiveMode]::Create)
     try {
         # Allowlist excludes signing keys, device data, caches and local settings.
-        foreach ($entry in @('src','design','docs','gradle','README.md','build.gradle','settings.gradle',
+        foreach ($entry in @('src','design','docs','verification','gradle','README.md','build.gradle','settings.gradle',
                              'gradle.properties','gradle.lockfile','gradlew','gradlew.bat','.gitignore')) {
             $path = Join-Path $source $entry
             if (!(Test-Path -LiteralPath $path)) { continue }

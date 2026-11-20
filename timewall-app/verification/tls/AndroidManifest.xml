@@ -1,0 +1,5 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="it.timewall.audit">
+  <uses-sdk android:minSdkVersion="19" android:targetSdkVersion="28" />
+  <application android:label="TimeWall temporary security audit" />
+  <instrumentation android:name="it.timewall.audit.TlsProbe" android:targetPackage="it.timewall.dashboard" />
+</manifest>

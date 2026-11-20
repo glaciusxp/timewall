@@ -2,10 +2,10 @@ package it.timewall.app.platform.tls;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 
 import java.security.GeneralSecurityException;
 import java.security.Provider;
-import java.security.Security;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -13,17 +13,17 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
 /**
- * Acquires the legacy system Play Services provider without replacing global HTTPS defaults. The
- * reflected installer is version-dependent; see docs/tls-kitkat.md before changing this path.
+ * Creates an unregistered legacy Play Services provider for a dedicated SSLContext. Never invokes
+ * ProviderInstallerImpl: that installer also replaces global HTTPS defaults on KitKat.
  */
 public final class PlayServicesTls {
     private static final String PACKAGE = "com.google.android.gms";
-    private static final String PROVIDER = "GmsCore_OpenSSL";
+    private static final String PROVIDER_CLASS =
+            "com.google.android.gms.org.conscrypt.OpenSSLProvider";
 
     /**
-     * Ricava una factory TLS dal provider della copia di sistema di Google Play Services, con i
-     * TrustManager forniti oppure quelli di sistema nell’overload breve. Usa l’installer legacy per
-     * riflessione e rimuove dal registro globale il provider se non era già presente.
+     * Crea una factory TLS dedicata usando il provider della copia di sistema di Google Play
+     * Services e i TrustManager di sistema, senza modificare le impostazioni HTTPS globali.
      *
      * @param context contesto Android da cui leggere risorse o servizi
      * @return factory TLS configurata con il provider e i controlli di fiducia descritti
@@ -38,9 +38,10 @@ public final class PlayServicesTls {
     }
 
     /**
-     * Ricava una factory TLS dal provider della copia di sistema di Google Play Services, con i
-     * TrustManager forniti oppure quelli di sistema nell’overload breve. Usa l’installer legacy per
-     * riflessione e rimuove dal registro globale il provider se non era già presente.
+     * Carica direttamente la classe del provider dall'app di sistema e ne crea un'istanza privata
+     * per questa connessione. Il provider non viene registrato: richieste concorrenti non devono
+     * salvare e ripristinare stato globale. Assenza del package, API incompatibili o librerie
+     * native mancanti fanno fallire la richiesta, senza ricorrere all'installer o aggirare TLS.
      *
      * @param context contesto Android da cui leggere risorse o servizi
      * @param managers TrustManager da usare nel contesto TLS dedicato
@@ -50,35 +51,30 @@ public final class PlayServicesTls {
      */
     public static SSLSocketFactory createSocketFactory(Context context, TrustManager[] managers)
             throws Exception {
-        ApplicationInfo info = context.getPackageManager().getApplicationInfo(PACKAGE, 0);
-        if ((info.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
-            throw new GeneralSecurityException("Google Play Services non è un'app di sistema.");
-        }
-
-        Provider previous = Security.getProvider(PROVIDER);
         try {
+            ApplicationInfo info = context.getPackageManager().getApplicationInfo(PACKAGE, 0);
+            if ((info.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+                throw new GeneralSecurityException("Legacy TLS package is not a system app");
+            }
             Context services =
                     context.createPackageContext(
                             PACKAGE,
                             Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
-            // The legacy Play Services APK exposes the installer used by ProviderInstaller.
-            Class<?> installer =
-                    services.getClassLoader()
-                            .loadClass(
-                                    "com.google.android.gms.common.security.ProviderInstallerImpl");
-            installer.getMethod("insertProvider", Context.class).invoke(null, services);
-            Provider provider = Security.getProvider(PROVIDER);
-            if (provider == null) {
-                throw new GeneralSecurityException("Provider " + PROVIDER + " assente.");
+            Class<?> type = services.getClassLoader().loadClass(PROVIDER_CLASS);
+            if (!Provider.class.isAssignableFrom(type)) {
+                throw new GeneralSecurityException("Legacy TLS provider has an incompatible type");
             }
+            // NativeCrypto initializes through the package ClassLoader; no global installer is
+            // needed.
+            Provider provider =
+                    (Provider) type.getConstructor(String.class).newInstance("TimeWallLegacyTLS");
             SSLContext tls = SSLContext.getInstance("TLS", provider);
             tls.init(null, managers, null);
             return tls.getSocketFactory();
-        } finally {
-            // SSLContext retains its provider; callers need not leave it globally registered.
-            if (previous == null) {
-                Security.removeProvider(PROVIDER);
-            }
+        } catch (PackageManager.NameNotFoundException
+                | ReflectiveOperationException
+                | LinkageError failure) {
+            throw new GeneralSecurityException("Legacy TLS provider unavailable", failure);
         }
     }
 }
