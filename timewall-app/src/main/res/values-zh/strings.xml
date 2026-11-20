@@ -203,4 +203,9 @@
     <string name="licenses_unavailable">部分许可声明无法加载。</string>
     <string name="original_assets_credit">天气图标、应用图标和通知音：使用人工智能工具为 TimeWall 创建的资源。</string>
     <string name="interface_icons_credit">FontAwesome Free：界面按钮和菜单的图标字体，采用 SIL OFL 1.1 许可。</string>
+    <string name="clear_calendar_cache">清空日历缓存</string>
+    <string name="calendar_cache_hint">删除已保存日历的本地副本并开始更新。不会保存此页面中的更改。</string>
+    <string name="calendar_cache_cleared">日历缓存已清空。正在更新日历…</string>
+    <string name="calendar_cache_error">无法完全清空日历缓存。</string>
+    <string name="clearing_calendar_cache">正在清空日历缓存…</string>
 </resources>

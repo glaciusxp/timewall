@@ -49,6 +49,12 @@ public final class SettingsScreen {
 
     public interface Host {
         /**
+         * Clears saved calendar caches immediately, invoking completion on the UI thread without
+         * saving the draft.
+         */
+        void clearCalendarCache(Runnable completion);
+
+        /**
          * Comunica che la schermata impostazioni è pronta per essere inserita nel contenitore della
          * dashboard.
          *
@@ -184,7 +190,20 @@ public final class SettingsScreen {
             sectionScrolls[index].addView(sections[index]);
         }
         List<Feed> pendingFeeds = new ArrayList<>(feeds);
-        new CalendarSettingsSection(activity, views).render(sections[1], pendingFeeds);
+        Button clearCache = new Button(activity);
+        clearCache.setText(I18n.text(activity, "clear_calendar_cache"));
+        clearCache.setOnClickListener(
+                v -> {
+                    clearCache.setEnabled(false);
+                    host.clearCalendarCache(() -> clearCache.setEnabled(true));
+                });
+        LinearLayout calendarList = views.column();
+        sections[1].addView(calendarList);
+        new CalendarSettingsSection(activity, views).render(calendarList, pendingFeeds);
+        TextView cacheHint = views.secondaryLabel(I18n.text(activity, "calendar_cache_hint"), 15);
+        cacheHint.setPadding(0, views.dp(24), 0, views.dp(8));
+        sections[1].addView(cacheHint);
+        sections[1].addView(clearCache);
         LinearLayout fields = sections[0];
         fields.addView(views.label(I18n.text(activity, "language"), 18, true));
         SharedPreferences preferences = this.preferences;

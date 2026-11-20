@@ -203,4 +203,9 @@
     <string name="licenses_unavailable">一部のライセンス表示を読み込めませんでした。</string>
     <string name="original_assets_credit">天気アイコン、アプリアイコン、通知音：人工知能ツールを使用して TimeWall 用に作成されたリソースです。</string>
     <string name="interface_icons_credit">FontAwesome Free：画面のボタンとメニュー用のアイコンフォント。SIL OFL 1.1。</string>
+    <string name="clear_calendar_cache">カレンダーキャッシュを消去</string>
+    <string name="calendar_cache_hint">保存済みカレンダーのローカルコピーを削除して更新を開始します。この画面の変更は保存しません。</string>
+    <string name="calendar_cache_cleared">カレンダーキャッシュを消去しました。更新中…</string>
+    <string name="calendar_cache_error">カレンダーキャッシュを完全に消去できませんでした。</string>
+    <string name="clearing_calendar_cache">カレンダーキャッシュを消去中…</string>
 </resources>

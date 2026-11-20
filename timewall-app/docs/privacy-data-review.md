@@ -36,11 +36,16 @@ certifica le pratiche dei server esterni. Nessun dato del tablet è stato letto.
 ## Conservazione e cancellazione: limiti attuali
 
 - La cache iCal viene sostituita al refresh riuscito, senza scadenza automatica.
-- Rimuovere un calendario aggiorna la lista e toglie i suoi eventi visibili, ma
-  non elimina il precedente file cache dal disco. Anche il repository in memoria
-  può trattenerne lo snapshot fino alla distruzione dell'Activity.
+- Dalla 0.100, salvare l'eliminazione di un calendario o il cambio del suo URL
+  invalida i download precedenti ed elimina la vecchia cache e i file laterali
+  AtomicFile. Una bozza annullata non cambia cache o configurazione.
+- Impostazioni → Calendari offre «Svuota cache calendari»: elimina le copie
+  persistite e gli snapshot del repository, poi aggiorna i calendari salvati.
+  Non salva altre modifiche delle impostazioni. Senza rete gli eventi diventano
+  nuovamente disponibili al successivo download riuscito.
 - Disabilitare il meteo non cancella automaticamente località e preferenze.
-- Non c'è ancora un comando dedicato per cancellare tutte le cache e i dati.
+- Lo svuotamento riguarda solo i calendari: configurazione, località meteo e
+  immagini originali non vengono eliminati. Non è una cancellazione totale dei dati.
 - Cancellazione dati dell'app o disinstallazione eliminano lo storage privato;
   i file immagine originali e i dati sui server esterni non vengono cancellati.
 - URL segreti e iCal sono protetti dall'isolamento Android, non da cifratura
@@ -58,8 +63,8 @@ necessariamente effimera o limitata alla durata della richiesta.
 
 1. Confermare titolare del trattamento, recapito privacy e URL pubblico della
    policy. L'autore indicato nell'app non definisce da solo tutti questi dati.
-2. Decidere durata e cancellazione cache: proporre eliminazione quando si
-   rimuove/modifica l'URL di un calendario, più comando esplicito di pulizia.
+2. Durata/cancellazione cache: eliminazione a rimozione/cambio URL salvato e
+   comando esplicito implementati nella 0.100. Restano da descrivere nella policy.
 3. Integrare le dichiarazioni Open-Meteo sopra riportate e verificare i
    trattamenti specifici dei provider iCal. Le pratiche di tutti i server
    configurabili non sono deducibili dal solo client; ricontrollare la policy

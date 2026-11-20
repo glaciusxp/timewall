@@ -85,6 +85,8 @@ public final class DashboardActivity extends Activity {
 
     private final Handler handler = new Handler();
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
+    // Survives Activity recreation: deletion must not be dropped by the image worker's shutdown.
+    private static final ExecutorService CALENDAR_WORKER = Executors.newSingleThreadExecutor();
     private CalendarRepository calendars;
     private final List<Feed> feeds = new ArrayList<>();
     private final Set<String> excludedCalendars = new HashSet<>();
@@ -263,6 +265,15 @@ public final class DashboardActivity extends Activity {
                         CalendarFeed::download,
                         new CalendarRepository.Store() {
                             /**
+                             * Shares invalidation across repositories created by different Activity
+                             * instances.
+                             */
+                            @Override
+                            public long generation() {
+                                return CalendarDiskCache.generation();
+                            }
+
+                            /**
                              * Adatta la lettura della cache del repository alla directory privata
                              * dell’applicazione, conservando formato e nomi storici dei file.
                              *
@@ -288,11 +299,13 @@ public final class DashboardActivity extends Activity {
                              *     fallimento viene propagato al chiamante
                              */
                             @Override
-                            public void write(String address, byte[] body) throws Exception {
-                                CalendarDiskCache.write(getFilesDir(), address, body);
+                            public void write(String address, byte[] body, long generation)
+                                    throws Exception {
+                                CalendarDiskCache.write(getFilesDir(), address, body, generation);
                             }
                         });
         loadFeeds();
+        pruneCalendarCache();
         excludedCalendars.addAll(
                 preferences.getStringSet(EXCLUDED_CALENDARS, Collections.emptySet()));
         normalizeCalendarFilter();
@@ -403,11 +416,12 @@ public final class DashboardActivity extends Activity {
     }
 
     /**
-     * Chiude la schermata impostazioni ancora aperta, termina i worker meteo e calendario e
-     * completa il lifecycle dell’Activity.
+     * Chiude le impostazioni, invalida il repository dell'Activity e termina i worker locali. Il
+     * worker condiviso dei calendari resta disponibile per completare le pulizie già accodate.
      */
     @Override
     protected void onDestroy() {
+        if (calendars != null) calendars.dispose();
         if (backNavigation != null) backNavigation.setEnabled(false);
         if (settingsScreen != null) {
             settingsScreen.dispose();
@@ -817,7 +831,8 @@ public final class DashboardActivity extends Activity {
         }
         status.setText(I18n.text(DashboardActivity.this, "refreshing_calendars"));
         boolean showCachedEvents = !haveInitialEvents;
-        worker.execute(
+        long cacheGeneration = calendars.generation();
+        CALENDAR_WORKER.execute(
                 () ->
                         calendars.refresh(
                                 configured,
@@ -846,7 +861,8 @@ public final class DashboardActivity extends Activity {
                                     public void loaded(List<CalendarEvent> loaded, int failures) {
                                         publishEvents(requestedRevision, loaded, failures);
                                     }
-                                }));
+                                },
+                                cacheGeneration));
         handler.postDelayed(refresh, REFRESH_MS);
     }
 
@@ -1010,6 +1026,84 @@ public final class DashboardActivity extends Activity {
     }
 
     /**
+     * Queues startup/save cleanup on the shared serial calendar worker; canceled drafts never call
+     * it.
+     */
+    private void pruneCalendarCache() {
+        java.io.File directory = getFilesDir();
+        Set<String> addresses = new HashSet<>();
+        for (Feed feed : feeds) addresses.add(feed.address);
+        long generation = CalendarDiskCache.generation();
+        CALENDAR_WORKER.execute(
+                () -> {
+                    if (generation != CalendarDiskCache.generation()) return;
+                    try {
+                        CalendarDiskCache.retainOnly(directory, addresses);
+                    } catch (Exception failure) {
+                        handler.post(
+                                () -> {
+                                    if (!isDestroyed()
+                                            && generation == CalendarDiskCache.generation())
+                                        Toast.makeText(
+                                                        this,
+                                                        I18n.text(this, "calendar_cache_error"),
+                                                        Toast.LENGTH_LONG)
+                                                .show();
+                                });
+                    }
+                });
+    }
+
+    /**
+     * Invalidates old downloads immediately, clears disk/memory serially, then refreshes saved
+     * calendars.
+     */
+    private void clearCalendarCache(Runnable completion) {
+        handler.removeCallbacks(refresh);
+        revision++;
+        long generation = CalendarDiskCache.invalidate();
+        java.io.File directory = getFilesDir();
+        CalendarRepository repository = calendars;
+        events = Collections.emptyList();
+        haveInitialEvents = false;
+        render(System.currentTimeMillis(), true);
+        status.setText(I18n.text(this, "clearing_calendar_cache"));
+        CALENDAR_WORKER.execute(
+                () -> {
+                    boolean cleared;
+                    repository.clearMemory();
+                    try {
+                        CalendarDiskCache.clear(directory);
+                        cleared = true;
+                    } catch (Exception failure) {
+                        cleared = false;
+                    }
+                    boolean success = cleared;
+                    handler.post(
+                            () -> {
+                                completion.run();
+                                if (isDestroyed() || generation != CalendarDiskCache.generation())
+                                    return;
+                                Toast.makeText(
+                                                this,
+                                                I18n.text(
+                                                        this,
+                                                        success
+                                                                ? "calendar_cache_cleared"
+                                                                : "calendar_cache_error"),
+                                                Toast.LENGTH_LONG)
+                                        .show();
+                                if (success) refreshFeeds();
+                                else {
+                                    status.setText(I18n.text(this, "calendar_cache_error"));
+                                    refreshButton.setEnabled(!feeds.isEmpty());
+                                    handler.postDelayed(refresh, REFRESH_MS);
+                                }
+                            });
+                });
+    }
+
+    /**
      * Mostra la schermata impostazioni sopra la dashboard e collega apertura, chiusura e
      * salvataggio. Dopo il salvataggio riallinea calendari, filtri e formato data/ora, ricreando
      * l’Activity soltanto quando serve.
@@ -1021,6 +1115,15 @@ public final class DashboardActivity extends Activity {
                         this,
                         getPreferences(MODE_PRIVATE),
                         new SettingsScreen.Host() {
+                            /**
+                             * Performs the immediate cache action independently of the settings
+                             * draft.
+                             */
+                            @Override
+                            public void clearCalendarCache(Runnable completion) {
+                                DashboardActivity.this.clearCalendarCache(completion);
+                            }
+
                             /**
                              * Nasconde il contenuto della dashboard e aggiunge la schermata
                              * impostazioni al contenitore a tutto schermo.
@@ -1064,8 +1167,15 @@ public final class DashboardActivity extends Activity {
                             @Override
                             public void saved(List<Feed> pendingFeeds, boolean refreshActivity) {
                                 boolean calendarsChanged = !feeds.equals(pendingFeeds);
+                                Set<String> previousAddresses = new HashSet<>();
+                                for (Feed feed : feeds) previousAddresses.add(feed.address);
+                                Set<String> nextAddresses = new HashSet<>();
+                                for (Feed feed : pendingFeeds) nextAddresses.add(feed.address);
+                                if (!previousAddresses.equals(nextAddresses))
+                                    CalendarDiskCache.invalidate();
                                 feeds.clear();
                                 feeds.addAll(pendingFeeds);
+                                if (!previousAddresses.equals(nextAddresses)) pruneCalendarCache();
                                 normalizeCalendarFilter();
                                 if (calendarsChanged) {
                                     revision++;

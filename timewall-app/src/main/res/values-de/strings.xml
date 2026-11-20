@@ -205,4 +205,9 @@
     <string name="licenses_unavailable">Einige Lizenzhinweise konnten nicht geladen werden.</string>
     <string name="original_assets_credit">Wettersymbole, App-Symbol und Benachrichtigungston: für TimeWall mit Werkzeugen der künstlichen Intelligenz erstellte Ressourcen.</string>
     <string name="interface_icons_credit">FontAwesome Free — Symbolschrift für Schaltflächen und Menüs der Benutzeroberfläche — SIL OFL 1.1.</string>
+    <string name="clear_calendar_cache">Kalendercache leeren</string>
+    <string name="calendar_cache_hint">Löscht lokale Kopien gespeicherter Kalender und startet eine Aktualisierung. Änderungen auf dieser Seite werden nicht gespeichert.</string>
+    <string name="calendar_cache_cleared">Kalendercache geleert. Aktualisierung läuft…</string>
+    <string name="calendar_cache_error">Der Kalendercache konnte nicht vollständig geleert werden.</string>
+    <string name="clearing_calendar_cache">Kalendercache wird geleert…</string>
 </resources>

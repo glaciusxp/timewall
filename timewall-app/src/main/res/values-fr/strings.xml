@@ -205,4 +205,9 @@
     <string name="licenses_unavailable">Certains avis de licence n’ont pas pu être chargés.</string>
     <string name="original_assets_credit">Icônes météo, icône de l’application et son de notification : ressources créées pour TimeWall avec des outils d’intelligence artificielle.</string>
     <string name="interface_icons_credit">FontAwesome Free — police des icônes des boutons et menus de l’interface — SIL OFL 1.1.</string>
+    <string name="clear_calendar_cache">Vider le cache des calendriers</string>
+    <string name="calendar_cache_hint">Supprime les copies locales des calendriers enregistrés et lance une mise à jour. N’enregistre pas les modifications de cet écran.</string>
+    <string name="calendar_cache_cleared">Cache des calendriers vidé. Mise à jour en cours…</string>
+    <string name="calendar_cache_error">Impossible de vider complètement le cache des calendriers.</string>
+    <string name="clearing_calendar_cache">Suppression du cache des calendriers…</string>
 </resources>

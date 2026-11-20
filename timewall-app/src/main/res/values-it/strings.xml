@@ -206,4 +206,9 @@ Build: %2$d"</string>
     <string name="licenses_unavailable">Impossibile caricare alcuni avvisi di licenza.</string>
     <string name="original_assets_credit">Icone meteo, icona dell’app e suono di notifica: risorse create per TimeWall con strumenti di intelligenza artificiale.</string>
     <string name="interface_icons_credit">FontAwesome Free — font delle icone dei pulsanti e dei menu dell’interfaccia — SIL OFL 1.1.</string>
+    <string name="clear_calendar_cache">Svuota cache calendari</string>
+    <string name="calendar_cache_hint">Elimina le copie locali dei calendari salvati e avvia un aggiornamento. Non salva le modifiche in questa schermata.</string>
+    <string name="calendar_cache_cleared">Cache calendari svuotata. Aggiornamento in corso…</string>
+    <string name="calendar_cache_error">Impossibile svuotare completamente la cache dei calendari.</string>
+    <string name="clearing_calendar_cache">Svuotamento cache calendari…</string>
 </resources>

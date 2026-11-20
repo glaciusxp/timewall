@@ -25,6 +25,9 @@ public final class CalendarRepository {
     }
 
     public interface Store {
+        /** Returns the shared invalidation version used to reject obsolete reads and writes. */
+        long generation();
+
         /**
          * Contratto di lettura della copia persistita di un feed. Un errore indica una cache
          * indisponibile e non impedisce il successivo download.
@@ -45,7 +48,7 @@ public final class CalendarRepository {
          * @throws Exception se una dipendenza non completa l’operazione; il fallimento viene
          *     propagato al chiamante
          */
-        void write(String address, byte[] body) throws Exception;
+        void write(String address, byte[] body, long expectedGeneration) throws Exception;
     }
 
     public interface Listener {
@@ -70,6 +73,38 @@ public final class CalendarRepository {
     private final Transport transport;
     private final Store store;
     private final Map<String, Snapshot> cache = new HashMap<>();
+    private long cacheGeneration = Long.MIN_VALUE;
+    private volatile boolean disposed;
+
+    /**
+     * Captures a ticket before enqueueing a refresh, so delayed requests cannot adopt a newer
+     * version.
+     */
+    public long generation() {
+        return store.generation();
+    }
+
+    /** Stops this Activity's pending refreshes without interrupting the shared calendar worker. */
+    public void dispose() {
+        disposed = true;
+    }
+
+    /**
+     * Clears parsed snapshots on the same serial worker used by refresh; it performs no network
+     * I/O.
+     */
+    public void clearMemory() {
+        cache.clear();
+        cacheGeneration = Long.MIN_VALUE;
+    }
+
+    /**
+     * Checks both cache invalidation and Activity lifecycle before using a download or publishing
+     * results.
+     */
+    private boolean isCurrent(long generation) {
+        return !disposed && generation == store.generation();
+    }
 
     /**
      * Collega trasporto e persistenza iniettati alla cache in memoria; la creazione non avvia
@@ -96,9 +131,24 @@ public final class CalendarRepository {
      * @param listener destinatario delle callback eseguite sul thread di refresh
      */
     public void refresh(List<Feed> feeds, boolean publishCache, Listener listener) {
+        refresh(feeds, publishCache, listener, generation());
+    }
+
+    /**
+     * Refreshes only for the ticket captured by the caller, discarding obsolete downloads and
+     * callbacks.
+     */
+    public void refresh(
+            List<Feed> feeds, boolean publishCache, Listener listener, long generation) {
+        if (!isCurrent(generation)) return;
+        if (cacheGeneration != generation) {
+            clearMemory();
+            cacheGeneration = generation;
+        }
         List<CalendarEvent> cached = new ArrayList<>();
         boolean foundCache = false;
         for (Feed feed : feeds) {
+            if (!isCurrent(generation)) return;
             Snapshot snapshot = cache.get(feed.address);
             if (snapshot == null || snapshot.color != feed.color) {
                 try {
@@ -111,15 +161,18 @@ public final class CalendarRepository {
             foundCache = true;
             cached.addAll(snapshot.events);
         }
+        if (!isCurrent(generation)) return;
         if (publishCache && foundCache) listener.cached(cached);
         List<CalendarEvent> loaded = new ArrayList<>();
         Map<String, Snapshot> updated = new HashMap<>();
         int failures = 0;
         for (Feed feed : feeds) {
+            if (!isCurrent(generation)) return;
             Snapshot previous = cache.get(feed.address);
             Snapshot current = previous;
             try {
                 byte[] body = transport.download(feed.address);
+                if (!isCurrent(generation)) return;
                 byte[] hash = CalendarFeed.hash(body);
                 if (previous == null
                         || previous.color != feed.color
@@ -130,7 +183,7 @@ public final class CalendarRepository {
                                     feed.color,
                                     IcalendarParser.parse(body, feed.color, feed.address));
                     try {
-                        store.write(feed.address, body);
+                        store.write(feed.address, body, generation);
                     } catch (Exception unavailable) {
                         /* Validated data is still usable in memory. */
                     }
@@ -145,7 +198,7 @@ public final class CalendarRepository {
         }
         cache.clear();
         cache.putAll(updated);
-        listener.loaded(loaded, failures);
+        if (isCurrent(generation)) listener.loaded(loaded, failures);
     }
 
     /**

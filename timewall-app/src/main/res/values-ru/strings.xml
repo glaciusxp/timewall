@@ -209,4 +209,9 @@
     <string name="licenses_unavailable">Не удалось загрузить некоторые лицензионные уведомления.</string>
     <string name="original_assets_credit">Значки погоды, значок приложения и звук уведомления: ресурсы, созданные для TimeWall с помощью инструментов искусственного интеллекта.</string>
     <string name="interface_icons_credit">FontAwesome Free — шрифт значков кнопок и меню интерфейса — SIL OFL 1.1.</string>
+    <string name="clear_calendar_cache">Очистить кеш календарей</string>
+    <string name="calendar_cache_hint">Удаляет локальные копии сохранённых календарей и запускает обновление. Не сохраняет изменения на этом экране.</string>
+    <string name="calendar_cache_cleared">Кеш календарей очищен. Обновление…</string>
+    <string name="calendar_cache_error">Не удалось полностью очистить кеш календарей.</string>
+    <string name="clearing_calendar_cache">Очистка кеша календарей…</string>
 </resources>

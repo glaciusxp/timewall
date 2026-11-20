@@ -11,6 +11,131 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class CalendarRepositoryTest {
+    /** Rejects a queued refresh captured before an invalidation, without contacting its old URL. */
+    @Test
+    public void queuedOldGenerationNeverDownloads() {
+        Memory store = new Memory();
+        int[] downloads = {0};
+        CalendarRepository repo =
+                new CalendarRepository(
+                        url -> {
+                            downloads[0]++;
+                            return valid;
+                        },
+                        store);
+        long ticket = repo.generation();
+        store.generation++;
+        Result result = new Result();
+        repo.refresh(Arrays.asList(feed), true, result, ticket);
+        assertEquals(0, downloads[0]);
+        assertNull(result.loaded);
+        assertEquals(0, store.writes);
+    }
+
+    /**
+     * Reproduces invalidation while a download is blocked; old bytes cannot be written or
+     * published.
+     */
+    @Test
+    public void inFlightDownloadCannotUndoClear() throws Exception {
+        Memory store = new Memory();
+        java.util.concurrent.CountDownLatch downloading =
+                new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch release = new java.util.concurrent.CountDownLatch(1);
+        CalendarRepository repo =
+                new CalendarRepository(
+                        url -> {
+                            downloading.countDown();
+                            if (!release.await(5, java.util.concurrent.TimeUnit.SECONDS))
+                                throw new IOException("Test timed out");
+                            return valid;
+                        },
+                        store);
+        Result result = new Result();
+        long ticket = repo.generation();
+        Thread thread = new Thread(() -> repo.refresh(Arrays.asList(feed), true, result, ticket));
+        thread.start();
+        try {
+            assertTrue(downloading.await(5, java.util.concurrent.TimeUnit.SECONDS));
+            store.generation++;
+            store.saved = null;
+        } finally {
+            release.countDown();
+            thread.join(5000);
+        }
+        assertFalse(thread.isAlive());
+        assertEquals(0, store.writes);
+        assertNull(store.saved);
+        assertNull(result.loaded);
+        Result next = new Result();
+        repo.refresh(Arrays.asList(feed), false, next);
+        assertEquals(1, store.writes);
+        assertEquals(1, next.loaded.size());
+    }
+
+    /**
+     * Clearing disk data and changing generation also invalidates parsed snapshots during offline
+     * refresh.
+     */
+    @Test
+    public void offlineAfterClearDoesNotReuseOldMemory() {
+        Memory store = new Memory();
+        boolean[] online = {true};
+        CalendarRepository repo =
+                new CalendarRepository(
+                        url -> {
+                            if (!online[0]) throw new IOException();
+                            return valid;
+                        },
+                        store);
+        repo.refresh(Arrays.asList(feed), false, new Result());
+        store.generation++;
+        store.saved = null;
+        online[0] = false;
+        Result result = new Result();
+        repo.refresh(Arrays.asList(feed), true, result);
+        assertNull(result.cached);
+        assertTrue(result.loaded.isEmpty());
+        assertEquals(1, result.failures);
+    }
+
+    /** A repository owned by a destroyed Activity must not execute queued work. */
+    @Test
+    public void disposedRepositoryDoesNotDownload() {
+        Memory store = new Memory();
+        int[] downloads = {0};
+        CalendarRepository repo =
+                new CalendarRepository(
+                        url -> {
+                            downloads[0]++;
+                            return valid;
+                        },
+                        store);
+        repo.dispose();
+        repo.refresh(Arrays.asList(feed), true, new Result());
+        assertEquals(0, downloads[0]);
+    }
+
+    /** Invalidation from a new repository instance also cancels writes by its predecessor. */
+    @Test
+    public void repositoriesShareStoreInvalidation() {
+        Memory store = new Memory();
+        CalendarRepository next = new CalendarRepository(url -> valid, store);
+        CalendarRepository old =
+                new CalendarRepository(
+                        url -> {
+                            store.generation++;
+                            return valid;
+                        },
+                        store);
+        old.refresh(Arrays.asList(feed), false, new Result());
+        assertEquals(0, store.writes);
+        Result result = new Result();
+        next.refresh(Arrays.asList(feed), false, result);
+        assertEquals(1, store.writes);
+        assertEquals(1, result.loaded.size());
+    }
+
     private final Feed feed = new Feed("Calendar", "https://example.org/private.ics", 123);
     private final byte[] valid =
             ("BEGIN:VCALENDAR\n"
@@ -25,6 +150,12 @@ public class CalendarRepositoryTest {
         byte[] saved;
         int writes;
         boolean failWrite;
+        long generation;
+
+        /** Exposes the fake store's invalidation version for race-condition tests. */
+        public long generation() {
+            return generation;
+        }
 
         /**
          * Restituisce i byte della cache finta o simula un file mancante; non accede al filesystem.
@@ -48,7 +179,8 @@ public class CalendarRepositoryTest {
          * @throws Exception se la preparazione o lettura dei dati della prova fallisce
          */
         @Override
-        public void write(String address, byte[] body) throws Exception {
+        public void write(String address, byte[] body, long expectedGeneration) throws Exception {
+            if (expectedGeneration != generation) return;
             if (failWrite) throw new IOException();
             saved = body;
             writes++;

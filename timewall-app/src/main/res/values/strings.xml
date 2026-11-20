@@ -206,4 +206,9 @@ Build: %2$d"</string>
     <string name="licenses_unavailable">Some license notices could not be loaded.</string>
     <string name="original_assets_credit">Weather icons, app icon and notification sound: resources created for TimeWall using artificial intelligence tools.</string>
     <string name="interface_icons_credit">FontAwesome Free — icon font for interface buttons and menus — SIL OFL 1.1.</string>
+    <string name="clear_calendar_cache">Clear calendar cache</string>
+    <string name="calendar_cache_hint">Clears local copies of saved calendars and starts an update. Does not save changes on this screen.</string>
+    <string name="calendar_cache_cleared">Calendar cache cleared. Updating calendars…</string>
+    <string name="calendar_cache_error">Unable to completely clear the calendar cache.</string>
+    <string name="clearing_calendar_cache">Clearing calendar cache…</string>
 </resources>
