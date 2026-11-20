@@ -1,0 +1,206 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+  <string name="agenda">"予定表"</string>
+  <string name="today">"今日"</string>
+  <string name="upcoming">"今後の予定"</string>
+  <string name="no_upcoming">"今後の予定はありません"</string>
+  <string name="day_complete">"今日の予定はすべて終了しました！"</string>
+  <string name="no_today">"今日の予定はありません"</string>
+  <string name="all_day">"終日"</string>
+  <string name="close">"閉じる"</string>
+  <string name="schedule">"日時"</string>
+  <string name="description">"説明"</string>
+  <string name="location">"場所"</string>
+  <string name="unavailable">"利用できません"</string>
+  <string name="calendar">"カレンダー"</string>
+  <string name="created">"作成日時"</string>
+  <string name="add_calendar">"カレンダーを追加"</string>
+  <string name="refresh_calendars">"カレンダーを更新"</string>
+  <string name="refreshing_calendars">"カレンダーを更新中…"</string>
+  <string name="filter_events">"予定を絞り込む"</string>
+  <string name="open_menu">"メニューを開く"</string>
+  <string name="calendars">"カレンダー"</string>
+  <string name="settings">"設定"</string>
+  <string name="about">"このアプリについて"</string>
+  <string name="theme">"テーマ"</string>
+  <string name="palette">"カラーパレット"</string>
+  <string name="font">"フォント"</string>
+  <string name="show_seconds">"時計に秒を表示"</string>
+  <string name="weather">"天気"</string>
+  <string name="cancel">"キャンセル"</string>
+  <string name="save">"保存"</string>
+  <string name="font_failed">"この端末ではこのフォントを使用できません。Roboto に戻しました。"</string>
+  <string name="font_invalid">"この端末では選択したフォントを使用できません。"</string>
+  <string name="background">"背景画像"</string>
+  <string name="choose_image">"画像を選択"</string>
+  <string name="file_picker_unavailable">"ファイル選択を利用できません"</string>
+  <string name="remove">"削除"</string>
+  <string name="loading_image">"画像を読み込み中…"</string>
+  <string name="image_failed">"画像を開けません"</string>
+  <string name="no_image">"画像なし"</string>
+  <string name="selected_image">"選択した画像"</string>
+  <string name="image_permission">"Android から画像へのアクセスが許可されませんでした"</string>
+  <string name="version_unavailable">"バージョン情報を取得できません"</string>
+  <string name="filter_calendar">"カレンダーで絞り込む"</string>
+  <string name="no_calendars">"カレンダーが設定されていません"</string>
+  <string name="apply">"適用"</string>
+  <string name="add">"追加"</string>
+  <string name="name">"名前"</string>
+  <string name="ical_address">"公開 iCal URL"</string>
+  <string name="google_calendar">"Google カレンダー"</string>
+  <string name="invalid_calendar_url">"公開の HTTPS iCal URL を入力してください"</string>
+  <string name="duplicate_calendar">"このカレンダーは設定済みです"</string>
+  <string name="calendar_config_error">"カレンダーの設定が不完全です"</string>
+  <string name="refresh_weather">"天気を更新"</string>
+  <string name="weather_unavailable">"天気情報を取得できません"</string>
+  <string name="loading_weather">"天気を読み込み中…"</string>
+  <string name="refresh_failed">"前回の更新に失敗しました"</string>
+  <string name="refreshing">"更新中…"</string>
+  <string name="weather_enable">"天気の表示"</string>
+  <string name="enable_show">"有効にして表示"</string>
+  <string name="place">"地域"</string>
+  <string name="no_place">"地域が選択されていません"</string>
+  <string name="search_place">"地域を検索"</string>
+  <string name="temperature_unit">"温度の単位"</string>
+  <string name="celsius">"摂氏（°C）"</string>
+  <string name="fahrenheit">"華氏（°F）"</string>
+  <string name="refresh_frequency">"更新間隔"</string>
+  <string name="frequency_15">"15 分"</string>
+  <string name="frequency_30">"30 分"</string>
+  <string name="frequency_60">"1 時間"</string>
+  <string name="frequency_120">"2 時間"</string>
+  <string name="provider">"提供元：Open-Meteo · 地名：GeoNames"</string>
+  <string name="select_place">"検索結果から地域を選択してください"</string>
+  <string name="searching">"検索中…"</string>
+  <string name="search_unavailable">"検索を利用できません"</string>
+  <string name="no_results">"地域が見つかりません"</string>
+  <string name="primary_color">"メインカラー"</string>
+  <string name="background_color">"ダッシュボードの背景"</string>
+  <string name="card_color">"通常の予定カード"</string>
+  <string name="highlight_color">"強調表示する予定の背景"</string>
+  <string name="primary_text">"メインテキスト"</string>
+  <string name="secondary_text">"サブテキスト"</string>
+  <string name="clock_color">"時刻の色"</string>
+  <string name="date_color">"日付の色"</string>
+  <string name="hex_invalid">"#RRGGBB または #AARRGGBB を使用してください"</string>
+  <string name="use_color">"この色を使用"</string>
+  <string name="red">"赤"</string>
+  <string name="green">"緑"</string>
+  <string name="blue">"青"</string>
+  <string name="purple">"紫"</string>
+  <string name="orange">"オレンジ"</string>
+  <string name="yellow">"黄"</string>
+  <string name="sky_blue">"水色"</string>
+  <string name="white">"白"</string>
+  <string name="gray">"グレー"</string>
+  <string name="fuchsia">"フクシア"</string>
+  <string name="lime">"ライム"</string>
+  <string name="brown">"茶"</string>
+  <string name="opacity">"不透明度"</string>
+  <string name="default_font">"Roboto（標準）"</string>
+  <string name="custom_theme">"カスタム"</string>
+  <string name="clear">"快晴"</string>
+  <string name="mainly_clear">"おおむね晴れ"</string>
+  <string name="partly_cloudy">"晴れ時々曇り"</string>
+  <string name="overcast">"曇り"</string>
+  <string name="fog">"霧"</string>
+  <string name="rime_fog">"着氷性の霧"</string>
+  <string name="drizzle">"霧雨"</string>
+  <string name="freezing_drizzle">"着氷性の霧雨"</string>
+  <string name="rain">"雨"</string>
+  <string name="heavy_rain">"強い雨"</string>
+  <string name="freezing_rain">"着氷性の雨"</string>
+  <string name="heavy_freezing_rain">"強い着氷性の雨"</string>
+  <string name="snow">"雪"</string>
+  <string name="snow_grains">"霧雪"</string>
+  <string name="rain_showers">"にわか雨"</string>
+  <string name="heavy_showers">"強いにわか雨"</string>
+  <string name="snow_showers">"にわか雪"</string>
+  <string name="thunderstorm">"雷雨"</string>
+  <string name="heavy_thunderstorm">"強い雷雨"</string>
+  <string name="thunderstorm_hail">"ひょうを伴う雷雨"</string>
+  <string name="unknown_weather">"不明な天気"</string>
+  <string name="language">"言語"</string>
+  <string name="language_system">"システム"</string>
+  <string name="untitled">"（無題）"</string>
+  <string name="starts_in">"開始まで%1$s"</string>
+  <string name="ends_in">"進行中 - 終了まで%1$s"</string>
+  <string name="duration_join">"%1$s%2$s"</string>
+  <string name="last_update">"最終更新：%1$s"</string>
+  <string name="calendar_failures">"更新できなかったカレンダー：%1$d"</string>
+  <string name="version_build">"バージョン：%1$s\nビルド：%2$d"</string>
+  <string name="author">"作者：Andrea Persano"</string>
+  <string name="choose_color">"色を選択：%1$s"</string>
+  <string name="hex_accessibility">"%1$s（HEX 形式）"</string>
+  <string name="language_name_en">"英語"</string>
+  <string name="language_name_it">"イタリア語"</string>
+  <string name="language_name_es">"スペイン語"</string>
+  <string name="language_name_pt">"ポルトガル語"</string>
+  <string name="language_name_fr">"フランス語"</string>
+  <string name="language_name_de">"ドイツ語"</string>
+  <string name="language_name_zh">"中国語（標準語）"</string>
+  <string name="language_name_ja">"日本語"</string>
+  <string name="language_name_ru">"ロシア語"</string>
+  <string name="theme_ivory_light">"アイボリーとティール - ライト"</string>
+  <string name="theme_ivory_dark">"アイボリーとティール - ダーク"</string>
+  <string name="theme_slate_light">"スレートとアズール - ライト"</string>
+  <string name="theme_slate_dark">"スレートとアズール - ダーク"</string>
+  <string name="theme_apricot_light">"アプリコットとタンジェリン - ライト"</string>
+  <string name="theme_apricot_dark">"アプリコットとタンジェリン - ダーク"</string>
+  <string name="theme_powder_light">"パウダーピンクとフクシア - ライト"</string>
+  <string name="theme_powder_dark">"パウダーピンクとフクシア - ダーク"</string>
+  <string name="theme_porcelain_light">"ポーセリンとチェリー - ライト"</string>
+  <string name="theme_porcelain_dark">"ポーセリンとチェリー - ダーク"</string>
+  <string name="theme_mint_light">"ミントとエメラルド - ライト"</string>
+  <string name="theme_mint_dark">"ミントとエメラルド - ダーク"</string>
+  <plurals name="minutes">
+    <item quantity="other">%d分</item>
+  </plurals>
+  <plurals name="hours">
+    <item quantity="other">%d時間</item>
+  </plurals>
+  <string-array name="wind_directions">
+    <item>北</item>
+    <item>北北東</item>
+    <item>北東</item>
+    <item>東北東</item>
+    <item>東</item>
+    <item>東南東</item>
+    <item>南東</item>
+    <item>南南東</item>
+    <item>南</item>
+    <item>南南西</item>
+    <item>南西</item>
+    <item>西南西</item>
+    <item>西</item>
+    <item>西北西</item>
+    <item>北西</item>
+    <item>北北西</item>
+  </string-array>
+  <string name="date_pattern">"yyyy年M月d日 EEEE"</string>
+  <string name="clock_date_pattern">"yyyy年M月d日 EEEE"</string>
+  <string name="back">"戻る"</string>
+  <string name="general">"一般"</string>
+  <string name="personalization">"カスタマイズ"</string>
+  <string name="date_time">"日付と時刻"</string>
+  <string name="time_format">"時刻の形式"</string>
+  <string name="hour_12">"12時間表示"</string>
+  <string name="hour_24">"24時間表示"</string>
+  <string name="date_format">"日付の形式"</string>
+  <string name="short_date_pattern">"yyyy年M月d日 EEE"</string>
+  <string name="edit">"編集"</string>
+  <string name="calendar_color">"色"</string>
+  <string name="edit_calendar">"カレンダーを編集"</string>
+  <string name="unsaved_changes">"未保存の変更"</string>
+  <string name="discard_settings_message">"設定を終了すると、未保存の変更は失われます。終了しますか？"</string>
+  <string name="exit">"終了"</string>
+    <string name="timewall_info">TimeWall 情報</string>
+    <string name="privacy">プライバシー</string>
+    <string name="licenses_credits">ライセンスとクレジット</string>
+    <string name="privacy_pending">プライバシーポリシーは準備中です。データ処理の分析後に本文とウェブリンクを追加します。</string>
+    <string name="credits_summary">気象データ：Open-Meteo 提供、CC BY 4.0。場所検索：GeoNames データを使用する Open-Meteo。以下は同梱フォントの著作権とライセンスです。システムの Roboto は Android が提供します。</string>
+    <string name="font_conversion_notice">Android 4.4 に対応するため、新しい可変フォントを静的な Regular フォントに変換しました。Raleway 派生フォントの内部名は TW Rale です。Roboto Slab は Apache 2.0、その他の同梱フォントは SIL OFL 1.1 です。</string>
+    <string name="licenses_unavailable">一部のライセンス表示を読み込めませんでした。</string>
+    <string name="original_assets_credit">天気アイコン、アプリアイコン、通知音：人工知能ツールを使用して TimeWall 用に作成されたリソースです。</string>
+    <string name="interface_icons_credit">FontAwesome Free：画面のボタンとメニュー用のアイコンフォント。SIL OFL 1.1。</string>
+</resources>

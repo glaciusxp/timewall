@@ -1,0 +1,206 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+  <string name="agenda">"日程"</string>
+  <string name="today">"今天"</string>
+  <string name="upcoming">"即将发生的活动"</string>
+  <string name="no_upcoming">"暂无后续活动"</string>
+  <string name="day_complete">"今天的活动已全部结束！"</string>
+  <string name="no_today">"今天没有活动"</string>
+  <string name="all_day">"全天"</string>
+  <string name="close">"关闭"</string>
+  <string name="schedule">"时间"</string>
+  <string name="description">"描述"</string>
+  <string name="location">"地点"</string>
+  <string name="unavailable">"不可用"</string>
+  <string name="calendar">"日历"</string>
+  <string name="created">"创建时间"</string>
+  <string name="add_calendar">"添加日历"</string>
+  <string name="refresh_calendars">"刷新日历"</string>
+  <string name="refreshing_calendars">"正在更新日历…"</string>
+  <string name="filter_events">"筛选活动"</string>
+  <string name="open_menu">"打开菜单"</string>
+  <string name="calendars">"日历"</string>
+  <string name="settings">"设置"</string>
+  <string name="about">"关于"</string>
+  <string name="theme">"主题"</string>
+  <string name="palette">"调色板"</string>
+  <string name="font">"字体"</string>
+  <string name="show_seconds">"显示时钟秒数"</string>
+  <string name="weather">"天气"</string>
+  <string name="cancel">"取消"</string>
+  <string name="save">"保存"</string>
+  <string name="font_failed">"此设备无法使用该字体，已恢复 Roboto。"</string>
+  <string name="font_invalid">"此设备无法使用所选字体。"</string>
+  <string name="background">"背景图片"</string>
+  <string name="choose_image">"选择图片"</string>
+  <string name="file_picker_unavailable">"文件选择器不可用"</string>
+  <string name="remove">"移除"</string>
+  <string name="loading_image">"正在加载图片…"</string>
+  <string name="image_failed">"无法打开图片"</string>
+  <string name="no_image">"未选择图片"</string>
+  <string name="selected_image">"已选图片"</string>
+  <string name="image_permission">"Android 未授予图片访问权限"</string>
+  <string name="version_unavailable">"版本信息不可用"</string>
+  <string name="filter_calendar">"按日历筛选"</string>
+  <string name="no_calendars">"尚未配置日历"</string>
+  <string name="apply">"应用"</string>
+  <string name="add">"添加"</string>
+  <string name="name">"名称"</string>
+  <string name="ical_address">"iCal 公开链接"</string>
+  <string name="google_calendar">"Google 日历"</string>
+  <string name="invalid_calendar_url">"请输入公开的 HTTPS iCal 链接"</string>
+  <string name="duplicate_calendar">"此日历已配置"</string>
+  <string name="calendar_config_error">"日历配置不完整"</string>
+  <string name="refresh_weather">"刷新天气"</string>
+  <string name="weather_unavailable">"天气信息不可用"</string>
+  <string name="loading_weather">"正在加载天气…"</string>
+  <string name="refresh_failed">"上次更新失败"</string>
+  <string name="refreshing">"正在更新…"</string>
+  <string name="weather_enable">"天气显示"</string>
+  <string name="enable_show">"启用并显示"</string>
+  <string name="place">"位置"</string>
+  <string name="no_place">"未选择位置"</string>
+  <string name="search_place">"搜索位置"</string>
+  <string name="temperature_unit">"温度单位"</string>
+  <string name="celsius">"摄氏度（°C）"</string>
+  <string name="fahrenheit">"华氏度（°F）"</string>
+  <string name="refresh_frequency">"更新频率"</string>
+  <string name="frequency_15">"15 分钟"</string>
+  <string name="frequency_30">"30 分钟"</string>
+  <string name="frequency_60">"1 小时"</string>
+  <string name="frequency_120">"2 小时"</string>
+  <string name="provider">"天气提供方：Open-Meteo · 位置：GeoNames"</string>
+  <string name="select_place">"请从结果中选择位置"</string>
+  <string name="searching">"正在搜索…"</string>
+  <string name="search_unavailable">"搜索不可用"</string>
+  <string name="no_results">"未找到位置"</string>
+  <string name="primary_color">"主色"</string>
+  <string name="background_color">"面板背景"</string>
+  <string name="card_color">"普通活动卡片"</string>
+  <string name="highlight_color">"突出显示的活动背景"</string>
+  <string name="primary_text">"主要文本"</string>
+  <string name="secondary_text">"次要文本"</string>
+  <string name="clock_color">"时钟颜色"</string>
+  <string name="date_color">"日期颜色"</string>
+  <string name="hex_invalid">"请使用 #RRGGBB 或 #AARRGGBB"</string>
+  <string name="use_color">"使用颜色"</string>
+  <string name="red">"红色"</string>
+  <string name="green">"绿色"</string>
+  <string name="blue">"蓝色"</string>
+  <string name="purple">"紫色"</string>
+  <string name="orange">"橙色"</string>
+  <string name="yellow">"黄色"</string>
+  <string name="sky_blue">"天蓝色"</string>
+  <string name="white">"白色"</string>
+  <string name="gray">"灰色"</string>
+  <string name="fuchsia">"品红色"</string>
+  <string name="lime">"青柠色"</string>
+  <string name="brown">"棕色"</string>
+  <string name="opacity">"不透明度"</string>
+  <string name="default_font">"Roboto（默认）"</string>
+  <string name="custom_theme">"自定义"</string>
+  <string name="clear">"晴朗"</string>
+  <string name="mainly_clear">"大部晴朗"</string>
+  <string name="partly_cloudy">"局部多云"</string>
+  <string name="overcast">"阴天"</string>
+  <string name="fog">"雾"</string>
+  <string name="rime_fog">"雾凇"</string>
+  <string name="drizzle">"毛毛雨"</string>
+  <string name="freezing_drizzle">"冻毛毛雨"</string>
+  <string name="rain">"雨"</string>
+  <string name="heavy_rain">"大雨"</string>
+  <string name="freezing_rain">"冻雨"</string>
+  <string name="heavy_freezing_rain">"强冻雨"</string>
+  <string name="snow">"雪"</string>
+  <string name="snow_grains">"米雪"</string>
+  <string name="rain_showers">"阵雨"</string>
+  <string name="heavy_showers">"强阵雨"</string>
+  <string name="snow_showers">"阵雪"</string>
+  <string name="thunderstorm">"雷暴"</string>
+  <string name="heavy_thunderstorm">"强雷暴"</string>
+  <string name="thunderstorm_hail">"雷暴伴冰雹"</string>
+  <string name="unknown_weather">"未知天气状况"</string>
+  <string name="language">"语言"</string>
+  <string name="language_system">"跟随系统"</string>
+  <string name="untitled">"（无标题）"</string>
+  <string name="starts_in">"%1$s后开始"</string>
+  <string name="ends_in">"进行中 - %1$s后结束"</string>
+  <string name="duration_join">"%1$s%2$s"</string>
+  <string name="last_update">"上次更新：%1$s"</string>
+  <string name="calendar_failures">"未更新的日历：%1$d"</string>
+  <string name="version_build">"版本：%1$s\n构建：%2$d"</string>
+  <string name="author">"作者：Andrea Persano"</string>
+  <string name="choose_color">"选择颜色：%1$s"</string>
+  <string name="hex_accessibility">"%1$s，十六进制格式"</string>
+  <string name="language_name_en">"英语"</string>
+  <string name="language_name_it">"意大利语"</string>
+  <string name="language_name_es">"西班牙语"</string>
+  <string name="language_name_pt">"葡萄牙语"</string>
+  <string name="language_name_fr">"法语"</string>
+  <string name="language_name_de">"德语"</string>
+  <string name="language_name_zh">"中文（普通话）"</string>
+  <string name="language_name_ja">"日语"</string>
+  <string name="language_name_ru">"俄语"</string>
+  <string name="theme_ivory_light">"象牙白与蓝绿 - 浅色"</string>
+  <string name="theme_ivory_dark">"象牙白与蓝绿 - 深色"</string>
+  <string name="theme_slate_light">"石板灰与天蓝 - 浅色"</string>
+  <string name="theme_slate_dark">"石板灰与天蓝 - 深色"</string>
+  <string name="theme_apricot_light">"杏色与橘色 - 浅色"</string>
+  <string name="theme_apricot_dark">"杏色与橘色 - 深色"</string>
+  <string name="theme_powder_light">"浅粉与品红 - 浅色"</string>
+  <string name="theme_powder_dark">"浅粉与品红 - 深色"</string>
+  <string name="theme_porcelain_light">"瓷白与樱桃红 - 浅色"</string>
+  <string name="theme_porcelain_dark">"瓷白与樱桃红 - 深色"</string>
+  <string name="theme_mint_light">"薄荷与翡翠绿 - 浅色"</string>
+  <string name="theme_mint_dark">"薄荷与翡翠绿 - 深色"</string>
+  <plurals name="minutes">
+    <item quantity="other">%d分钟</item>
+  </plurals>
+  <plurals name="hours">
+    <item quantity="other">%d小时</item>
+  </plurals>
+  <string-array name="wind_directions">
+    <item>北</item>
+    <item>北北东</item>
+    <item>东北</item>
+    <item>东北东</item>
+    <item>东</item>
+    <item>东南东</item>
+    <item>东南</item>
+    <item>南南东</item>
+    <item>南</item>
+    <item>南南西</item>
+    <item>西南</item>
+    <item>西南西</item>
+    <item>西</item>
+    <item>西北西</item>
+    <item>西北</item>
+    <item>北北西</item>
+  </string-array>
+  <string name="date_pattern">"yyyy年M月d日 EEEE"</string>
+  <string name="clock_date_pattern">"yyyy年M月d日 EEEE"</string>
+  <string name="back">"返回"</string>
+  <string name="general">"常规"</string>
+  <string name="personalization">"个性化"</string>
+  <string name="date_time">"日期和时间"</string>
+  <string name="time_format">"时间格式"</string>
+  <string name="hour_12">"12 小时制"</string>
+  <string name="hour_24">"24 小时制"</string>
+  <string name="date_format">"日期格式"</string>
+  <string name="short_date_pattern">"yyyy年M月d日 EEE"</string>
+  <string name="edit">"编辑"</string>
+  <string name="calendar_color">"颜色"</string>
+  <string name="edit_calendar">"编辑日历"</string>
+  <string name="unsaved_changes">"未保存的更改"</string>
+  <string name="discard_settings_message">"退出设置将丢失未保存的更改。是否退出？"</string>
+  <string name="exit">"退出"</string>
+    <string name="timewall_info">TimeWall 信息</string>
+    <string name="privacy">隐私</string>
+    <string name="licenses_credits">许可和致谢</string>
+    <string name="privacy_pending">隐私政策正在准备中。完成数据处理分析后，将添加正文和网站链接。</string>
+    <string name="credits_summary">天气数据由 Open-Meteo 提供，采用 CC BY 4.0 许可。地点搜索由 Open-Meteo 提供，使用 GeoNames 数据。以下是所含字体的版权和许可；系统 Roboto 由 Android 提供。</string>
+    <string name="font_conversion_notice">为兼容 Android 4.4，新增的可变字体已转换为静态 Regular 字体。Raleway 衍生字体的内部名称为 TW Rale。Roboto Slab 使用 Apache 2.0；其他所含字体使用 SIL OFL 1.1。</string>
+    <string name="licenses_unavailable">部分许可声明无法加载。</string>
+    <string name="original_assets_credit">天气图标、应用图标和通知音：使用人工智能工具为 TimeWall 创建的资源。</string>
+    <string name="interface_icons_credit">FontAwesome Free：界面按钮和菜单的图标字体，采用 SIL OFL 1.1 许可。</string>
+</resources>

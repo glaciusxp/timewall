@@ -1,0 +1,208 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+  <string name="agenda">"Agenda"</string>
+  <string name="today">"Heute"</string>
+  <string name="upcoming">"Anstehende Termine"</string>
+  <string name="no_upcoming">"Keine anstehenden Termine"</string>
+  <string name="day_complete">"Das war’s für heute!"</string>
+  <string name="no_today">"Heute keine Termine"</string>
+  <string name="all_day">"Ganztägig"</string>
+  <string name="close">"Schließen"</string>
+  <string name="schedule">"Uhrzeit"</string>
+  <string name="description">"Beschreibung"</string>
+  <string name="location">"Ort"</string>
+  <string name="unavailable">"Nicht verfügbar"</string>
+  <string name="calendar">"Kalender"</string>
+  <string name="created">"Erstellt am"</string>
+  <string name="add_calendar">"Kalender hinzufügen"</string>
+  <string name="refresh_calendars">"Kalender aktualisieren"</string>
+  <string name="refreshing_calendars">"Kalender werden aktualisiert…"</string>
+  <string name="filter_events">"Termine filtern"</string>
+  <string name="open_menu">"Menü öffnen"</string>
+  <string name="calendars">"Kalender"</string>
+  <string name="settings">"Einstellungen"</string>
+  <string name="about">"Info"</string>
+  <string name="theme">"Design"</string>
+  <string name="palette">"Farbpalette"</string>
+  <string name="font">"Schriftart"</string>
+  <string name="show_seconds">"Sekunden auf der Uhr anzeigen"</string>
+  <string name="weather">"Wetter"</string>
+  <string name="cancel">"Abbrechen"</string>
+  <string name="save">"Speichern"</string>
+  <string name="font_failed">"Schriftart auf diesem Gerät nicht verfügbar. Roboto wurde wiederhergestellt."</string>
+  <string name="font_invalid">"Die gewählte Schriftart ist auf diesem Gerät nicht verfügbar."</string>
+  <string name="background">"Hintergrundbild"</string>
+  <string name="choose_image">"Bild auswählen"</string>
+  <string name="file_picker_unavailable">"Dateiauswahl nicht verfügbar"</string>
+  <string name="remove">"Entfernen"</string>
+  <string name="loading_image">"Bild wird geladen…"</string>
+  <string name="image_failed">"Bild kann nicht geöffnet werden"</string>
+  <string name="no_image">"Kein Bild"</string>
+  <string name="selected_image">"Ausgewähltes Bild"</string>
+  <string name="image_permission">"Android hat keinen Zugriff auf das Bild gewährt"</string>
+  <string name="version_unavailable">"Versionsinformationen nicht verfügbar"</string>
+  <string name="filter_calendar">"Nach Kalender filtern"</string>
+  <string name="no_calendars">"Keine Kalender eingerichtet"</string>
+  <string name="apply">"Anwenden"</string>
+  <string name="add">"Hinzufügen"</string>
+  <string name="name">"Name"</string>
+  <string name="ical_address">"Öffentliche iCal-URL"</string>
+  <string name="google_calendar">"Google Kalender"</string>
+  <string name="invalid_calendar_url">"Eine öffentliche HTTPS-iCal-URL eingeben"</string>
+  <string name="duplicate_calendar">"Kalender bereits eingerichtet"</string>
+  <string name="calendar_config_error">"Kalenderkonfiguration unvollständig"</string>
+  <string name="refresh_weather">"Wetter aktualisieren"</string>
+  <string name="weather_unavailable">"Wetter nicht verfügbar"</string>
+  <string name="loading_weather">"Wetter wird geladen…"</string>
+  <string name="refresh_failed">"Letzte Aktualisierung fehlgeschlagen"</string>
+  <string name="refreshing">"Aktualisierung läuft…"</string>
+  <string name="weather_enable">"Wetteranzeige"</string>
+  <string name="enable_show">"Aktivieren und anzeigen"</string>
+  <string name="place">"Ort"</string>
+  <string name="no_place">"Kein Ort ausgewählt"</string>
+  <string name="search_place">"Ort suchen"</string>
+  <string name="temperature_unit">"Temperatureinheit"</string>
+  <string name="celsius">"Grad Celsius (°C)"</string>
+  <string name="fahrenheit">"Grad Fahrenheit (°F)"</string>
+  <string name="refresh_frequency">"Aktualisierungsintervall"</string>
+  <string name="frequency_15">"15 Minuten"</string>
+  <string name="frequency_30">"30 Minuten"</string>
+  <string name="frequency_60">"1 Stunde"</string>
+  <string name="frequency_120">"2 Stunden"</string>
+  <string name="provider">"Anbieter: Open-Meteo · Orte: GeoNames"</string>
+  <string name="select_place">"Einen Ort aus den Ergebnissen auswählen"</string>
+  <string name="searching">"Suche läuft…"</string>
+  <string name="search_unavailable">"Suche nicht verfügbar"</string>
+  <string name="no_results">"Keine Orte gefunden"</string>
+  <string name="primary_color">"Hauptfarbe"</string>
+  <string name="background_color">"Dashboard-Hintergrund"</string>
+  <string name="card_color">"Normale Terminkarten"</string>
+  <string name="highlight_color">"Hintergrund hervorgehobener Termine"</string>
+  <string name="primary_text">"Haupttext"</string>
+  <string name="secondary_text">"Sekundärtext"</string>
+  <string name="clock_color">"Uhrzeitfarbe"</string>
+  <string name="date_color">"Datumsfarbe"</string>
+  <string name="hex_invalid">"#RRGGBB oder #AARRGGBB verwenden"</string>
+  <string name="use_color">"Farbe verwenden"</string>
+  <string name="red">"Rot"</string>
+  <string name="green">"Grün"</string>
+  <string name="blue">"Blau"</string>
+  <string name="purple">"Violett"</string>
+  <string name="orange">"Orange"</string>
+  <string name="yellow">"Gelb"</string>
+  <string name="sky_blue">"Himmelblau"</string>
+  <string name="white">"Weiß"</string>
+  <string name="gray">"Grau"</string>
+  <string name="fuchsia">"Fuchsia"</string>
+  <string name="lime">"Limettengrün"</string>
+  <string name="brown">"Braun"</string>
+  <string name="opacity">"Deckkraft"</string>
+  <string name="default_font">"Roboto (Standard)"</string>
+  <string name="custom_theme">"Benutzerdefiniert"</string>
+  <string name="clear">"Klar"</string>
+  <string name="mainly_clear">"Überwiegend klar"</string>
+  <string name="partly_cloudy">"Teilweise bewölkt"</string>
+  <string name="overcast">"Bedeckt"</string>
+  <string name="fog">"Nebel"</string>
+  <string name="rime_fog">"Nebel mit Reifbildung"</string>
+  <string name="drizzle">"Nieselregen"</string>
+  <string name="freezing_drizzle">"Gefrierender Nieselregen"</string>
+  <string name="rain">"Regen"</string>
+  <string name="heavy_rain">"Starker Regen"</string>
+  <string name="freezing_rain">"Gefrierender Regen"</string>
+  <string name="heavy_freezing_rain">"Starker gefrierender Regen"</string>
+  <string name="snow">"Schneefall"</string>
+  <string name="snow_grains">"Schneegriesel"</string>
+  <string name="rain_showers">"Regenschauer"</string>
+  <string name="heavy_showers">"Starke Regenschauer"</string>
+  <string name="snow_showers">"Schneeschauer"</string>
+  <string name="thunderstorm">"Gewitter"</string>
+  <string name="heavy_thunderstorm">"Starkes Gewitter"</string>
+  <string name="thunderstorm_hail">"Gewitter mit Hagel"</string>
+  <string name="unknown_weather">"Unbekannte Wetterlage"</string>
+  <string name="language">"Sprache"</string>
+  <string name="language_system">"System"</string>
+  <string name="untitled">"(Ohne Titel)"</string>
+  <string name="starts_in">"Beginnt in %1$s"</string>
+  <string name="ends_in">"Läuft - Endet in %1$s"</string>
+  <string name="duration_join">"%1$s und %2$s"</string>
+  <string name="last_update">"Zuletzt aktualisiert: %1$s"</string>
+  <string name="calendar_failures">"Nicht aktualisierte Kalender: %1$d"</string>
+  <string name="version_build">"Version: %1$s\nBuild: %2$d"</string>
+  <string name="author">"Autor: Andrea Persano"</string>
+  <string name="choose_color">"Farbe auswählen: %1$s"</string>
+  <string name="hex_accessibility">"%1$s im HEX-Format"</string>
+  <string name="language_name_en">"Englisch"</string>
+  <string name="language_name_it">"Italienisch"</string>
+  <string name="language_name_es">"Spanisch"</string>
+  <string name="language_name_pt">"Portugiesisch"</string>
+  <string name="language_name_fr">"Französisch"</string>
+  <string name="language_name_de">"Deutsch"</string>
+  <string name="language_name_zh">"Chinesisch (Mandarin)"</string>
+  <string name="language_name_ja">"Japanisch"</string>
+  <string name="language_name_ru">"Russisch"</string>
+  <string name="theme_ivory_light">"Elfenbein und Petrol - Hell"</string>
+  <string name="theme_ivory_dark">"Elfenbein und Petrol - Dunkel"</string>
+  <string name="theme_slate_light">"Schiefer und Azur - Hell"</string>
+  <string name="theme_slate_dark">"Schiefer und Azur - Dunkel"</string>
+  <string name="theme_apricot_light">"Aprikose und Mandarine - Hell"</string>
+  <string name="theme_apricot_dark">"Aprikose und Mandarine - Dunkel"</string>
+  <string name="theme_powder_light">"Puderrosa und Fuchsia - Hell"</string>
+  <string name="theme_powder_dark">"Puderrosa und Fuchsia - Dunkel"</string>
+  <string name="theme_porcelain_light">"Porzellan und Kirsche - Hell"</string>
+  <string name="theme_porcelain_dark">"Porzellan und Kirsche - Dunkel"</string>
+  <string name="theme_mint_light">"Minze und Smaragd - Hell"</string>
+  <string name="theme_mint_dark">"Minze und Smaragd - Dunkel"</string>
+  <plurals name="minutes">
+    <item quantity="one">%d Minute</item>
+    <item quantity="other">%d Minuten</item>
+  </plurals>
+  <plurals name="hours">
+    <item quantity="one">%d Stunde</item>
+    <item quantity="other">%d Stunden</item>
+  </plurals>
+  <string-array name="wind_directions">
+    <item>N</item>
+    <item>NNO</item>
+    <item>NO</item>
+    <item>ONO</item>
+    <item>O</item>
+    <item>OSO</item>
+    <item>SO</item>
+    <item>SSO</item>
+    <item>S</item>
+    <item>SSW</item>
+    <item>SW</item>
+    <item>WSW</item>
+    <item>W</item>
+    <item>WNW</item>
+    <item>NW</item>
+    <item>NNW</item>
+  </string-array>
+  <string name="date_pattern">"EEEE, d. MMMM yyyy"</string>
+  <string name="clock_date_pattern">"EEEE, d. MMMM yyyy"</string>
+  <string name="back">"Zurück"</string>
+  <string name="general">"Allgemein"</string>
+  <string name="personalization">"Personalisierung"</string>
+  <string name="date_time">"Datum/Uhrzeit"</string>
+  <string name="time_format">"Uhrzeitformat"</string>
+  <string name="hour_12">"12 Stunden"</string>
+  <string name="hour_24">"24 Stunden"</string>
+  <string name="date_format">"Datumsformat"</string>
+  <string name="short_date_pattern">"EEE, d. MMM yyyy"</string>
+  <string name="edit">"Bearbeiten"</string>
+  <string name="calendar_color">"Farbe"</string>
+  <string name="edit_calendar">"Kalender bearbeiten"</string>
+  <string name="unsaved_changes">"Ungespeicherte Änderungen"</string>
+  <string name="discard_settings_message">"Beim Verlassen der Einstellungen gehen ungespeicherte Änderungen verloren. Möchten Sie die Einstellungen verlassen?"</string>
+  <string name="exit">"Verlassen"</string>
+    <string name="timewall_info">TimeWall-Info</string>
+    <string name="privacy">Datenschutz</string>
+    <string name="licenses_credits">Lizenzen und Danksagungen</string>
+    <string name="privacy_pending">Die Datenschutzerklärung wird vorbereitet. Text und Weblink werden nach der Analyse der Datenverarbeitung ergänzt.</string>
+    <string name="credits_summary">Wetterdaten von Open-Meteo — CC BY 4.0. Ortssuche: Open-Meteo mit GeoNames-Daten. Es folgen Urheberrechtshinweise und Lizenzen der enthaltenen Schriften; die Systemschrift Roboto stammt von Android.</string>
+    <string name="font_conversion_notice">Die neuen variablen Schriften wurden für Android 4.4 in statische Regular-Versionen umgewandelt. Die Raleway-Ableitung heißt intern TW Rale. Roboto Slab: Apache 2.0; die anderen enthaltenen Schriften: SIL OFL 1.1.</string>
+    <string name="licenses_unavailable">Einige Lizenzhinweise konnten nicht geladen werden.</string>
+    <string name="original_assets_credit">Wettersymbole, App-Symbol und Benachrichtigungston: für TimeWall mit Werkzeugen der künstlichen Intelligenz erstellte Ressourcen.</string>
+    <string name="interface_icons_credit">FontAwesome Free — Symbolschrift für Schaltflächen und Menüs der Benutzeroberfläche — SIL OFL 1.1.</string>
+</resources>

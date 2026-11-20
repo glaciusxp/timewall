@@ -1,0 +1,212 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+  <string name="agenda">"Повестка"</string>
+  <string name="today">"Сегодня"</string>
+  <string name="upcoming">"Предстоящие события"</string>
+  <string name="no_upcoming">"Нет предстоящих событий"</string>
+  <string name="day_complete">"На сегодня всё!"</string>
+  <string name="no_today">"Сегодня нет событий"</string>
+  <string name="all_day">"Весь день"</string>
+  <string name="close">"Закрыть"</string>
+  <string name="schedule">"Время"</string>
+  <string name="description">"Описание"</string>
+  <string name="location">"Место"</string>
+  <string name="unavailable">"Недоступно"</string>
+  <string name="calendar">"Календарь"</string>
+  <string name="created">"Дата создания"</string>
+  <string name="add_calendar">"Добавить календарь"</string>
+  <string name="refresh_calendars">"Обновить календари"</string>
+  <string name="refreshing_calendars">"Обновление календарей…"</string>
+  <string name="filter_events">"Фильтр событий"</string>
+  <string name="open_menu">"Открыть меню"</string>
+  <string name="calendars">"Календари"</string>
+  <string name="settings">"Настройки"</string>
+  <string name="about">"О приложении"</string>
+  <string name="theme">"Тема"</string>
+  <string name="palette">"Цветовая палитра"</string>
+  <string name="font">"Шрифт"</string>
+  <string name="show_seconds">"Показывать секунды на часах"</string>
+  <string name="weather">"Погода"</string>
+  <string name="cancel">"Отмена"</string>
+  <string name="save">"Сохранить"</string>
+  <string name="font_failed">"Шрифт недоступен на этом устройстве. Восстановлен Roboto."</string>
+  <string name="font_invalid">"Выбранный шрифт недоступен на этом устройстве."</string>
+  <string name="background">"Фоновое изображение"</string>
+  <string name="choose_image">"Выбрать изображение"</string>
+  <string name="file_picker_unavailable">"Выбор файлов недоступен"</string>
+  <string name="remove">"Удалить"</string>
+  <string name="loading_image">"Загрузка изображения…"</string>
+  <string name="image_failed">"Не удалось открыть изображение"</string>
+  <string name="no_image">"Нет изображения"</string>
+  <string name="selected_image">"Выбранное изображение"</string>
+  <string name="image_permission">"Android не предоставил доступ к изображению"</string>
+  <string name="version_unavailable">"Информация о версии недоступна"</string>
+  <string name="filter_calendar">"Фильтр по календарю"</string>
+  <string name="no_calendars">"Календари не настроены"</string>
+  <string name="apply">"Применить"</string>
+  <string name="add">"Добавить"</string>
+  <string name="name">"Название"</string>
+  <string name="ical_address">"Публичный URL iCal"</string>
+  <string name="google_calendar">"Google Календарь"</string>
+  <string name="invalid_calendar_url">"Введите публичную HTTPS-ссылку iCal"</string>
+  <string name="duplicate_calendar">"Календарь уже настроен"</string>
+  <string name="calendar_config_error">"Настройка календарей не завершена"</string>
+  <string name="refresh_weather">"Обновить погоду"</string>
+  <string name="weather_unavailable">"Погода недоступна"</string>
+  <string name="loading_weather">"Загрузка погоды…"</string>
+  <string name="refresh_failed">"Последнее обновление не удалось"</string>
+  <string name="refreshing">"Обновление…"</string>
+  <string name="weather_enable">"Отображение погоды"</string>
+  <string name="enable_show">"Включить и показывать"</string>
+  <string name="place">"Населённый пункт"</string>
+  <string name="no_place">"Населённый пункт не выбран"</string>
+  <string name="search_place">"Найти населённый пункт"</string>
+  <string name="temperature_unit">"Единица температуры"</string>
+  <string name="celsius">"Градусы Цельсия (°C)"</string>
+  <string name="fahrenheit">"Градусы Фаренгейта (°F)"</string>
+  <string name="refresh_frequency">"Частота обновления"</string>
+  <string name="frequency_15">"15 минут"</string>
+  <string name="frequency_30">"30 минут"</string>
+  <string name="frequency_60">"1 час"</string>
+  <string name="frequency_120">"2 часа"</string>
+  <string name="provider">"Поставщик: Open-Meteo · Населённые пункты: GeoNames"</string>
+  <string name="select_place">"Выберите населённый пункт из результатов"</string>
+  <string name="searching">"Поиск…"</string>
+  <string name="search_unavailable">"Поиск недоступен"</string>
+  <string name="no_results">"Населённые пункты не найдены"</string>
+  <string name="primary_color">"Основной цвет"</string>
+  <string name="background_color">"Фон панели"</string>
+  <string name="card_color">"Обычные карточки событий"</string>
+  <string name="highlight_color">"Фон выделенного события"</string>
+  <string name="primary_text">"Основной текст"</string>
+  <string name="secondary_text">"Второстепенный текст"</string>
+  <string name="clock_color">"Цвет часов"</string>
+  <string name="date_color">"Цвет даты"</string>
+  <string name="hex_invalid">"Используйте #RRGGBB или #AARRGGBB"</string>
+  <string name="use_color">"Использовать цвет"</string>
+  <string name="red">"Красный"</string>
+  <string name="green">"Зелёный"</string>
+  <string name="blue">"Синий"</string>
+  <string name="purple">"Фиолетовый"</string>
+  <string name="orange">"Оранжевый"</string>
+  <string name="yellow">"Жёлтый"</string>
+  <string name="sky_blue">"Голубой"</string>
+  <string name="white">"Белый"</string>
+  <string name="gray">"Серый"</string>
+  <string name="fuchsia">"Фуксия"</string>
+  <string name="lime">"Лаймовый"</string>
+  <string name="brown">"Коричневый"</string>
+  <string name="opacity">"Непрозрачность"</string>
+  <string name="default_font">"Roboto (по умолчанию)"</string>
+  <string name="custom_theme">"Пользовательская"</string>
+  <string name="clear">"Ясно"</string>
+  <string name="mainly_clear">"Преимущественно ясно"</string>
+  <string name="partly_cloudy">"Переменная облачность"</string>
+  <string name="overcast">"Пасмурно"</string>
+  <string name="fog">"Туман"</string>
+  <string name="rime_fog">"Туман с изморозью"</string>
+  <string name="drizzle">"Морось"</string>
+  <string name="freezing_drizzle">"Переохлаждённая морось"</string>
+  <string name="rain">"Дождь"</string>
+  <string name="heavy_rain">"Сильный дождь"</string>
+  <string name="freezing_rain">"Ледяной дождь"</string>
+  <string name="heavy_freezing_rain">"Сильный ледяной дождь"</string>
+  <string name="snow">"Снег"</string>
+  <string name="snow_grains">"Снежные зёрна"</string>
+  <string name="rain_showers">"Ливневый дождь"</string>
+  <string name="heavy_showers">"Сильный ливень"</string>
+  <string name="snow_showers">"Снегопад"</string>
+  <string name="thunderstorm">"Гроза"</string>
+  <string name="heavy_thunderstorm">"Сильная гроза"</string>
+  <string name="thunderstorm_hail">"Гроза с градом"</string>
+  <string name="unknown_weather">"Неизвестные погодные условия"</string>
+  <string name="language">"Язык"</string>
+  <string name="language_system">"Системный"</string>
+  <string name="untitled">"(Без названия)"</string>
+  <string name="starts_in">"Начнётся через %1$s"</string>
+  <string name="ends_in">"Идёт - Завершится через %1$s"</string>
+  <string name="duration_join">"%1$s и %2$s"</string>
+  <string name="last_update">"Обновлено: %1$s"</string>
+  <string name="calendar_failures">"Не обновлено календарей: %1$d"</string>
+  <string name="version_build">"Версия: %1$s\nСборка: %2$d"</string>
+  <string name="author">"Автор: Andrea Persano"</string>
+  <string name="choose_color">"Выбрать цвет: %1$s"</string>
+  <string name="hex_accessibility">"%1$s в формате HEX"</string>
+  <string name="language_name_en">"Английский"</string>
+  <string name="language_name_it">"Итальянский"</string>
+  <string name="language_name_es">"Испанский"</string>
+  <string name="language_name_pt">"Португальский"</string>
+  <string name="language_name_fr">"Французский"</string>
+  <string name="language_name_de">"Немецкий"</string>
+  <string name="language_name_zh">"Китайский (мандаринский)"</string>
+  <string name="language_name_ja">"Японский"</string>
+  <string name="language_name_ru">"Русский"</string>
+  <string name="theme_ivory_light">"Слоновая кость и петроль - Светлая"</string>
+  <string name="theme_ivory_dark">"Слоновая кость и петроль - Тёмная"</string>
+  <string name="theme_slate_light">"Сланец и лазурь - Светлая"</string>
+  <string name="theme_slate_dark">"Сланец и лазурь - Тёмная"</string>
+  <string name="theme_apricot_light">"Абрикос и мандарин - Светлая"</string>
+  <string name="theme_apricot_dark">"Абрикос и мандарин - Тёмная"</string>
+  <string name="theme_powder_light">"Пудровый розовый и фуксия - Светлая"</string>
+  <string name="theme_powder_dark">"Пудровый розовый и фуксия - Тёмная"</string>
+  <string name="theme_porcelain_light">"Фарфор и вишня - Светлая"</string>
+  <string name="theme_porcelain_dark">"Фарфор и вишня - Тёмная"</string>
+  <string name="theme_mint_light">"Мята и изумруд - Светлая"</string>
+  <string name="theme_mint_dark">"Мята и изумруд - Тёмная"</string>
+  <plurals name="minutes">
+    <item quantity="one">%d минуту</item>
+    <item quantity="few">%d минуты</item>
+    <item quantity="many">%d минут</item>
+    <item quantity="other">%d минуты</item>
+  </plurals>
+  <plurals name="hours">
+    <item quantity="one">%d час</item>
+    <item quantity="few">%d часа</item>
+    <item quantity="many">%d часов</item>
+    <item quantity="other">%d часа</item>
+  </plurals>
+  <string-array name="wind_directions">
+    <item>С</item>
+    <item>ССВ</item>
+    <item>СВ</item>
+    <item>ВСВ</item>
+    <item>В</item>
+    <item>ВЮВ</item>
+    <item>ЮВ</item>
+    <item>ЮЮВ</item>
+    <item>Ю</item>
+    <item>ЮЮЗ</item>
+    <item>ЮЗ</item>
+    <item>ЗЮЗ</item>
+    <item>З</item>
+    <item>ЗСЗ</item>
+    <item>СЗ</item>
+    <item>ССЗ</item>
+  </string-array>
+  <string name="date_pattern">"EEEE, d MMMM yyyy 'г.'"</string>
+  <string name="clock_date_pattern">"EEEE, d MMMM yyyy 'г.'"</string>
+  <string name="back">"Назад"</string>
+  <string name="general">"Общие"</string>
+  <string name="personalization">"Оформление"</string>
+  <string name="date_time">"Дата и время"</string>
+  <string name="time_format">"Формат времени"</string>
+  <string name="hour_12">"12 часов"</string>
+  <string name="hour_24">"24 часа"</string>
+  <string name="date_format">"Формат даты"</string>
+  <string name="short_date_pattern">"EEE, d MMM yyyy"</string>
+  <string name="edit">"Изменить"</string>
+  <string name="calendar_color">"Цвет"</string>
+  <string name="edit_calendar">"Изменить календарь"</string>
+  <string name="unsaved_changes">"Несохранённые изменения"</string>
+  <string name="discard_settings_message">"При выходе из настроек несохранённые изменения будут потеряны. Выйти?"</string>
+  <string name="exit">"Выйти"</string>
+    <string name="timewall_info">О TimeWall</string>
+    <string name="privacy">Конфиденциальность</string>
+    <string name="licenses_credits">Лицензии и благодарности</string>
+    <string name="privacy_pending">Политика конфиденциальности готовится. Текст и ссылка на сайт будут добавлены после анализа обработки данных.</string>
+    <string name="credits_summary">Данные о погоде предоставлены Open-Meteo — CC BY 4.0. Поиск мест: Open-Meteo с данными GeoNames. Ниже приведены авторские права и лицензии включённых шрифтов; системный Roboto предоставляется Android.</string>
+    <string name="font_conversion_notice">Для Android 4.4 новые вариативные шрифты преобразованы в статические версии Regular. Производный шрифт Raleway имеет внутреннее имя TW Rale. Roboto Slab: Apache 2.0; остальные включённые шрифты: SIL OFL 1.1.</string>
+    <string name="licenses_unavailable">Не удалось загрузить некоторые лицензионные уведомления.</string>
+    <string name="original_assets_credit">Значки погоды, значок приложения и звук уведомления: ресурсы, созданные для TimeWall с помощью инструментов искусственного интеллекта.</string>
+    <string name="interface_icons_credit">FontAwesome Free — шрифт значков кнопок и меню интерфейса — SIL OFL 1.1.</string>
+</resources>

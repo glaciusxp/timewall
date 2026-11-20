@@ -1,0 +1,55 @@
+plugins { id 'com.android.application' version '9.4.1' }
+
+android {
+    // This diagnostic project contains Java only.
+    enableKotlin = false
+    namespace 'it.timewall.diagnostics'
+    compileSdk { version = release(37) { minorApiLevel = 0 } }
+    buildToolsVersion '36.0.0'
+    defaultConfig {
+        applicationId 'it.timewall.diagnostics'
+        minSdk 19
+        targetSdk 28
+        versionCode 12
+        versionName '1.11'
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
+    androidResources { noCompress += ['ttf', 'otf'] }
+    signingConfigs {
+        release {
+            storeFile file(providers.environmentVariable('TIMEWALL_KEYSTORE').getOrElse('.signing/timewall.jks'))
+            storePassword providers.environmentVariable('TIMEWALL_STORE_PASSWORD').getOrElse('android')
+            keyAlias providers.environmentVariable('TIMEWALL_KEY_ALIAS').getOrElse('androiddebugkey')
+            keyPassword providers.environmentVariable('TIMEWALL_KEY_PASSWORD').getOrElse('android')
+            enableV1Signing true
+            enableV2Signing true
+        }
+    }
+    buildTypes { release { signingConfig signingConfigs.release; minifyEnabled false } }
+    testOptions { unitTests.returnDefaultValues = false }
+    lint { abortOnError true; disable 'ExpiredTargetSdkVersion', 'OldTargetApi', 'GradleDependency', 'ObsoleteSdkInt' }
+}
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20240303'
+}
+
+dependencyLocking { lockAllConfigurations() }
+
+configurations { javaFormatter { transitive = false } }
+dependencies { javaFormatter 'com.google.googlejavaformat:google-java-format:1.24.0:all-deps' }
+// Formatting is an opt-in mutation; check only reports differences.
+['formatJava': false, 'checkJavaFormat': true].each { taskName, checkOnly ->
+    tasks.register(taskName, Exec) {
+        group = 'verification'
+        description = checkOnly ? 'Verify AOSP Java formatting' : 'Apply AOSP Java formatting'
+        doFirst {
+            def args = ["${System.getProperty('java.home')}/bin/java", '-jar',
+                configurations.javaFormatter.singleFile.absolutePath, '--aosp']
+            args += checkOnly ? ['--dry-run', '--set-exit-if-changed'] : ['--replace']
+            args += fileTree('src').matching { include '**/*.java' }.files.collect { it.absolutePath }.sort()
+            commandLine args
+        }
+    }
+}
+tasks.named('check') { dependsOn 'checkJavaFormat' }

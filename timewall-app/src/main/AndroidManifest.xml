@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://schemas.android.com/apk/res/android ">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application android:label="TimeWall" android:icon="@mipmap/ic_launcher" android:allowBackup="false"
+        android:usesCleartextTraffic="false" android:enableOnBackInvokedCallback="true"
+        android:theme="@android:style/Theme.Holo.Light.NoActionBar">
+        <activity android:name="it.timewall.app.ui.dashboard.DashboardActivity" android:exported="true"
+            android:screenOrientation="landscape">
+            <!-- Temporary target-36 landscape compatibility; removed for target 37.
+                 See docs/android-compatibility.md before the next target upgrade. -->
+            <property android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true" />
+        </activity>
+        <activity-alias android:name="it.timewall.diagnostics.DashboardActivity" android:targetActivity="it.timewall.app.ui.dashboard.DashboardActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+    </application>
+</manifest>
