@@ -33,9 +33,25 @@ public class TodayEventsTest {
                 next = e(400, 500, false);
         TodayEvents t = new TodayEvents(Arrays.asList(day, active, next), 200);
         assertSame(active, t.active);
+        assertSame(active, t.featured);
         assertSame(next, t.next);
         assertEquals(300, t.nextChange);
         assertEquals(Arrays.asList(day), t.allDay);
+    }
+
+    @Test
+    public void nextEventOnlyBecomesFeaturedAtTheInclusiveThirtyMinuteBoundary() {
+        CalendarEvent next = e(3_600_000L, 4_000_000L, false);
+        long boundary = next.start - 1_800_000L;
+
+        TodayEvents before = new TodayEvents(Collections.singletonList(next), boundary - 1);
+        assertSame(next, before.next);
+        assertNull(before.featured);
+        assertEquals(boundary, before.nextChange);
+
+        TodayEvents atBoundary = new TodayEvents(Collections.singletonList(next), boundary);
+        assertSame(next, atBoundary.featured);
+        assertEquals(next.start, atBoundary.nextChange);
     }
 
     /** Verifica che l’istante di fine sia escluso dalla condizione di evento attivo. */

@@ -47,7 +47,6 @@
   <string name="add">"添加"</string>
   <string name="name">"名称"</string>
   <string name="ical_address">"iCal 公开链接"</string>
-  <string name="google_calendar">"Google 日历"</string>
   <string name="invalid_calendar_url">"请输入公开的 HTTPS iCal 链接"</string>
   <string name="duplicate_calendar">"此日历已配置"</string>
   <string name="calendar_config_error">"日历配置不完整"</string>
@@ -178,6 +177,7 @@
     <item>北北西</item>
   </string-array>
   <string name="date_pattern">"yyyy年M月d日 EEEE"</string>
+  <string name="tomorrow_date_pattern">"'明天，'yyyy年M月d日"</string>
   <string name="clock_date_pattern">"yyyy年M月d日 EEEE"</string>
   <string name="back">"返回"</string>
   <string name="general">"常规"</string>
@@ -197,7 +197,6 @@
     <string name="timewall_info">TimeWall 信息</string>
     <string name="privacy">隐私</string>
     <string name="licenses_credits">许可和致谢</string>
-    <string name="privacy_pending">隐私政策正在准备中。完成数据处理分析后，将添加正文和网站链接。</string>
     <string name="credits_summary">天气数据由 Open-Meteo 提供，采用 CC BY 4.0 许可。地点搜索由 Open-Meteo 提供，使用 GeoNames 数据。以下是所含字体的版权和许可；系统 Roboto 由 Android 提供。</string>
     <string name="font_conversion_notice">为兼容 Android 4.4，新增的可变字体已转换为静态 Regular 字体。Raleway 衍生字体的内部名称为 TW Rale。Roboto Slab 使用 Apache 2.0；其他所含字体使用 SIL OFL 1.1。</string>
     <string name="licenses_unavailable">部分许可声明无法加载。</string>
@@ -208,4 +207,20 @@
     <string name="calendar_cache_cleared">日历缓存已清空。正在更新日历…</string>
     <string name="calendar_cache_error">无法完全清空日历缓存。</string>
     <string name="clearing_calendar_cache">正在清空日历缓存…</string>
+    <string name="weather_attribution">天气数据：Open-Meteo · CC BY 4.0</string>
+    <string name="external_link_unavailable">没有可用于打开此链接的应用。</string>
+    <string name="privacy_identity">TimeWall 隐私说明\n数据控制者：%1$s\n联系方式：%2$s</string>
+    <string name="privacy_updated">更新日期：%1$s</string>
+    <string name="privacy_service">目的和法律依据\n数据处理用于提供您请求的日历面板和可选天气功能（GDPR 第 6 条第 1 款 b 项），并履行适用法律义务。TimeWall 无需账户，没有开发者后台，不使用广告、分析或画像，不进行具有法律效力的自动化决策。</string>
+    <string name="privacy_calendars">日历\n应用直接连接您配置的 HTTPS iCal 提供商。网址、名称、颜色及完整 iCal 文件保存在设备上；文件可能包含标题、时间、描述、地点、标识符、创建日期及其他个人数据。秘密网址可授予日历访问权限，请妥善保管，并仅访问获授权的日历。提供商可看到请求网址、连接 IP 和网络元数据，适用其隐私政策。</string>
+    <string name="privacy_weather">可选天气\n地点搜索和语言发送至 Open-Meteo 地理编码服务；天气请求使用您选择地点的坐标，不请求 GPS 位置。Open-Meteo 也可看到连接 IP，并声明可能包含坐标的 API 日志会在 90 天后删除。关闭天气会停止预报更新；在设置中主动搜索地点仍会联系 Open-Meteo。独立提供商可能在您所在国家或欧洲经济区以外处理数据，地点和保障措施请查阅其政策。</string>
+    <string name="privacy_local">本地设置和图片\n主题、字体、语言、筛选、时间格式和天气偏好保留在设备上。背景图片通过 Android 文件选择器读取，TimeWall 不会上传。只有在您主动联系数据控制者时，对方才会收到用于处理请求的电子邮件地址、消息等数据。</string>
+    <string name="privacy_retention">保留和删除\n成功更新后替换日历缓存；保存日历删除或网址更改时删除旧缓存。设置 → 日历 → 清空日历缓存会删除本地副本并重新下载，不删除配置。关闭天气会保留地点和选项。清除应用数据或卸载会删除私有存储，不会删除原始图片或提供商持有的数据。联系消息保留至处理请求及履行适用法律义务所需的时间。</string>
+    <string name="privacy_security">安全\n网络请求使用 HTTPS。本地文件和偏好依靠 Android 应用隔离，不提供额外的应用级加密。天气错误日志仅包含固定诊断类别。Android 备份已禁用。外部链接使用您选择的浏览器或邮件应用，并适用其政策。</string>
+    <string name="privacy_rights">您的权利\n在适用情况下，您可联系控制者请求访问、更正、删除、限制、数据可携带或反对处理，也可向意大利 Garante 或其他主管机关投诉。本地数据请使用设备功能管理，控制者无法远程访问。独立日历或天气提供商的数据应联系对应提供商。日历网址和天气地点均为可选，未提供时相应功能不可用。</string>
+    <string name="privacy_web_pending">公开隐私政策网址：待确定。</string>
+  <string name="no_calendars_configured">"尚未配置日历。添加日历"</string>
+  <string name="pro_future">Pro 功能 · 日后提供</string>
+  <string name="calendar_limit">最多可刷新 %1$d 个日历。</string>
+  <string name="background_blur">背景模糊：%1$s</string>
 </resources>

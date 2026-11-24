@@ -57,6 +57,7 @@ public final class DashboardWeather {
     private int refreshIndex;
     private int revision;
     private Future<?> forecastTask;
+    private final Runnable updateClockLayout;
 
     /**
      * Collega le viste del blocco meteo, ripristina località, unità e frequenza dalle preferenze e
@@ -75,6 +76,7 @@ public final class DashboardWeather {
      * @param precipitationAmountLabel label dei millimetri di precipitazione
      * @param lastUpdateLabel label dell’ultima rilevazione o dell’aggiornamento in corso
      * @param refreshButton pulsante di aggiornamento da collegare al controller
+     * @param updateClockLayout aggiornamento del layout dopo il cambio di visibilità del meteo
      */
     public DashboardWeather(
             Activity activity,
@@ -89,10 +91,12 @@ public final class DashboardWeather {
             TextView precipitationLabel,
             TextView precipitationAmountLabel,
             TextView lastUpdateLabel,
-            View refreshButton) {
+            View refreshButton,
+            Runnable updateClockLayout) {
         this.activity = activity;
         this.preferences = preferences;
         this.display = display;
+        this.updateClockLayout = updateClockLayout;
         this.refreshButton = refreshButton;
         refreshButton.setOnClickListener(view -> requestWeather());
         this.locationLabel = locationLabel;
@@ -242,7 +246,9 @@ public final class DashboardWeather {
      * richieste di rete.
      */
     private void render() {
-        display.setVisibility(enabled && place != null ? View.VISIBLE : View.GONE);
+        int visibility = enabled && place != null ? View.VISIBLE : View.GONE;
+        display.setVisibility(visibility);
+        updateClockLayout.run();
         if (!enabled || place == null) {
             return;
         }

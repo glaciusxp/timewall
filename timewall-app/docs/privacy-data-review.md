@@ -61,16 +61,16 @@ come titolare indipendente. Sono dichiarazioni del provider, non misure
 verificate sul server da TimeWall; non va quindi descritta la trasmissione come
 necessariamente effimera o limitata alla durata della richiesta.
 
-1. Confermare titolare del trattamento, recapito privacy e URL pubblico della
-   policy. L'autore indicato nell'app non definisce da solo tutti questi dati.
+1. Titolare e contatto confermati nella 0.101: Andrea Persano,
+   andreapersano@gmail.com. Resta da definire l'URL pubblico della policy.
 2. Durata/cancellazione cache: eliminazione a rimozione/cambio URL salvato e
    comando esplicito implementati nella 0.100. Restano da descrivere nella policy.
 3. Integrare le dichiarazioni Open-Meteo sopra riportate e verificare i
    trattamenti specifici dei provider iCal. Le pratiche di tutti i server
    configurabili non sono deducibili dal solo client; ricontrollare la policy
    Open-Meteo prima della pubblicazione.
-4. Redigere la policy descrivendo uso locale e richieste esterne; distinguere
-   posizione scelta manualmente da posizione effettivamente rilevata.
+4. Policy in-app disponibile dalla 0.101 nelle nove lingue: distingue uso locale,
+   richieste esterne e località scelta manualmente dalla posizione GPS non acquisita.
 5. Compilare separatamente Data safety secondo definizioni Google, valutando
    coordinate, query e traffico verso terzi, senza inferire automaticamente
    raccolta di posizione GPS o totale assenza di raccolta.
@@ -90,8 +90,8 @@ https://open-meteo.com/en/docs/geocoding-api
 
 ## Ambito dei crediti di questa build
 
-Info ora rende consultabili i crediti Open-Meteo e GeoNames, il font icone
+Info rende consultabili i crediti Open-Meteo e GeoNames, il font icone
 FontAwesome e tutte le licenze/metadata dei font presenti negli assets. Non
 attribuisce licenze inventate alle risorse grafiche e al suono preparati per il
-progetto. Non aggiunge ancora il credito vicino ai dati meteo della dashboard:
-quell'intervento resta nella checklist prima della pubblicazione.
+progetto. Dalla 0.101 il credito con link a Open-Meteo e CC BY 4.0 compare anche
+vicino ai dati meteo della dashboard.

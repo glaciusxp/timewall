@@ -15,6 +15,56 @@ import javax.xml.parsers.*;
 
 public class ResourcesTest {
     /**
+     * Ensures every localized credit retains its clickable brand/license labels and privacy contact
+     * placeholders.
+     */
+    @Test
+    public void privacyAndAttributionContractsHoldInEveryLanguage() throws Exception {
+        for (String folder :
+                new String[] {
+                    "values",
+                    "values-it",
+                    "values-es",
+                    "values-pt",
+                    "values-fr",
+                    "values-de",
+                    "values-zh",
+                    "values-ja",
+                    "values-ru"
+                }) {
+            Map<String, Element> resources = load(Paths.get("src/main/res", folder, "strings.xml"));
+            String credit = resources.get("string:weather_attribution").getTextContent();
+            for (String marker : new String[] {"Open-Meteo", "CC BY 4.0"}) {
+                assertTrue(folder, credit.contains(marker));
+                assertEquals(folder, credit.indexOf(marker), credit.lastIndexOf(marker));
+            }
+            String identity =
+                    String.format(
+                            java.util.Locale.ROOT,
+                            resources.get("string:privacy_identity").getTextContent(),
+                            PrivacyNotice.CONTROLLER,
+                            PrivacyNotice.CONTACT);
+            assertTrue(folder, identity.contains("Andrea Persano"));
+            assertTrue(folder, identity.contains("andreapersano@gmail.com"));
+            for (String key :
+                    new String[] {
+                        "privacy_service",
+                        "privacy_calendars",
+                        "privacy_weather",
+                        "privacy_local",
+                        "privacy_retention",
+                        "privacy_security",
+                        "privacy_rights",
+                        "privacy_web_pending"
+                    }) {
+                assertFalse(
+                        folder + " " + key,
+                        resources.get("string:" + key).getTextContent().trim().isEmpty());
+            }
+        }
+    }
+
+    /**
      * Rejects missing literal UI keys, including Info navigation, before they cause a runtime
      * failure.
      */
@@ -41,7 +91,7 @@ public class ResourcesTest {
                     "timewall_info",
                     "privacy",
                     "licenses_credits",
-                    "privacy_pending",
+                    "privacy_identity",
                     "credits_summary",
                     "font_conversion_notice",
                     "licenses_unavailable"
@@ -60,7 +110,12 @@ public class ResourcesTest {
             if (font.file.isEmpty()) continue;
             java.nio.ByteBuffer data =
                     java.nio.ByteBuffer.wrap(
-                            Files.readAllBytes(Paths.get("src/main/assets", font.file)));
+                            Files.readAllBytes(
+                                    Paths.get(
+                                            font.availableInFreeEdition()
+                                                    ? "src/main/assets"
+                                                    : "src/complete/assets",
+                                            font.file)));
             int signature = data.getInt();
             assertTrue(font.file, signature == 0x00010000 || signature == 0x4f54544f);
             int tables = data.getShort() & 0xffff;
@@ -134,7 +189,14 @@ public class ResourcesTest {
     public void allRuntimeFontsAndSourceWeatherIconsArePresent() {
         for (DashboardFont font : DashboardFont.values())
             if (!font.file.isEmpty())
-                assertTrue(font.file, Files.exists(Paths.get("src/main/assets", font.file)));
+                assertTrue(
+                        font.file,
+                        Files.exists(
+                                Paths.get(
+                                        font.availableInFreeEdition()
+                                                ? "src/main/assets"
+                                                : "src/complete/assets",
+                                        font.file)));
         for (String name :
                 new String[] {
                     "sole",

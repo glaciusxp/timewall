@@ -10,8 +10,8 @@ android {
         applicationId 'it.timewall.dashboard'
         minSdk 19
         targetSdk 36
-        versionCode 100
-        versionName '0.100'
+        versionCode 102
+        versionName '0.102'
     }
     compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
     androidResources { noCompress += ['ttf', 'otf'] }
@@ -25,9 +25,48 @@ android {
             enableV2Signing true
         }
     }
-    buildTypes { release { signingConfig signingConfigs.release; minifyEnabled false } }
+    buildFeatures { buildConfig = true }
+    flavorDimensions += 'edition'
+    productFlavors {
+        complete {
+            dimension 'edition'
+            buildConfigField 'int', 'CALENDAR_LIMIT', '20'
+            buildConfigField 'boolean', 'FREE', 'false'
+            buildConfigField 'boolean', 'PLAY_PREVIEW', 'false'
+        }
+        playFree {
+            dimension 'edition'
+            buildConfigField 'int', 'CALENDAR_LIMIT', '1'
+            applicationIdSuffix '.playfree'
+            buildConfigField 'boolean', 'FREE', 'true'
+            buildConfigField 'boolean', 'PLAY_PREVIEW', 'true'
+        }
+        siteFree {
+            dimension 'edition'
+            buildConfigField 'int', 'CALENDAR_LIMIT', '1'
+            applicationIdSuffix '.sitefree'
+            buildConfigField 'boolean', 'FREE', 'true'
+            buildConfigField 'boolean', 'PLAY_PREVIEW', 'false'
+        }
+    }
+    buildTypes {
+        release { signingConfig signingConfigs.release; minifyEnabled false }
+        website {
+            initWith release
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+        }
+    }
     testOptions { unitTests.returnDefaultValues = false }
-    lint { abortOnError true; disable 'ExpiredTargetSdkVersion', 'OldTargetApi', 'GradleDependency', 'ObsoleteSdkInt' }
+    lint { abortOnError true; sarifReport = false; disable 'ExpiredTargetSdkVersion', 'OldTargetApi', 'GradleDependency', 'ObsoleteSdkInt' }
+}
+androidComponents {
+    beforeVariants(selector().withBuildType('website')) { variant ->
+        variant.enable = variant.productFlavors.any { it.second == 'siteFree' }
+    }
+    beforeVariants(selector().withBuildType('release')) { variant ->
+        if (variant.productFlavors.any { it.second == 'siteFree' }) variant.enable = false
+    }
 }
 dependencies {
     testImplementation 'junit:junit:4.13.2'

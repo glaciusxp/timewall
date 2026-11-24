@@ -1,9 +1,12 @@
 package it.timewall.app.ui.info;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.text.Spannable;
+import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.view.Gravity;
 import android.view.View;
@@ -12,19 +15,22 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import it.timewall.app.configuration.Palette;
 import it.timewall.app.localization.I18n;
+import it.timewall.app.localization.PrivacyNotice;
 import it.timewall.app.ui.common.DashboardStyle;
 import it.timewall.app.ui.common.ViewFactory;
-import it.timewall.app.ui.settings.CustomThemeEditor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-/** Read-only full-screen information, privacy placeholder and offline third-party notices. */
+/**
+ * Read-only full-screen application information, offline privacy notice and third-party credits.
+ */
 public final class InfoScreen {
     private final Activity activity;
     private final DashboardStyle style;
@@ -56,7 +62,7 @@ public final class InfoScreen {
         header.setGravity(Gravity.CENTER_VERTICAL);
         header.setPadding(views.dp(8), 0, views.dp(8), 0);
         int color = palette.accent | 0xff000000;
-        int foreground = CustomThemeEditor.contrastingText(color);
+        int foreground = ViewFactory.contrastingText(color);
         header.setBackgroundColor(color);
         Button back =
                 views.addHeaderButton(
@@ -94,7 +100,39 @@ public final class InfoScreen {
             TextView text = views.label(sectionText(i), 17, false);
             text.setPadding(0, views.dp(16), 0, 0);
             text.setTextIsSelectable(true);
-            Linkify.addLinks(text, Linkify.WEB_URLS);
+            Linkify.addLinks(text, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
+            if (text.getText() instanceof Spannable) {
+                Spannable links = (Spannable) text.getText();
+                for (URLSpan link : links.getSpans(0, links.length(), URLSpan.class)) {
+                    int start = links.getSpanStart(link), end = links.getSpanEnd(link);
+                    int flags = links.getSpanFlags(link);
+                    links.removeSpan(link);
+                    links.setSpan(
+                            new URLSpan(link.getURL()) {
+                                /**
+                                 * Keeps privacy contacts and credits usable on tablets without a
+                                 * browser or email client.
+                                 */
+                                @Override
+                                public void onClick(View widget) {
+                                    try {
+                                        super.onClick(widget);
+                                    } catch (ActivityNotFoundException failure) {
+                                        Toast.makeText(
+                                                        activity,
+                                                        I18n.text(
+                                                                activity,
+                                                                "external_link_unavailable"),
+                                                        Toast.LENGTH_LONG)
+                                                .show();
+                                    }
+                                }
+                            },
+                            start,
+                            end,
+                            flags);
+                }
+            }
             text.setLinkTextColor(palette.accent);
             panel.addView(text);
             panels[i] = new ScrollView(activity);
@@ -135,8 +173,8 @@ public final class InfoScreen {
     }
 
     /**
-     * Returns localized prose and unchanged legal notices; Privacy is explicitly not a published
-     * policy.
+     * Returns localized app information and privacy prose alongside unchanged third-party legal
+     * notices.
      */
     private String sectionText(int index) {
         if (index == 0) {
@@ -150,7 +188,7 @@ public final class InfoScreen {
             }
             return version + "\n\n" + I18n.text(activity, "author");
         }
-        if (index == 1) return I18n.text(activity, "privacy_pending");
+        if (index == 1) return PrivacyNotice.text(activity);
         StringBuilder text = new StringBuilder(I18n.text(activity, "credits_summary"));
         text.append(
                 "\n\n"

@@ -47,7 +47,6 @@
   <string name="add">"Añadir"</string>
   <string name="name">"Nombre"</string>
   <string name="ical_address">"URL pública de iCal"</string>
-  <string name="google_calendar">"Google Calendar"</string>
   <string name="invalid_calendar_url">"Introduce una URL pública iCal HTTPS"</string>
   <string name="duplicate_calendar">"El calendario ya está configurado"</string>
   <string name="calendar_config_error">"Configuración de calendarios incompleta"</string>
@@ -180,6 +179,7 @@
     <item>NNO</item>
   </string-array>
   <string name="date_pattern">"EEEE d 'de' MMMM 'de' yyyy"</string>
+  <string name="tomorrow_date_pattern">"'Mañana,' d 'de' MMMM 'de' yyyy"</string>
   <string name="clock_date_pattern">"EEEE, d 'de' MMMM 'de' yyyy"</string>
   <string name="back">"Volver"</string>
   <string name="general">"General"</string>
@@ -199,7 +199,6 @@
     <string name="timewall_info">Información de TimeWall</string>
     <string name="privacy">Privacidad</string>
     <string name="licenses_credits">Licencias y créditos</string>
-    <string name="privacy_pending">La política de privacidad está en preparación. El texto y el enlace web se añadirán tras analizar el tratamiento de datos.</string>
     <string name="credits_summary">Datos meteorológicos proporcionados por Open-Meteo — CC BY 4.0. Búsqueda de localidades: Open-Meteo con datos de GeoNames. A continuación figuran los derechos y las licencias de las fuentes incluidas; Android proporciona Roboto del sistema.</string>
     <string name="font_conversion_notice">Las nuevas fuentes variables se convirtieron en versiones estáticas Regular para Android 4.4. La derivada de Raleway usa el nombre interno TW Rale. Roboto Slab: Apache 2.0; las demás fuentes incluidas: SIL OFL 1.1.</string>
     <string name="licenses_unavailable">No se pudieron cargar algunos avisos de licencia.</string>
@@ -210,4 +209,20 @@
     <string name="calendar_cache_cleared">Caché de calendarios vaciada. Actualizando…</string>
     <string name="calendar_cache_error">No se pudo vaciar por completo la caché de calendarios.</string>
     <string name="clearing_calendar_cache">Vaciando caché de calendarios…</string>
+    <string name="weather_attribution">Datos meteorológicos: Open-Meteo · CC BY 4.0</string>
+    <string name="external_link_unavailable">No hay ninguna aplicación disponible para abrir este enlace.</string>
+    <string name="privacy_identity">Política de privacidad de TimeWall\nResponsable: %1$s\nContacto: %2$s</string>
+    <string name="privacy_updated">Última actualización: %1$s</string>
+    <string name="privacy_service">Finalidad y base jurídica\nEl tratamiento es necesario para proporcionar la agenda y el tiempo opcional solicitados (artículo 6.1.b del RGPD); se aplican las obligaciones legales pertinentes. TimeWall no requiere cuentas ni tiene servidores del desarrollador, publicidad, analítica o elaboración de perfiles. No toma decisiones automatizadas con efectos jurídicos.</string>
+    <string name="privacy_calendars">Calendarios\nLa aplicación se conecta directamente a los proveedores iCal HTTPS configurados. Las URL, nombres, colores y archivos iCal completos se guardan localmente; pueden incluir títulos, horarios, descripciones, lugares, identificadores, fechas de creación y otros datos personales. Las URL secretas permiten acceder al calendario: protégelas y usa solo calendarios autorizados. Los proveedores reciben la URL solicitada, la IP y metadatos de red; se aplican sus políticas.</string>
+    <string name="privacy_weather">Tiempo opcional\nLas búsquedas de localidades y el idioma se envían al geocodificador de Open-Meteo; las previsiones usan las coordenadas del lugar elegido. No se solicita ubicación GPS. Open-Meteo también ve la IP y declara que elimina los registros API, que pueden incluir coordenadas, tras 90 días. Desactivar el tiempo detiene las previsiones; las búsquedas explícitas en Ajustes siguen contactando con Open-Meteo. Los proveedores son independientes y pueden tratar datos fuera de tu país o del EEE; consulta sus políticas sobre ubicaciones y garantías.</string>
+    <string name="privacy_local">Ajustes e imágenes locales\nTema, fuente, idioma, filtros, formato horario y preferencias meteorológicas permanecen en el dispositivo. El fondo se lee con el selector Android; TimeWall no lo sube a servidores. El responsable recibe datos solo si decides contactarlo, como tu correo y mensaje, para gestionar la solicitud.</string>
+    <string name="privacy_retention">Conservación y eliminación\nLa caché se reemplaza al actualizar correctamente y se elimina al guardar la eliminación de un calendario o el cambio de URL. Ajustes → Calendarios → Vaciar caché de calendarios elimina las copias locales y vuelve a descargarlas sin borrar la configuración. Desactivar el tiempo conserva lugar y opciones. Borrar datos de la aplicación o desinstalarla elimina su almacenamiento privado, no imágenes originales ni datos de proveedores. Los mensajes de contacto se conservan mientras sean necesarios para atender la solicitud y las obligaciones legales.</string>
+    <string name="privacy_security">Seguridad\nLas conexiones usan HTTPS. Los archivos y preferencias se protegen mediante el aislamiento Android, sin cifrado adicional de la aplicación. Los registros de errores meteorológicos solo incluyen categorías fijas. La copia de seguridad Android está desactivada. Los enlaces externos abren el navegador o correo elegido, sujetos a sus políticas.</string>
+    <string name="privacy_rights">Tus derechos\nCuando proceda, puedes solicitar acceso, rectificación, eliminación, limitación, portabilidad y oponerte al tratamiento contactando con el responsable. Puedes reclamar ante el Garante italiano u otra autoridad competente. Para los datos solo locales usa los controles del dispositivo: el responsable no puede acceder remotamente. Para datos de proveedores independientes, contacta con ellos. URL y lugar son opcionales; sin ellos la función correspondiente no está disponible.</string>
+    <string name="privacy_web_pending">URL pública de la política de privacidad: por definir.</string>
+  <string name="no_calendars_configured">"No hay calendarios configurados. Añadir calendario"</string>
+  <string name="pro_future">Función Pro · Disponible más adelante</string>
+  <string name="calendar_limit">Se actualizan hasta %1$d calendarios.</string>
+  <string name="background_blur">Desenfoque del fondo: %1$s</string>
 </resources>

@@ -150,6 +150,11 @@ public enum DashboardTheme {
     public final int id;
     public final String name;
     public final boolean dark;
+
+    public boolean availableInFreeEdition() {
+        return this == SLATE_AZURE || this == SLATE_AZURE_DARK;
+    }
+
     public final Palette palette;
 
     /**

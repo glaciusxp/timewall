@@ -372,33 +372,7 @@ public final class CustomThemeEditor extends LinearLayout {
     }
 
     /**
-     * Sceglie testo nero o bianco dalla luminanza relativa dei canali RGB, con soglia 0,179. Il
-     * calcolo non considera il canale alpha del colore di fondo.
-     *
-     * @param background colore ARGB del fondo su cui calcolare il contrasto
-     * @return Color.BLACK per luminanza maggiore di 0,179; Color.WHITE altrimenti
-     */
-    public static int contrastingText(int background) {
-        double luminance =
-                0.2126 * linear(Color.red(background))
-                        + 0.7152 * linear(Color.green(background))
-                        + 0.0722 * linear(Color.blue(background));
-        return luminance > 0.179 ? Color.BLACK : Color.WHITE;
-    }
-
-    /**
-     * Converte un canale sRGB a otto bit in luminanza lineare, necessaria al calcolo del contrasto.
-     *
-     * @param channel valore sRGB del canale, tra 0 e 255
-     * @return intensità lineare del canale sRGB, tra zero e uno
-     */
-    private static double linear(int channel) {
-        double value = channel / 255.0;
-        return value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
-    }
-
-    /**
-     * Converte una dimensione in dp nei pixel della densità del dispositivo.
+     * Sceglie testo nero o biin dp nei pixel della densità del dispositivo.
      *
      * @param value valore da validare, formattare o mostrare
      * @return misura in pixel alla densità corrente

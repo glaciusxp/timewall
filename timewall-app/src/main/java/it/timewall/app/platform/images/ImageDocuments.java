@@ -25,6 +25,25 @@ public final class ImageDocuments {
      * @return bitmap decodificata, oppure null quando l’immagine non è leggibile
      */
     public static Bitmap readBackground(Activity activity, Uri uri) {
+        return decode(activity, uri, 2048);
+    }
+
+    public static Bitmap readBackground(Activity activity, Uri uri, int blurLevel) {
+        int level = BackgroundBlur.levelFromPreference(blurLevel);
+        if (level == 0) return readBackground(activity, uri);
+
+        Bitmap sampled = decode(activity, uri, BackgroundBlur.DECODE_LIMIT);
+        if (sampled == null) return null;
+        try {
+            Bitmap blurred = BackgroundBlur.apply(sampled, level);
+            sampled.recycle();
+            return blurred;
+        } catch (RuntimeException exception) {
+            return sampled;
+        }
+    }
+
+    private static Bitmap decode(Activity activity, Uri uri, int longestSideLimit) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         try {
@@ -36,7 +55,7 @@ public final class ImageDocuments {
             }
             int longestSide = Math.max(options.outWidth, options.outHeight);
             options.inSampleSize = 1;
-            while (longestSide / options.inSampleSize > 2048) {
+            while (longestSide / options.inSampleSize > longestSideLimit) {
                 options.inSampleSize *= 2;
             }
             options.inJustDecodeBounds = false;

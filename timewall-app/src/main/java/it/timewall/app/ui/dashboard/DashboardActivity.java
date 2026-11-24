@@ -31,6 +31,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import it.timewall.app.BuildConfig;
 import it.timewall.app.configuration.DashboardFont;
 import it.timewall.app.configuration.DashboardTheme;
 import it.timewall.app.configuration.Palette;
@@ -185,14 +186,16 @@ public final class DashboardActivity extends Activity {
         DashboardTheme defaultTheme = DashboardTheme.SLATE_AZURE_DARK;
         int savedTheme = preferences.getInt("theme", defaultTheme.id);
         selectedTheme = DashboardTheme.fromSavedId(savedTheme);
+        if (BuildConfig.FREE && !selectedTheme.availableInFreeEdition())
+            selectedTheme = defaultTheme;
         int[] customColors =
-                selectedTheme == DashboardTheme.CUSTOM
+                !BuildConfig.FREE && selectedTheme == DashboardTheme.CUSTOM
                         ? CustomThemeEditor.loadColors(preferences)
                         : null;
-        if (selectedTheme == DashboardTheme.CUSTOM) {
+        if (!BuildConfig.FREE && selectedTheme == DashboardTheme.CUSTOM) {
             int[] colors = customColors;
             if (colors != null) {
-                int automaticText = CustomThemeEditor.contrastingText(colors[1]);
+                int automaticText = ViewFactory.contrastingText(colors[1]);
                 automaticCardText = colors.length == CustomThemeEditor.LEGACY_COLOR_COUNT;
                 int text = automaticCardText ? automaticText : colors[4];
                 int secondaryText = automaticCardText ? automaticText : colors[5];
@@ -232,6 +235,9 @@ public final class DashboardActivity extends Activity {
         use24Hour = preferences.getBoolean(TimeDisplay.HOUR_24, true);
         clockDateFormat = preferences.getInt(TimeDisplay.DATE_FORMAT, 0);
         String fontFile = preferences.getString(FONT_PREFERENCE, "");
+        if (BuildConfig.FREE && !DashboardFont.fromSavedFile(fontFile).availableInFreeEdition()) {
+            fontFile = "";
+        }
         if (!"".equals(fontFile)
                 && DashboardFont.fromSavedFile(fontFile) == DashboardFont.SYSTEM_ROBOTO) {
             preferences.edit().remove(FONT_PREFERENCE).apply();
@@ -348,7 +354,7 @@ public final class DashboardActivity extends Activity {
                              */
                             @Override
                             public void filter() {
-                                showCalendarFilter();
+                                if (!BuildConfig.FREE) showCalendarFilter();
                             }
 
                             /**
@@ -389,7 +395,7 @@ public final class DashboardActivity extends Activity {
         eventAlerts.check(events, null, lastTick, lastTick);
         tick.run();
         refreshFeeds();
-        weather.resume();
+        if (weather != null) weather.resume();
     }
 
     /**
@@ -409,7 +415,7 @@ public final class DashboardActivity extends Activity {
             }
             eventPulseBorders.clear();
         }
-        weather.pause();
+        if (weather != null) weather.pause();
         handler.removeCallbacks(tick);
         handler.removeCallbacks(refresh);
         super.onPause();
@@ -426,7 +432,7 @@ public final class DashboardActivity extends Activity {
         if (settingsScreen != null) {
             settingsScreen.dispose();
         }
-        weather.destroy();
+        if (weather != null) weather.destroy();
         worker.shutdownNow();
         super.onDestroy();
     }
@@ -472,6 +478,16 @@ public final class DashboardActivity extends Activity {
         todayList.removeAllViews();
         upcomingList.removeAllViews();
         featuredList.removeAllViews();
+        boolean configured = !feeds.isEmpty();
+        ((View) todayList.getParent()).setVisibility(configured ? View.VISIBLE : View.GONE);
+        ((View) upcomingList.getParent()).setVisibility(configured ? View.VISIBLE : View.GONE);
+        status.setTextSize(configured ? 13 : 17);
+        status.setPadding(status.getPaddingLeft(), configured ? 0 : views.dp(16), 0, 0);
+        if (!configured) {
+            status.setText(I18n.text(this, "no_calendars_configured"));
+            featuredList.setPadding(0, 0, 0, 0);
+            return;
+        }
         List<CalendarEvent> current = new ArrayList<>();
         long upcomingDay = Long.MIN_VALUE;
         for (CalendarEvent event : events) {
@@ -484,7 +500,11 @@ public final class DashboardActivity extends Activity {
                 long day = midnight(event.start);
                 if (day != upcomingDay) {
                     upcomingDay = day;
-                    TextView heading = views.label(dates.dateLabel(day), 17, false);
+                    String headingText =
+                            day == tomorrow
+                                    ? dates.localizedDate(day, "tomorrow_date_pattern")
+                                    : dates.dateLabel(day);
+                    TextView heading = views.label(headingText, 17, false);
                     heading.setPadding(views.dp(8), views.dp(5), views.dp(8), views.dp(5));
                     LinearLayout.LayoutParams headingParams = new LinearLayout.LayoutParams(-1, -2);
                     headingParams.topMargin = views.dp(8);
@@ -494,19 +514,19 @@ public final class DashboardActivity extends Activity {
                 addEvent(upcomingList, event, false, false, now);
             }
         }
+        TodayEvents selection = new TodayEvents(current, now);
         if (current.isEmpty()) {
-            if (haveInitialEvents || feeds.isEmpty()) {
+            if (haveInitialEvents) {
                 addDayStatusLabel(todayList, 17, false);
             }
         } else {
-            renderToday(current, now);
+            renderToday(current, selection, now);
         }
-        if (upcomingList.getChildCount() == 0 && (haveInitialEvents || feeds.isEmpty())) {
-            upcomingList.addView(
-                    views.label(I18n.text(DashboardActivity.this, "no_upcoming"), 17, false));
+        if (upcomingList.getChildCount() == 0 && haveInitialEvents) {
+            addStatusLabel(upcomingList, 17, false, "no_upcoming");
         }
         boolean showFeaturedStatus =
-                featuredList.getChildCount() == 0 && (haveInitialEvents || feeds.isEmpty());
+                featuredList.getChildCount() == 0 && haveInitialEvents && selection.next == null;
         int featuredPadding = showFeaturedStatus ? 0 : views.dp(12);
         featuredList.setPadding(
                 0,
@@ -525,16 +545,16 @@ public final class DashboardActivity extends Activity {
      * sotto l’orologio e inserisce l’indicatore temporale nell’Agenda.
      *
      * @param eventsToday eventi già filtrati alla giornata corrente e ordinati per inizio
+     * @param selection selezione degli eventi per il riepilogo e l’Agenda
      * @param now istante civile corrente, in millisecondi
      */
-    private void renderToday(List<CalendarEvent> eventsToday, long now) {
-        TodayEvents selection = new TodayEvents(eventsToday, now);
+    private void renderToday(List<CalendarEvent> eventsToday, TodayEvents selection, long now) {
         CalendarEvent activeEvent = selection.active;
         CalendarEvent nextEvent = selection.next;
         nextChange = Math.min(nextChange, selection.nextChange);
         for (CalendarEvent event : selection.allDay)
             addEvent(featuredList, event, false, false, now);
-        CalendarEvent featuredEvent = activeEvent != null ? activeEvent : nextEvent;
+        CalendarEvent featuredEvent = selection.featured;
         if (featuredEvent != null) {
             addEvent(
                     featuredList,
@@ -571,6 +591,20 @@ public final class DashboardActivity extends Activity {
      * @param complete true per mostrare il messaggio di giornata conclusa anziché vuota
      */
     private void addDayStatusLabel(LinearLayout list, int textSize, boolean complete) {
+        addStatusLabel(list, textSize, complete, complete ? "day_complete" : "no_today");
+    }
+
+    /**
+     * Rende i messaggi vuoti con colore secondario e spaziatura comune; centra soltanto il
+     * riepilogo sotto l'orologio e aggiunge la spunta per la giornata conclusa.
+     *
+     * @param list contenitore del messaggio
+     * @param textSize dimensione del testo in sp
+     * @param complete true per aggiungere l'icona della giornata conclusa
+     * @param messageKey chiave tradotta del messaggio da visualizzare
+     */
+    private void addStatusLabel(
+            LinearLayout list, int textSize, boolean complete, String messageKey) {
         boolean featured = list == featuredList;
         int color = palette.secondaryText;
         LinearLayout row = new LinearLayout(this);
@@ -588,12 +622,7 @@ public final class DashboardActivity extends Activity {
         }
 
         TextView message =
-                views.label(
-                        complete
-                                ? I18n.text(DashboardActivity.this, "day_complete")
-                                : I18n.text(DashboardActivity.this, "no_today"),
-                        textSize,
-                        false);
+                views.label(I18n.text(DashboardActivity.this, messageKey), textSize, false);
         message.setTextColor(color);
         message.setPadding(complete ? views.dp(8) : 0, 0, 0, 0);
         if (featured) {
@@ -679,7 +708,7 @@ public final class DashboardActivity extends Activity {
             pulseBorder = new GradientDrawable();
             pulseBorder.setCornerRadius(views.dp(CARD_CORNER_RADIUS));
             int pulseColor =
-                    CustomThemeEditor.contrastingText(cardColor) == Color.WHITE
+                    ViewFactory.contrastingText(cardColor) == Color.WHITE
                             ? 0xfff5f7ff
                             : palette.accent | 0xff000000;
             pulseBorder.setColor(Color.TRANSPARENT);
@@ -761,7 +790,7 @@ public final class DashboardActivity extends Activity {
         row.addView(title, new LinearLayout.LayoutParams(-1, -2));
         TextView timeLabel = views.secondaryLabel(time, detailSize);
         if (automaticCardText) {
-            int cardText = CustomThemeEditor.contrastingText(cardColor);
+            int cardText = ViewFactory.contrastingText(cardColor);
             title.setTextColor(cardText);
             timeLabel.setTextColor(cardText);
             if (statusLabel != null) {
@@ -820,10 +849,12 @@ public final class DashboardActivity extends Activity {
     private void refreshFeeds() {
         handler.removeCallbacks(refresh);
         int requestedRevision = ++revision;
-        List<Feed> configured = new ArrayList<>(feeds);
+        List<Feed> configured =
+                new ArrayList<>(
+                        feeds.subList(0, Math.min(feeds.size(), BuildConfig.CALENDAR_LIMIT)));
         refreshButton.setEnabled(false);
         if (configured.isEmpty()) {
-            status.setText(I18n.text(DashboardActivity.this, "add_calendar"));
+            status.setText("");
             events = Collections.emptyList();
             haveInitialEvents = true;
             render(System.currentTimeMillis(), true);
@@ -1381,6 +1412,7 @@ public final class DashboardActivity extends Activity {
                 String address = item.getString("address");
                 if (CalendarFeed.accepts(address)) {
                     feeds.add(new Feed(item.getString("name"), address, item.getInt("color")));
+                    if (BuildConfig.FREE && feeds.size() == BuildConfig.CALENDAR_LIMIT) break;
                 }
             }
         } catch (JSONException exception) {

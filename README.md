@@ -18,7 +18,7 @@ la diagnostica indipendente conserva target 28.
 
 ```powershell
 cd timewall-app
-.\gradlew.bat testDebugUnitTest lintRelease assembleRelease
+.\gradlew.bat testCompleteDebugUnitTest lintCompleteRelease assembleCompleteRelease
 ```
 
 La build release richiede la chiave storica, disponibile localmente nella cartella

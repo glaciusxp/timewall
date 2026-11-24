@@ -4,7 +4,7 @@ Progetto Android autonomo, Java 8 / JDK 17, minSdk 19, targetSdk 36.
 Importare questa directory direttamente in Android Studio.
 
 ```powershell
-.\gradlew.bat testDebugUnitTest lintRelease assembleRelease
+.\gradlew.bat testCompleteDebugUnitTest lintCompleteRelease assembleCompleteRelease
 ```
 
 `checkJavaFormat` verifica lo stile Java; `formatJava` lo applica esplicitamente.
@@ -19,11 +19,25 @@ impostare `TIMEWALL_KEYSTORE`, `TIMEWALL_STORE_PASSWORD`, `TIMEWALL_KEY_ALIAS` e
 del progetto; nessuna nuova chiave viene generata automaticamente. Chiavi e
 configurazioni locali sono escluse dai sorgenti consegnati.
 
-APK: `build/outputs/apk/release/timewall-app-release.apk`.
-Test: `build/reports/tests/testDebugUnitTest/index.html`.
-Lint: `build/reports/lint-results-release.html`.
+APK: `build/outputs/apk/complete/release/timewall-app-complete-release.apk`.
+Test: `build/reports/tests/testCompleteDebugUnitTest/index.html`.
+Lint: `build/reports/lint-results-completeRelease.html`.
 
 La diagnostica non viene compilata né impacchettata con questa applicazione.
 Vedere `docs/architecture.md`, `docs/tls-kitkat.md`, `docs/testing.md` e
 `docs/migration.md` e `docs/android-compatibility.md`. La versione 0.95 migra
 il target Android mantenendo le API minime e il layout orizzontale esistente.
+
+## Varianti gratuite in collaudo
+
+- Google Play: bundlePlayFreeRelease produce l'AAB. Per il collaudo ADB usare
+  assemblePlayFreeRelease. L'ID di prova è it.timewall.dashboard.playfree.
+- Sito: assembleSiteFreeWebsite produce l'APK release e rimuove il codice
+  inutilizzato tramite R8. L'ID di prova è it.timewall.dashboard.sitefree.
+- La variante complete mantiene l'ID storico e lo script di installazione
+  dalla radice del repository.
+
+La prima apertura di un profilo mancante copia le preferenze comuni accessibili
+nello stesso spazio dati. La Free deriva il primo calendario valido, oltre a lingua,
+formati data/ora, font e tema compatibili. Con gli ID di prova distinti, Android
+isola le installazioni. La disinstallazione rimuove le configurazioni locali.

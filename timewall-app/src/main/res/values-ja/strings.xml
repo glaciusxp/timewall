@@ -47,7 +47,6 @@
   <string name="add">"追加"</string>
   <string name="name">"名前"</string>
   <string name="ical_address">"公開 iCal URL"</string>
-  <string name="google_calendar">"Google カレンダー"</string>
   <string name="invalid_calendar_url">"公開の HTTPS iCal URL を入力してください"</string>
   <string name="duplicate_calendar">"このカレンダーは設定済みです"</string>
   <string name="calendar_config_error">"カレンダーの設定が不完全です"</string>
@@ -178,6 +177,7 @@
     <item>北北西</item>
   </string-array>
   <string name="date_pattern">"yyyy年M月d日 EEEE"</string>
+  <string name="tomorrow_date_pattern">"'明日、'yyyy年M月d日"</string>
   <string name="clock_date_pattern">"yyyy年M月d日 EEEE"</string>
   <string name="back">"戻る"</string>
   <string name="general">"一般"</string>
@@ -197,7 +197,6 @@
     <string name="timewall_info">TimeWall 情報</string>
     <string name="privacy">プライバシー</string>
     <string name="licenses_credits">ライセンスとクレジット</string>
-    <string name="privacy_pending">プライバシーポリシーは準備中です。データ処理の分析後に本文とウェブリンクを追加します。</string>
     <string name="credits_summary">気象データ：Open-Meteo 提供、CC BY 4.0。場所検索：GeoNames データを使用する Open-Meteo。以下は同梱フォントの著作権とライセンスです。システムの Roboto は Android が提供します。</string>
     <string name="font_conversion_notice">Android 4.4 に対応するため、新しい可変フォントを静的な Regular フォントに変換しました。Raleway 派生フォントの内部名は TW Rale です。Roboto Slab は Apache 2.0、その他の同梱フォントは SIL OFL 1.1 です。</string>
     <string name="licenses_unavailable">一部のライセンス表示を読み込めませんでした。</string>
@@ -208,4 +207,20 @@
     <string name="calendar_cache_cleared">カレンダーキャッシュを消去しました。更新中…</string>
     <string name="calendar_cache_error">カレンダーキャッシュを完全に消去できませんでした。</string>
     <string name="clearing_calendar_cache">カレンダーキャッシュを消去中…</string>
+    <string name="weather_attribution">気象データ：Open-Meteo · CC BY 4.0</string>
+    <string name="external_link_unavailable">このリンクを開くアプリがありません。</string>
+    <string name="privacy_identity">TimeWall プライバシー通知\n管理者：%1$s\n連絡先：%2$s</string>
+    <string name="privacy_updated">最終更新：%1$s</string>
+    <string name="privacy_service">目的と法的根拠\n処理は、要求されたカレンダー表示と任意の天気機能を提供するために必要です（GDPR 第6条第1項b号）。適用される法的義務にも従います。TimeWall はアカウント、開発者のサーバー、広告、分析、プロファイリングを使用せず、法的効果のある自動決定を行いません。</string>
+    <string name="privacy_calendars">カレンダー\nアプリは設定した HTTPS iCal 提供者に直接接続します。URL、名前、色、完全な iCal ファイルは端末に保存され、タイトル、時刻、説明、場所、識別子、作成日時などの個人情報を含む場合があります。秘密 URL はアクセス権を与えるため保護し、許可されたカレンダーだけを使用してください。提供者には要求 URL、接続 IP、ネットワーク情報が伝わり、各提供者の方針が適用されます。</string>
+    <string name="privacy_weather">任意の天気機能\n場所検索と使用言語は Open-Meteo 地理検索に送信され、予報には選択した場所の座標を使用します。GPS 位置は要求しません。Open-Meteo は接続 IP も受け取り、座標を含む場合がある API ログを90日後に削除するとしています。天気を無効にすると予報更新は停止しますが、設定での明示的な検索は Open-Meteo に接続します。独立提供者が居住国や EEA 外で処理する場合があります。処理場所と保護措置は各方針をご確認ください。</string>
+    <string name="privacy_local">端末内の設定と画像\nテーマ、フォント、言語、絞り込み、時刻形式、天気設定は端末内に保存されます。背景は Android ファイル選択で読み取り、TimeWall はアップロードしません。管理者は、利用者が連絡した場合にのみ、依頼対応のためメールアドレスやメッセージなどを受け取ります。</string>
+    <string name="privacy_retention">保存と削除\n正常な更新でキャッシュを置き換え、カレンダー削除や URL 変更を保存すると古いキャッシュを削除します。設定 → カレンダー → カレンダーキャッシュを消去でローカルコピーを消去し再取得しますが、設定は削除しません。天気の無効化では場所と設定を保持します。アプリデータ消去やアンインストールで専用領域を削除しますが、元画像や提供者のデータは削除しません。連絡内容は依頼対応と法的義務に必要な期間保存します。</string>
+    <string name="privacy_security">安全性\n通信は HTTPS を使用します。ローカルファイルと設定は Android の分離機構に依存し、追加のアプリ暗号化は行いません。天気エラーログは固定分類のみです。Android バックアップは無効です。外部リンクは選択したブラウザーやメールアプリで開き、その方針が適用されます。</string>
+    <string name="privacy_rights">利用者の権利\n適用される範囲で、管理者にアクセス、訂正、削除、制限、移行、処理への異議を申し出ることができます。イタリアの Garante または管轄監督機関に苦情を申し立てられます。端末内データは端末機能で管理してください。管理者は遠隔アクセスできません。独立提供者のデータは各提供者にお問い合わせください。URL と場所の提供は任意ですが、未設定では対応機能を利用できません。</string>
+    <string name="privacy_web_pending">公開プライバシーポリシー URL：未定。</string>
+  <string name="no_calendars_configured">"カレンダーが設定されていません。カレンダーを追加"</string>
+  <string name="pro_future">Pro 機能 · 今後提供予定</string>
+  <string name="calendar_limit">更新できるカレンダーは最大 %1$d 件です。</string>
+  <string name="background_blur">背景のぼかし：%1$s</string>
 </resources>

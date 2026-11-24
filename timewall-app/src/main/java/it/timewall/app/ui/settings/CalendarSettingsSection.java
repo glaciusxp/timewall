@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import it.timewall.app.BuildConfig;
 import it.timewall.app.data.calendar.CalendarFeed;
 import it.timewall.app.domain.model.Feed;
 import it.timewall.app.localization.I18n;
@@ -77,7 +78,19 @@ public final class CalendarSettingsSection {
         panel.removeAllViews();
         Button add = new Button(activity);
         add.setText(I18n.text(activity, "add_calendar"));
-        panel.addView(add);
+        boolean atLimit = pendingFeeds.size() >= BuildConfig.CALENDAR_LIMIT;
+        if (!atLimit) {
+            panel.addView(add);
+        } else if (BuildConfig.PLAY_PREVIEW) {
+            add.setEnabled(false);
+            panel.addView(ProBadge.row(activity, views, add));
+        } else if (!BuildConfig.FREE) {
+            add.setEnabled(false);
+            panel.addView(add);
+            panel.addView(
+                    views.secondaryLabel(
+                            I18n.text(activity, "calendar_limit", BuildConfig.CALENDAR_LIMIT), 15));
+        }
         Runnable updated = () -> render(panel, pendingFeeds);
         add.setOnClickListener(view -> editCalendar(-1, pendingFeeds, updated));
         if (pendingFeeds.isEmpty()) {
@@ -118,6 +131,7 @@ public final class CalendarSettingsSection {
      * @param updated callback che ricostruisce l’elenco dopo una modifica della bozza
      */
     private void editCalendar(int index, List<Feed> pendingFeeds, Runnable updated) {
+        if (index < 0 && pendingFeeds.size() >= BuildConfig.CALENDAR_LIMIT) return;
         Feed existing = index < 0 ? null : pendingFeeds.get(index);
         LinearLayout fields = views.column();
         fields.setPadding(views.dp(16), views.dp(8), views.dp(16), 0);
@@ -196,6 +210,7 @@ public final class CalendarSettingsSection {
                                             url,
                                             COLORS[colors.getSelectedItemPosition()]);
                             if (index < 0) {
+                                if (pendingFeeds.size() >= BuildConfig.CALENDAR_LIMIT) return;
                                 pendingFeeds.add(feed);
                             } else {
                                 pendingFeeds.set(index, feed);

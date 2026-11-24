@@ -9,12 +9,15 @@ import android.net.Uri;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import it.timewall.app.localization.I18n;
+import it.timewall.app.platform.images.BackgroundBlur;
 import it.timewall.app.platform.images.ImageDocuments;
 import it.timewall.app.ui.common.ViewFactory;
 
+import java.text.NumberFormat;
 import java.util.concurrent.ExecutorService;
 
 /** Owns background selection and validates images asynchronously until saved or disposed. */
@@ -24,6 +27,10 @@ public final class BackgroundImageEditor {
     private final ViewFactory views;
     private final ExecutorService worker;
     private boolean disposed;
+    private final LinearLayout blurControls;
+    private final TextView blurLabel;
+    private final SeekBar blur;
+    private final int originalBlur;
     private static final int PICK_BACKGROUND = 101;
     private static final String BACKGROUND_URI = "dashboardBackgroundUri",
             BACKGROUND_NAME = "dashboardBackgroundName";
@@ -71,6 +78,11 @@ public final class BackgroundImageEditor {
         remove = new Button(activity);
         original = preferences.getString(BACKGROUND_URI, "");
         selected = original;
+        originalBlur =
+                original.isEmpty()
+                        ? 0
+                        : BackgroundBlur.levelFromPreference(
+                                preferences.getInt(BackgroundBlur.PREFERENCE, 0));
         selectedName = preferences.getString(BACKGROUND_NAME, "");
         TextView heading = views.label(I18n.text(activity, "background"), 16, true);
         heading.setPadding(0, views.dp(12), 0, 0);
@@ -94,15 +106,38 @@ public final class BackgroundImageEditor {
                 });
         buttons.addView(pick);
         remove.setText(I18n.text(activity, "remove"));
+        buttons.addView(remove);
+        view.addView(status);
+        view.addView(fileName);
+        blurControls = views.column();
+        blurControls.setPadding(0, views.dp(12), 0, 0);
+        blurLabel = views.label("", 16, true);
+        blurControls.addView(blurLabel);
+        blur = new SeekBar(activity);
+        blur.setMax(BackgroundBlur.LEVEL_COUNT - 1);
+        blur.setProgress(originalBlur);
+        blurControls.addView(blur);
+        view.addView(blurControls);
+        blur.setOnSeekBarChangeListener(
+                new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        renderBlurLabel();
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {}
+                });
         remove.setOnClickListener(
                 ignored -> {
                     selected = "";
                     selectedName = "";
+                    blur.setProgress(0);
                     render();
                 });
-        buttons.addView(remove);
-        view.addView(status);
-        view.addView(fileName);
         render();
         if (!original.isEmpty() && selectedName.isEmpty()) {
             worker.execute(
@@ -133,6 +168,7 @@ public final class BackgroundImageEditor {
         loading = true;
         pick.setEnabled(false);
         remove.setEnabled(false);
+        blur.setEnabled(false);
         status.setText(I18n.text(activity, "loading_image"));
         onChange.run();
         worker.execute(
@@ -174,7 +210,19 @@ public final class BackgroundImageEditor {
                         ? I18n.text(activity, "no_image")
                         : I18n.text(activity, "selected_image"));
         renderFileName();
+        blurControls.setVisibility(selected.isEmpty() ? View.GONE : View.VISIBLE);
+        blur.setEnabled(!loading);
+        renderBlurLabel();
         onChange.run();
+    }
+
+    private void renderBlurLabel() {
+        String value =
+                NumberFormat.getPercentInstance(I18n.locale(activity))
+                        .format(BackgroundBlur.percentage(blur.getProgress()) / 100.0);
+        String label = I18n.text(activity, "background_blur", value);
+        blurLabel.setText(label);
+        blur.setContentDescription(label);
     }
 
     /**
@@ -187,13 +235,12 @@ public final class BackgroundImageEditor {
     }
 
     /**
-     * Confronta l’URI selezionato con quello originale per stabilire se lo sfondo della bozza è
-     * stato modificato.
+     * Confronta l’immagine e il livello di sfocatura con la configurazione salvata.
      *
-     * @return true se la bozza seleziona un URI diverso da quello salvato all’apertura
+     * @return true se la bozza modifica lo sfondo o la sua sfocatura
      */
     public boolean changed() {
-        return !original.equals(selected);
+        return !original.equals(selected) || originalBlur != blur.getProgress();
     }
 
     /**
@@ -204,7 +251,7 @@ public final class BackgroundImageEditor {
      *     rifiuto
      */
     public boolean retainAccess() {
-        if (changed() && !selected.isEmpty()) {
+        if (!original.equals(selected) && !selected.isEmpty()) {
             try {
                 activity.getContentResolver()
                         .takePersistableUriPermission(
@@ -225,9 +272,13 @@ public final class BackgroundImageEditor {
      */
     public void save(SharedPreferences.Editor editor) {
         if (selected.isEmpty()) {
-            editor.remove(BACKGROUND_URI).remove(BACKGROUND_NAME);
+            editor.remove(BACKGROUND_URI).remove(BACKGROUND_NAME).remove(BackgroundBlur.PREFERENCE);
         } else {
-            editor.putString(BACKGROUND_URI, selected).putString(BACKGROUND_NAME, selectedName);
+            editor.putString(BACKGROUND_URI, selected)
+                    .putString(BACKGROUND_NAME, selectedName)
+                    .putInt(
+                            BackgroundBlur.PREFERENCE,
+                            BackgroundBlur.percentage(blur.getProgress()));
         }
     }
 
@@ -236,7 +287,7 @@ public final class BackgroundImageEditor {
      * rimossa; tollera un permesso già revocato dal provider.
      */
     public void releasePrevious() {
-        if (changed() && !original.isEmpty()) {
+        if (!original.equals(selected) && !original.isEmpty()) {
             try {
                 activity.getContentResolver()
                         .releasePersistableUriPermission(

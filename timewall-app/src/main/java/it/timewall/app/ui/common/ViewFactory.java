@@ -17,6 +17,11 @@ public final class ViewFactory {
     private final Palette palette;
     private final Typeface dashboardTypeface, menuIcons;
     private final boolean darkTheme;
+
+    public boolean isDarkTheme() {
+        return darkTheme;
+    }
+
     private final int accentColor;
 
     /**
@@ -168,5 +173,19 @@ public final class ViewFactory {
         icon.setPadding(0, 0, dp(6), 0);
         icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         return icon;
+    }
+
+    /** Returns whichever of black and white has greater contrast against the background. */
+    public static int contrastingText(int background) {
+        double luminance =
+                0.2126 * linear(android.graphics.Color.red(background))
+                        + 0.7152 * linear(android.graphics.Color.green(background))
+                        + 0.0722 * linear(android.graphics.Color.blue(background));
+        return luminance > 0.179 ? android.graphics.Color.BLACK : android.graphics.Color.WHITE;
+    }
+
+    private static double linear(int channel) {
+        double value = channel / 255.0;
+        return value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
     }
 }

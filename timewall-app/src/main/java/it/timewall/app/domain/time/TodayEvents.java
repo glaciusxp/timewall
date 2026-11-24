@@ -7,8 +7,10 @@ import java.util.List;
 
 /** Selection for today's agenda. Input is sorted by start and already filtered to today. */
 public final class TodayEvents {
+    private static final long FEATURED_LEAD_MILLIS = 30 * 60_000L;
+
     public final List<CalendarEvent> allDay = new ArrayList<>();
-    public final CalendarEvent active, next;
+    public final CalendarEvent active, next, featured;
     public final long nextChange;
 
     /**
@@ -38,7 +40,9 @@ public final class TodayEvents {
         }
         active = firstActive;
         next = firstNext;
-        nextChange = change;
+        long featuredFrom = next == null ? Long.MAX_VALUE : next.start - FEATURED_LEAD_MILLIS;
+        featured = active != null ? active : (now >= featuredFrom ? next : null);
+        nextChange = next != null && featuredFrom > now ? Math.min(change, featuredFrom) : change;
     }
 
     /**

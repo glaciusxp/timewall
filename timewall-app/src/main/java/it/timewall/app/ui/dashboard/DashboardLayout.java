@@ -16,8 +16,10 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import it.timewall.app.BuildConfig;
 import it.timewall.app.configuration.Palette;
 import it.timewall.app.localization.I18n;
+import it.timewall.app.platform.images.BackgroundBlur;
 import it.timewall.app.platform.images.ImageDocuments;
 import it.timewall.app.ui.common.DashboardStyle;
 import it.timewall.app.ui.common.ViewFactory;
@@ -106,12 +108,13 @@ public final class DashboardLayout {
         dashboard.addView(background, new FrameLayout.LayoutParams(-1, -1));
         dashboard.addView(root, new FrameLayout.LayoutParams(-1, -1));
         activity.setContentView(dashboard);
-        String backgroundUri = preferences.getString(BACKGROUND_URI, "");
-        if (!backgroundUri.isEmpty()) {
+        String backgroundUri = BuildConfig.FREE ? "" : preferences.getString(BACKGROUND_URI, "");
+        if (!BuildConfig.FREE && !backgroundUri.isEmpty()) {
+            int blurLevel = preferences.getInt(BackgroundBlur.PREFERENCE, 0);
             Uri uri = Uri.parse(backgroundUri);
             worker.execute(
                     () -> {
-                        Bitmap bitmap = ImageDocuments.readBackground(activity, uri);
+                        Bitmap bitmap = ImageDocuments.readBackground(activity, uri, blurLevel);
                         if (bitmap != null) {
                             activity.runOnUiThread(
                                     () -> {
@@ -128,89 +131,99 @@ public final class DashboardLayout {
         root.addView(right, new LinearLayout.LayoutParams(0, -1, 2));
 
         LinearLayout clockArea = views.column();
-        clockArea.setGravity(Gravity.CENTER_HORIZONTAL);
+        clockArea.setGravity(Gravity.CENTER);
         left.addView(clockArea, new LinearLayout.LayoutParams(-1, 0, 1));
         featuredList = views.column();
         featuredList.setGravity(Gravity.CENTER_VERTICAL);
         featuredScroll = scroll(left, featuredList);
         featuredScroll.setFillViewport(true);
-        LinearLayout weatherDisplay = views.column();
-        weatherDisplay.setPadding(views.dp(COLUMN_INSET), 0, views.dp(COLUMN_INSET), 0);
+        if (!BuildConfig.FREE) {
+            LinearLayout weatherDisplay = views.column();
+            weatherDisplay.setPadding(views.dp(COLUMN_INSET), 0, views.dp(COLUMN_INSET), 0);
 
-        LinearLayout locationGroup = new LinearLayout(activity);
-        locationGroup.setGravity(Gravity.CENTER_VERTICAL);
-        weatherDisplay.addView(locationGroup, new LinearLayout.LayoutParams(-1, -2));
-        TextView locationIcon = views.weatherGlyph("\uf3c5");
-        locationIcon.setTextSize(16);
-        locationGroup.addView(locationIcon);
-        TextView weatherPlace = views.secondaryLabel("", WEATHER_DETAIL_TEXT_SP);
-        weatherPlace.setSingleLine(true);
-        weatherPlace.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        locationGroup.addView(weatherPlace, new LinearLayout.LayoutParams(0, -2, 1));
-        TextView weatherLastUpdate = views.secondaryLabel("", 13);
-        weatherLastUpdate.setGravity(Gravity.RIGHT);
-        weatherLastUpdate.setSingleLine(true);
-        LinearLayout.LayoutParams updateLayout = new LinearLayout.LayoutParams(-2, -2);
-        updateLayout.leftMargin = views.dp(8);
-        locationGroup.addView(weatherLastUpdate, updateLayout);
-        Button weatherRefresh = new Button(activity);
-        weatherRefresh.setTypeface(menuIcons);
-        weatherRefresh.setText(ICON_REFRESH);
-        weatherRefresh.setTextColor(palette.text);
-        weatherRefresh.setTextSize(14);
-        weatherRefresh.setContentDescription(I18n.text(activity, "refresh_weather"));
-        weatherRefresh.setGravity(Gravity.CENTER);
-        weatherRefresh.setBackground(null);
-        weatherRefresh.setPadding(0, 0, 0, 0);
-        locationGroup.addView(
-                weatherRefresh, new LinearLayout.LayoutParams(views.dp(36), views.dp(36)));
+            LinearLayout locationGroup = new LinearLayout(activity);
+            locationGroup.setGravity(Gravity.CENTER_VERTICAL);
+            weatherDisplay.addView(locationGroup, new LinearLayout.LayoutParams(-1, -2));
+            TextView locationIcon = views.weatherGlyph("\uf3c5");
+            locationIcon.setTextSize(16);
+            locationGroup.addView(locationIcon);
+            TextView weatherPlace = views.secondaryLabel("", WEATHER_DETAIL_TEXT_SP);
+            weatherPlace.setSingleLine(true);
+            weatherPlace.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            locationGroup.addView(weatherPlace, new LinearLayout.LayoutParams(0, -2, 1));
+            TextView weatherLastUpdate = views.secondaryLabel("", 13);
+            weatherLastUpdate.setGravity(Gravity.RIGHT);
+            weatherLastUpdate.setSingleLine(true);
+            LinearLayout.LayoutParams updateLayout = new LinearLayout.LayoutParams(-2, -2);
+            updateLayout.leftMargin = views.dp(8);
+            locationGroup.addView(weatherLastUpdate, updateLayout);
+            Button weatherRefresh = new Button(activity);
+            weatherRefresh.setTypeface(menuIcons);
+            weatherRefresh.setText(ICON_REFRESH);
+            weatherRefresh.setTextColor(palette.text);
+            weatherRefresh.setTextSize(14);
+            weatherRefresh.setContentDescription(I18n.text(activity, "refresh_weather"));
+            weatherRefresh.setGravity(Gravity.CENTER);
+            weatherRefresh.setBackground(null);
+            weatherRefresh.setPadding(0, 0, 0, 0);
+            locationGroup.addView(
+                    weatherRefresh, new LinearLayout.LayoutParams(views.dp(36), views.dp(36)));
 
-        LinearLayout weatherGrid = new LinearLayout(activity);
-        weatherDisplay.addView(weatherGrid, new LinearLayout.LayoutParams(-1, -2));
-        LinearLayout weatherLeft = views.column();
-        weatherGrid.addView(weatherLeft, new LinearLayout.LayoutParams(0, -1, 1));
-        TextView weatherWind = addWeatherMetric(weatherLeft, false, "\uf72e");
-        TextView weatherApparent = addWeatherMetric(weatherLeft, false, "\uf2c9", "\uf183");
+            LinearLayout weatherGrid = new LinearLayout(activity);
+            weatherDisplay.addView(weatherGrid, new LinearLayout.LayoutParams(-1, -2));
+            LinearLayout weatherLeft = views.column();
+            weatherGrid.addView(weatherLeft, new LinearLayout.LayoutParams(0, -1, 1));
+            TextView weatherWind = addWeatherMetric(weatherLeft, false, "\uf72e");
+            TextView weatherApparent = addWeatherMetric(weatherLeft, false, "\uf2c9", "\uf183");
 
-        TextView weatherTemperature = views.label("", 44, false);
-        weatherTemperature.setSingleLine(true);
-        weatherTemperature.setMinHeight(views.dp(68));
-        weatherTemperature.setGravity(Gravity.CENTER);
-        weatherTemperature.setPadding(views.dp(12), 0, views.dp(12), 0);
-        weatherGrid.addView(weatherTemperature, new LinearLayout.LayoutParams(-2, -2));
+            TextView weatherTemperature = views.label("", 44, false);
+            weatherTemperature.setSingleLine(true);
+            weatherTemperature.setMinHeight(views.dp(68));
+            weatherTemperature.setGravity(Gravity.CENTER);
+            weatherTemperature.setPadding(views.dp(12), 0, views.dp(12), 0);
+            weatherGrid.addView(weatherTemperature, new LinearLayout.LayoutParams(-2, -2));
 
-        LinearLayout weatherRight = views.column();
-        weatherGrid.addView(weatherRight, new LinearLayout.LayoutParams(0, -1, 1));
-        TextView weatherPrecipitation = addWeatherMetric(weatherRight, true, "\uf0e9");
-        TextView weatherPrecipitationAmount = addWeatherMetric(weatherRight, true, "\uf043");
+            LinearLayout weatherRight = views.column();
+            weatherGrid.addView(weatherRight, new LinearLayout.LayoutParams(0, -1, 1));
+            TextView weatherPrecipitation = addWeatherMetric(weatherRight, true, "\uf0e9");
+            TextView weatherPrecipitationAmount = addWeatherMetric(weatherRight, true, "\uf043");
 
-        TextView weatherSummary = views.label("", 20, false);
-        weatherSummary.setGravity(Gravity.CENTER);
-        weatherDisplay.addView(weatherSummary, new LinearLayout.LayoutParams(-1, -2));
+            TextView weatherSummary = views.label("", 20, false);
+            weatherSummary.setGravity(Gravity.CENTER);
+            weatherDisplay.addView(weatherSummary, new LinearLayout.LayoutParams(-1, -2));
 
-        TextView weatherStatus = views.secondaryLabel("", 22);
-        weatherStatus.setGravity(Gravity.CENTER);
-        weatherDisplay.addView(weatherStatus, new LinearLayout.LayoutParams(-1, -2));
-        LinearLayout.LayoutParams weatherLayout = new LinearLayout.LayoutParams(-1, -2);
-        weatherLayout.bottomMargin = views.dp(22);
-        clockArea.addView(weatherDisplay, weatherLayout);
-        clockArea.addView(
-                new android.widget.Space(activity), new LinearLayout.LayoutParams(-1, 0, 1));
-        weather =
-                new DashboardWeather(
-                        activity,
-                        preferences,
-                        weatherDisplay,
-                        weatherPlace,
-                        weatherTemperature,
-                        weatherSummary,
-                        weatherStatus,
-                        weatherWind,
-                        weatherApparent,
-                        weatherPrecipitation,
-                        weatherPrecipitationAmount,
-                        weatherLastUpdate,
-                        weatherRefresh);
+            TextView weatherStatus = views.secondaryLabel("", 22);
+            weatherStatus.setGravity(Gravity.CENTER);
+            weatherDisplay.addView(weatherStatus, new LinearLayout.LayoutParams(-1, -2));
+            LinearLayout.LayoutParams weatherLayout = new LinearLayout.LayoutParams(-1, -2);
+            weatherLayout.bottomMargin = views.dp(22);
+            clockArea.addView(weatherDisplay, weatherLayout);
+            View weatherSpacer = new android.widget.Space(activity);
+            clockArea.addView(weatherSpacer, new LinearLayout.LayoutParams(-1, 0, 1));
+            weather =
+                    new DashboardWeather(
+                            activity,
+                            preferences,
+                            weatherDisplay,
+                            weatherPlace,
+                            weatherTemperature,
+                            weatherSummary,
+                            weatherStatus,
+                            weatherWind,
+                            weatherApparent,
+                            weatherPrecipitation,
+                            weatherPrecipitationAmount,
+                            weatherLastUpdate,
+                            weatherRefresh,
+                            () -> {
+                                boolean showing = weatherDisplay.getVisibility() == View.VISIBLE;
+                                weatherSpacer.setVisibility(showing ? View.VISIBLE : View.GONE);
+                                clockArea.setGravity(
+                                        showing ? Gravity.CENTER_HORIZONTAL : Gravity.CENTER);
+                            });
+        } else {
+            weather = null;
+        }
         clock = accentLabel("", 74, true);
         if (customColors != null && customColors.length > CustomThemeEditor.DATE_COLOR_INDEX) {
             clock.setTextColor(customColors[CustomThemeEditor.CLOCK_COLOR_INDEX]);
@@ -242,12 +255,14 @@ public final class DashboardLayout {
                         I18n.text(activity, "refresh_calendars"),
                         view -> actions.refresh());
         refreshButton.setBackground(null);
-        views.addHeaderButton(
-                        eventsHeader,
-                        ICON_SLIDERS,
-                        I18n.text(activity, "filter_events"),
-                        view -> actions.filter())
-                .setBackground(null);
+        if (!BuildConfig.FREE) {
+            views.addHeaderButton(
+                            eventsHeader,
+                            ICON_SLIDERS,
+                            I18n.text(activity, "filter_events"),
+                            view -> actions.filter())
+                    .setBackground(null);
+        }
         views.addHeaderButton(
                         eventsHeader,
                         ICON_ELLIPSIS_VERTICAL,

@@ -190,8 +190,7 @@ public class IcalendarParserTest {
      */
     @Test
     public void publicUrlValidation() {
-        assertTrue(
-                CalendarFeed.accepts("https://calendar.google.com/calendar/ical/secret/basic.ics"));
+        assertTrue(CalendarFeed.accepts("https://calendar.example.org/events.ics"));
         for (String bad :
                 Arrays.asList(
                         "http://example.org/a.ics",

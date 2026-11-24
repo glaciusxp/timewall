@@ -21,7 +21,12 @@ foreach ($project in $projects) {
             $arguments += "-Dhttp.proxyHost=$($proxyAddress.Host)", "-Dhttp.proxyPort=$($proxyAddress.Port)"
         }
     }
-    & (Join-Path $projectPath 'gradlew.bat') -p $projectPath @arguments testDebugUnitTest lintRelease checkJavaFormat assembleRelease
+    $tasks = if ($project -eq 'timewall-app') {
+        @('testCompleteDebugUnitTest', 'lintCompleteRelease', 'checkJavaFormat', 'assembleCompleteRelease')
+    } else {
+        @('testDebugUnitTest', 'lintRelease', 'checkJavaFormat', 'assembleRelease')
+    }
+    & (Join-Path $projectPath 'gradlew.bat') -p $projectPath @arguments @tasks
     if ($LASTEXITCODE -ne 0) { throw "Gradle failed for $project ($LASTEXITCODE)" }
 }
 & (Join-Path $PSScriptRoot 'tools\package.ps1') -Projects $projects

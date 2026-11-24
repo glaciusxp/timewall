@@ -47,7 +47,6 @@
   <string name="add">"Hinzufügen"</string>
   <string name="name">"Name"</string>
   <string name="ical_address">"Öffentliche iCal-URL"</string>
-  <string name="google_calendar">"Google Kalender"</string>
   <string name="invalid_calendar_url">"Eine öffentliche HTTPS-iCal-URL eingeben"</string>
   <string name="duplicate_calendar">"Kalender bereits eingerichtet"</string>
   <string name="calendar_config_error">"Kalenderkonfiguration unvollständig"</string>
@@ -180,6 +179,7 @@
     <item>NNW</item>
   </string-array>
   <string name="date_pattern">"EEEE, d. MMMM yyyy"</string>
+  <string name="tomorrow_date_pattern">"'Morgen,' d. MMMM yyyy"</string>
   <string name="clock_date_pattern">"EEEE, d. MMMM yyyy"</string>
   <string name="back">"Zurück"</string>
   <string name="general">"Allgemein"</string>
@@ -199,7 +199,6 @@
     <string name="timewall_info">TimeWall-Info</string>
     <string name="privacy">Datenschutz</string>
     <string name="licenses_credits">Lizenzen und Danksagungen</string>
-    <string name="privacy_pending">Die Datenschutzerklärung wird vorbereitet. Text und Weblink werden nach der Analyse der Datenverarbeitung ergänzt.</string>
     <string name="credits_summary">Wetterdaten von Open-Meteo — CC BY 4.0. Ortssuche: Open-Meteo mit GeoNames-Daten. Es folgen Urheberrechtshinweise und Lizenzen der enthaltenen Schriften; die Systemschrift Roboto stammt von Android.</string>
     <string name="font_conversion_notice">Die neuen variablen Schriften wurden für Android 4.4 in statische Regular-Versionen umgewandelt. Die Raleway-Ableitung heißt intern TW Rale. Roboto Slab: Apache 2.0; die anderen enthaltenen Schriften: SIL OFL 1.1.</string>
     <string name="licenses_unavailable">Einige Lizenzhinweise konnten nicht geladen werden.</string>
@@ -210,4 +209,20 @@
     <string name="calendar_cache_cleared">Kalendercache geleert. Aktualisierung läuft…</string>
     <string name="calendar_cache_error">Der Kalendercache konnte nicht vollständig geleert werden.</string>
     <string name="clearing_calendar_cache">Kalendercache wird geleert…</string>
+    <string name="weather_attribution">Wetterdaten: Open-Meteo · CC BY 4.0</string>
+    <string name="external_link_unavailable">Keine Anwendung zum Öffnen dieses Links verfügbar.</string>
+    <string name="privacy_identity">TimeWall-Datenschutzhinweise\nVerantwortlicher: %1$s\nKontakt: %2$s</string>
+    <string name="privacy_updated">Zuletzt aktualisiert: %1$s</string>
+    <string name="privacy_service">Zweck und Rechtsgrundlage\nDie Verarbeitung ist zur Bereitstellung der angeforderten Kalenderanzeige und optionalen Wetterfunktionen erforderlich (Art. 6 Abs. 1 Buchst. b DSGVO); einschlägige gesetzliche Pflichten bleiben anwendbar. TimeWall benötigt kein Konto und nutzt keine Entwicklerserver, Werbung, Analyse oder Profilbildung. Es gibt keine automatisierten Entscheidungen mit rechtlicher Wirkung.</string>
+    <string name="privacy_calendars">Kalender\nDie App verbindet sich direkt mit den konfigurierten HTTPS-iCal-Anbietern. URLs, Namen, Farben und vollständige iCal-Dateien werden lokal gespeichert; sie können Titel, Zeiten, Beschreibungen, Orte, Kennungen, Erstellungsdaten und weitere personenbezogene Daten enthalten. Geheime URLs ermöglichen Kalenderzugriff: schützen Sie diese und nutzen Sie nur autorisierte Kalender. Anbieter sehen die angefragte URL, IP und Netzwerkmetadaten; ihre Datenschutzhinweise gelten.</string>
+    <string name="privacy_weather">Optionales Wetter\nOrtssuchen und Sprache werden an Open-Meteo-Geocoding gesendet; Vorhersagen nutzen die Koordinaten des gewählten Orts. GPS wird nicht abgefragt. Open-Meteo sieht auch die IP und erklärt, API-Protokolle mit möglichen Koordinaten nach 90 Tagen zu löschen. Wetter deaktivieren stoppt Vorhersagen; ausdrückliche Suchen in Einstellungen kontaktieren weiterhin Open-Meteo. Unabhängige Anbieter können Daten außerhalb Ihres Landes oder des EWR verarbeiten; Angaben zu Orten und Garantien finden Sie dort.</string>
+    <string name="privacy_local">Lokale Einstellungen und Bilder\nDesign, Schrift, Sprache, Filter, Zeitformat und Wetteroptionen bleiben auf dem Gerät. Das Hintergrundbild wird über die Android-Dateiauswahl gelesen und von TimeWall nicht hochgeladen. Der Verantwortliche erhält Daten nur bei freiwilliger Kontaktaufnahme, etwa E-Mail und Nachricht, zur Bearbeitung der Anfrage.</string>
+    <string name="privacy_retention">Speicherung und Löschung\nKalendercaches werden bei erfolgreicher Aktualisierung ersetzt und beim Speichern einer Kalenderentfernung oder URL-Änderung gelöscht. Einstellungen → Kalender → Kalendercache leeren entfernt lokale Kopien und lädt sie erneut, ohne die Konfiguration zu löschen. Wetter deaktivieren behält Ort und Optionen. App-Daten löschen oder Deinstallation entfernt privaten Speicher, nicht Originalbilder oder Anbieterdaten. Kontaktmitteilungen bleiben so lange gespeichert, wie Anfrage und gesetzliche Pflichten es erfordern.</string>
+    <string name="privacy_security">Sicherheit\nVerbindungen nutzen HTTPS. Dateien und Einstellungen beruhen auf Android-App-Isolation ohne zusätzliche App-Verschlüsselung. Wetterfehlerprotokolle enthalten nur feste Kategorien. Android-Backup ist deaktiviert. Externe Links öffnen den gewählten Browser oder E-Mail-Dienst mit dessen Datenschutzhinweisen.</string>
+    <string name="privacy_rights">Ihre Rechte\nSoweit anwendbar können Sie Auskunft, Berichtigung, Löschung, Einschränkung, Übertragbarkeit und Widerspruch beim Verantwortlichen geltend machen. Beschwerden sind beim italienischen Garante oder einer zuständigen Aufsicht möglich. Für lokale Daten nutzen Sie Gerätefunktionen: Fernzugriff durch den Verantwortlichen besteht nicht. Bei unabhängigen Anbietern wenden Sie sich an diese. URL und Ort sind freiwillig; ohne sie fehlt die jeweilige Funktion.</string>
+    <string name="privacy_web_pending">Öffentliche URL der Datenschutzhinweise: noch festzulegen.</string>
+  <string name="no_calendars_configured">"Keine Kalender eingerichtet. Kalender hinzufügen"</string>
+  <string name="pro_future">Pro-Funktion · Später verfügbar</string>
+  <string name="calendar_limit">Es werden höchstens %1$d Kalender aktualisiert.</string>
+  <string name="background_blur">Hintergrundunschärfe: %1$s</string>
 </resources>
