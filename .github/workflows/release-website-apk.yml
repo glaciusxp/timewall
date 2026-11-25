@@ -59,11 +59,20 @@ jobs:
           : "${TIMEWALL_KEY_ALIAS:?Missing key alias}"
           : "${TIMEWALL_KEY_PASSWORD:?Missing key password}"
           umask 077
-          TIMEWALL_KEYSTORE="$(mktemp "$RUNNER_TEMP/timewall.XXXXXXXX")"
+          TIMEWALL_KEYSTORE="$(mktemp --suffix=.jks "$RUNNER_TEMP/timewall.XXXXXXXX")"
           export TIMEWALL_KEYSTORE
           trap 'rm -f -- "$TIMEWALL_KEYSTORE"' EXIT
           printf '%s' "$TIMEWALL_KEYSTORE_BASE64" | base64 --decode > "$TIMEWALL_KEYSTORE"
           unset TIMEWALL_KEYSTORE_BASE64
+          if ! keytool -list -storetype JKS -keystore "$TIMEWALL_KEYSTORE" -storepass:env TIMEWALL_STORE_PASSWORD >/dev/null 2>&1; then
+            echo "::error::Cannot open the JKS with TIMEWALL_STORE_PASSWORD. Check the keystore and store password secrets."
+            exit 1
+          fi
+          if ! keytool -certreq -storetype JKS -keystore "$TIMEWALL_KEYSTORE" -storepass:env TIMEWALL_STORE_PASSWORD -alias "$TIMEWALL_KEY_ALIAS" -keypass:env TIMEWALL_KEY_PASSWORD -file /dev/null >/dev/null 2>&1; then
+            echo "::error::Cannot use the private key. Check the key alias and key password secrets."
+            exit 1
+          fi
+          echo "Keystore and private key opened successfully."
           bash timewall-app/gradlew -p timewall-app --no-daemon --console=plain assembleSiteFreeWebsite
 
       - name: Verify APK metadata and signing certificate
