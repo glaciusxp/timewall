@@ -69,7 +69,15 @@ public final class ClockWidget extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        if (UPDATE.equals(action)
+        if (AppWidgetManager.ACTION_APPWIDGET_OPTIONS_CHANGED.equals(action)) {
+            int id =
+                    intent.getIntExtra(
+                            AppWidgetManager.EXTRA_APPWIDGET_ID,
+                            AppWidgetManager.INVALID_APPWIDGET_ID);
+            if (id != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                update(context, AppWidgetManager.getInstance(context), id);
+            }
+        } else if (UPDATE.equals(action)
                 || Intent.ACTION_TIME_CHANGED.equals(action)
                 || Intent.ACTION_TIMEZONE_CHANGED.equals(action)
                 || Intent.ACTION_LOCALE_CHANGED.equals(action)) {
@@ -85,15 +93,12 @@ public final class ClockWidget extends AppWidgetProvider {
     }
 
     @Override
-    public void onAppWidgetOptionsChanged(
-            Context context, AppWidgetManager manager, int id, Bundle options) {
-        update(context, manager);
-    }
-
-    @Override
     public void onDeleted(Context context, int[] ids) {
+        AppWidgetManager manager = AppWidgetManager.getInstance(context);
+        int[] active = manager.getAppWidgetIds(new ComponentName(context, ClockWidget.class));
         SharedPreferences.Editor edit = WhatsNextWidget.preferences(context).edit();
         for (int id : ids) {
+            if (isActive(active, id)) continue;
             edit.remove(secondsKey(id))
                     .remove(hourKey(id))
                     .remove(dateKey(id))
@@ -101,11 +106,24 @@ public final class ClockWidget extends AppWidgetProvider {
                     .remove(WhatsNextWidget.transparencyKey(id));
         }
         edit.apply();
-        update(context, AppWidgetManager.getInstance(context));
+        update(context, manager);
+    }
+
+    private static boolean isActive(int[] ids, int id) {
+        for (int active : ids) {
+            if (active == id) return true;
+        }
+        return false;
     }
 
     private static void update(Context context, AppWidgetManager manager) {
+        update(context, manager, AppWidgetManager.INVALID_APPWIDGET_ID);
+    }
+
+    private static void update(Context context, AppWidgetManager manager, int resizedId) {
         int[] ids = manager.getAppWidgetIds(new ComponentName(context, ClockWidget.class));
+        boolean resizing = resizedId != AppWidgetManager.INVALID_APPWIDGET_ID;
+        if (resizing && !isActive(ids, resizedId)) return;
         AlarmManager alarms = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         PendingIntent alarm =
                 PendingIntent.getBroadcast(context, 0, updateIntent(context), flags());
@@ -129,6 +147,7 @@ public final class ClockWidget extends AppWidgetProvider {
                 customClock ? custom[CustomThemeEditor.DATE_COLOR_INDEX] : theme.palette.accent;
         long now = System.currentTimeMillis();
         for (int id : ids) {
+            if (resizing && id != resizedId) continue;
             Bundle options = manager.getAppWidgetOptions(id);
             boolean landscape =
                     context.getResources().getConfiguration().orientation
@@ -195,7 +214,9 @@ public final class ClockWidget extends AppWidgetProvider {
                     PendingIntent.getActivity(context, id, configure, flags()));
             manager.updateAppWidget(id, view);
         }
-        alarms.set(AlarmManager.RTC, CalendarDays.nextDay(CalendarDays.midnight(now)), alarm);
+        if (!resizing) {
+            alarms.set(AlarmManager.RTC, CalendarDays.nextDay(CalendarDays.midnight(now)), alarm);
+        }
     }
 
     private static int faceLayout(Context context, DashboardFont font) {
