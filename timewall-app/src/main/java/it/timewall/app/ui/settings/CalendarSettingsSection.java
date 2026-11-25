@@ -137,19 +137,17 @@ public final class CalendarSettingsSection {
         fields.setPadding(views.dp(16), views.dp(8), views.dp(16), 0);
         EditText name = new EditText(activity);
         name.setSingleLine(true);
-        fields.addView(views.secondaryLabel(I18n.text(activity, "name"), 14));
+        views.addSettingHeading(fields, I18n.text(activity, "name"), true);
+        views.styleSettingInput(name);
         fields.addView(name);
-        TextView addressHeading = views.secondaryLabel(I18n.text(activity, "ical_address"), 14);
-        addressHeading.setPadding(0, views.dp(12), 0, 0);
-        fields.addView(addressHeading);
+        views.addSettingHeading(fields, I18n.text(activity, "ical_address"), false);
         EditText address = new EditText(activity);
+        views.styleSettingInput(address);
         address.setSingleLine(true);
         address.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
         address.setSaveEnabled(false);
         fields.addView(address);
-        TextView colorHeading = views.secondaryLabel(I18n.text(activity, "calendar_color"), 14);
-        colorHeading.setPadding(0, views.dp(12), 0, 0);
-        fields.addView(colorHeading);
+        views.addSettingHeading(fields, I18n.text(activity, "calendar_color"), false);
         Spinner colors = new Spinner(activity, Spinner.MODE_DROPDOWN);
         ColorLabelAdapter adapter =
                 new ColorLabelAdapter(
@@ -275,6 +273,7 @@ public final class CalendarSettingsSection {
          * @return label configurata secondo lo stile descritto
          */
         private TextView withDot(TextView text, int position) {
+            views.styleSettingInput(text);
             views.setCalendarDot(text, colors[position], 13);
             if (text.getPaddingLeft() < minimumLeftPadding) {
                 text.setPadding(

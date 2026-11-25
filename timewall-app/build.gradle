@@ -73,6 +73,53 @@ dependencies {
     testImplementation 'org.json:json:20240303'
 }
 
+
+// Reuse the assets required by KitKat as native launcher fonts on API 26 and later.
+abstract class ClockFontResources extends DefaultTask {
+    @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
+    abstract ConfigurableFileCollection getFontAssets()
+
+    @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
+    abstract RegularFileProperty getClockLayout()
+
+    @OutputDirectory
+    abstract DirectoryProperty getOutputDirectory()
+
+    @TaskAction
+    void generate() {
+        File output = outputDirectory.get().asFile
+        File fonts = new File(output, 'font')
+        File layouts = new File(output, 'layout-v26')
+        fonts.mkdirs()
+        layouts.mkdirs()
+        String template = clockLayout.get().asFile.getText('UTF-8')
+        fontAssets.files.sort { it.name }.each { File asset ->
+            int extension = asset.name.lastIndexOf('.')
+            String name = asset.name.substring(0, extension).toLowerCase(Locale.ROOT)
+                    .replaceAll('[^a-z0-9]', '_')
+            new File(fonts, name + asset.name.substring(extension)).bytes = asset.bytes
+            new File(layouts, 'widget_clock_' + name + '.xml').setText(
+                    template.replace('    android:textStyle="bold"',
+                            '    android:fontFamily="@font/' + name + '"\n    android:textStyle="bold"'),
+                    'UTF-8')
+        }
+    }
+}
+
+def clockFontResources = tasks.register('generateClockFontResources', ClockFontResources) {
+    fontAssets.from(fileTree('src/main/assets') { include 'Roboto*-Regular.ttf', 'ShantellSans-Regular.ttf' })
+    fontAssets.from(fileTree('src/complete/assets') { include '*.ttf', '*.otf' })
+    clockLayout.set(layout.projectDirectory.file('src/complete/res/layout/widget_clock_digits.xml'))
+    outputDirectory.set(layout.buildDirectory.dir('generated/clockWidget/res'))
+}
+androidComponents.onVariants(androidComponents.selector().all()) { variant ->
+    if (variant.flavorName == 'complete') {
+        variant.sources.res.addGeneratedSourceDirectory(clockFontResources, { task -> task.outputDirectory })
+    }
+}
+
 dependencyLocking { lockAllConfigurations() }
 
 configurations { javaFormatter { transitive = false } }

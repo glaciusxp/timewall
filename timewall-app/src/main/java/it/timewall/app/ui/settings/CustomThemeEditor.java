@@ -21,7 +21,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import it.timewall.app.configuration.HexColor;
+import it.timewall.app.configuration.Palette;
 import it.timewall.app.localization.I18n;
+import it.timewall.app.ui.common.ViewFactory;
 
 import java.util.Locale;
 
@@ -47,20 +49,20 @@ public final class CustomThemeEditor extends LinearLayout {
      * salvati e collega validazione e color picker con canale alpha.
      *
      * @param activity Activity proprietaria delle viste e dei servizi Android
+     * @param views factory dello stile delle impostazioni
      * @param preferences archivio delle preferenze da leggere o aggiornare
      */
-    public CustomThemeEditor(Activity activity, SharedPreferences preferences) {
+    public CustomThemeEditor(Activity activity, ViewFactory views, SharedPreferences preferences) {
         super(activity);
         setOrientation(VERTICAL);
+        views.addSettingHeading(this, I18n.text(activity, "palette"), true);
         for (int index = 0; index < inputs.length; index++) {
             String name = I18n.text(activity, LABELS[index]);
             LinearLayout row = new LinearLayout(activity);
             row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setPadding(0, dp(8), 0, 0);
-            addView(row, new LayoutParams(-1, -2));
+            views.addSettingView(this, row, index == 0, 0);
 
-            TextView label = new TextView(activity);
-            label.setText(name);
+            TextView label = views.settingHeading(name);
             row.addView(label, new LayoutParams(0, -2, 1));
 
             Button swatch = new Button(activity);
@@ -71,6 +73,7 @@ public final class CustomThemeEditor extends LinearLayout {
 
             EditText input = new EditText(activity);
             inputs[index] = input;
+            views.styleSettingInput(input);
             input.setSingleLine(true);
             input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
             input.setHint("#AARRGGBB");
@@ -152,6 +155,19 @@ public final class CustomThemeEditor extends LinearLayout {
     private static String savedColor(SharedPreferences preferences, int index) {
         String fallback = index >= CLOCK_COLOR_INDEX ? preferences.getString(KEYS[0], "") : "";
         return preferences.getString(KEYS[index], fallback);
+    }
+
+    public static Palette customPalette(int[] colors) {
+        int automaticText = ViewFactory.contrastingText(colors[1]);
+        boolean legacy = colors.length == LEGACY_COLOR_COUNT;
+        return new Palette(
+                colors[1],
+                colors[0],
+                legacy ? automaticText : colors[4],
+                legacy ? automaticText : colors[5],
+                colors[2],
+                colors[3],
+                automaticText == Color.WHITE ? 0x55ffffff : 0x55000000);
     }
 
     /**

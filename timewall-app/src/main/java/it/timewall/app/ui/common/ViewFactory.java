@@ -5,6 +5,8 @@ import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -13,10 +15,74 @@ import it.timewall.app.configuration.Palette;
 
 /** Stateless presentation helpers shared only inside the official application. */
 public final class ViewFactory {
+    public static final String REFRESH_GLYPH = "\uf021";
+    public static final int SETTING_GROUP_GAP_DP = 16;
+    private static final int SETTING_LABEL_GAP_DP = 6;
+    private static final int SETTING_INPUT_SP = 16;
+    private static final int SETTING_INPUT_HEIGHT_DP = 48;
+
     private final Activity activity;
     private final Palette palette;
     private final Typeface dashboardTypeface, menuIcons;
     private final boolean darkTheme;
+
+    public TextView settingHeading(String text) {
+        return label(text, 18, true);
+    }
+
+    public void addSettingHeading(LinearLayout parent, String text, boolean first) {
+        TextView heading = settingHeading(text);
+        addSettingView(parent, heading, first, SETTING_LABEL_GAP_DP);
+    }
+
+    public void addSettingView(LinearLayout parent, View view, boolean first, int bottomGapDp) {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
+        params.topMargin = first ? 0 : dp(SETTING_GROUP_GAP_DP);
+        params.bottomMargin = dp(bottomGapDp);
+        parent.addView(view, params);
+    }
+
+    public TextView styleSettingInput(TextView input) {
+        input.setTextSize(SETTING_INPUT_SP);
+        input.setMinHeight(dp(SETTING_INPUT_HEIGHT_DP));
+        input.setGravity(android.view.Gravity.START | android.view.Gravity.CENTER_VERTICAL);
+        input.setTypeface(
+                dashboardTypeface == null
+                        ? Typeface.create("sans-serif", Typeface.NORMAL)
+                        : dashboardTypeface,
+                Typeface.NORMAL);
+        int disabled = (palette.secondaryText & 0xffffff) | 0x99000000;
+        input.setTextColor(
+                new ColorStateList(
+                        new int[][] {{-android.R.attr.state_enabled}, {}},
+                        new int[] {disabled, palette.text}));
+        input.setHintTextColor(
+                new ColorStateList(
+                        new int[][] {{-android.R.attr.state_enabled}, {}},
+                        new int[] {disabled, palette.secondaryText}));
+        return input;
+    }
+
+    public ArrayAdapter<String> settingChoices(String... labels) {
+        return new SettingChoices(labels);
+    }
+
+    public class SettingChoices extends ArrayAdapter<String> {
+        public SettingChoices(String[] labels) {
+            super(activity, android.R.layout.simple_spinner_item, labels);
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        }
+
+        @Override
+        public View getView(int position, View recycled, ViewGroup parent) {
+            return styleSettingInput((TextView) super.getView(position, recycled, parent));
+        }
+
+        @Override
+        public View getDropDownView(int position, View recycled, ViewGroup parent) {
+            return styleSettingInput((TextView) super.getDropDownView(position, recycled, parent));
+        }
+    }
 
     public boolean isDarkTheme() {
         return darkTheme;

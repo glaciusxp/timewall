@@ -13,6 +13,22 @@ public final class TimeDisplay {
     /** Impedisce l’istanziazione della classe di sole operazioni statiche. */
     private TimeDisplay() {}
 
+    public static String startsIn(Context context, long remaining) {
+        if (remaining < 60_000L) return I18n.text(context, "starts_in_moments");
+        return I18n.text(context, "starts_in", countdownDuration(context, remaining));
+    }
+
+    /** Formats the time remaining using the dashboard's localised duration units. */
+    public static String countdownDuration(Context context, long remaining) {
+        long minutes = remaining / 60_000L;
+        if (minutes < 60) return I18n.quantity(context, "minutes", minutes);
+        return I18n.text(
+                context,
+                "duration_join",
+                I18n.quantity(context, "hours", minutes / 60),
+                I18n.quantity(context, "minutes", minutes % 60));
+    }
+
     /**
      * Formatta l’ora nella lingua attiva, scegliendo 12/24 ore e la presenza dei secondi.
      * L’overload con preferenze legge il formato salvato e omette i secondi per gli orari degli
@@ -25,9 +41,12 @@ public final class TimeDisplay {
      * @return ora localizzata nel formato selezionato; l’overload con preferenze omette i secondi
      */
     public static String time(Context context, long millis, boolean seconds, boolean use24Hour) {
-        String pattern =
-                use24Hour ? (seconds ? "HH:mm:ss" : "HH:mm") : (seconds ? "hh:mm:ss a" : "hh:mm a");
-        return new SimpleDateFormat(pattern, I18n.locale(context)).format(new Date(millis));
+        return new SimpleDateFormat(timePattern(seconds, use24Hour), I18n.locale(context))
+                .format(new Date(millis));
+    }
+
+    public static String timePattern(boolean seconds, boolean use24Hour) {
+        return use24Hour ? (seconds ? "HH:mm:ss" : "HH:mm") : (seconds ? "hh:mm:ss a" : "hh:mm a");
     }
 
     /**

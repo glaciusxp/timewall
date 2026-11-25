@@ -18,13 +18,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import it.timewall.app.data.weather.OpenMeteoClient;
+import it.timewall.app.data.weather.WeatherForecast;
 import it.timewall.app.domain.model.WeatherConditions;
 import it.timewall.app.domain.model.WeatherPlace;
+import it.timewall.app.domain.weather.WeatherRefreshPolicy;
 import it.timewall.app.localization.I18n;
 import it.timewall.app.localization.TimeDisplay;
 import it.timewall.app.platform.logging.WeatherLog;
+import it.timewall.app.ui.common.ViewFactory;
 
-import java.text.NumberFormat;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,7 +36,6 @@ public final class DashboardWeather {
     private static final int[] REFRESH_MINUTES = {15, 30, 60, 120};
     private static final int DEFAULT_REFRESH_INDEX = 1;
     private static final String REFRESH_PREFERENCE = "weather.refreshMinutes";
-    private static final String LAST_SUCCESS_PREFERENCE = "weather.lastSuccessfulRefreshMillis";
 
     private final Activity activity;
     private final SharedPreferences preferences;
@@ -49,11 +50,15 @@ public final class DashboardWeather {
     private final Handler handler = new Handler();
     private final ExecutorService forecastWorker = Executors.newSingleThreadExecutor();
     private final ExecutorService searchWorker = Executors.newSingleThreadExecutor();
-    private final Runnable refresh = this::requestWeather;
+    private final Runnable refresh = () -> requestWeather(false);
+    private final SharedPreferences.OnSharedPreferenceChangeListener forecastChanged =
+            (settings, key) -> {
+                if (WeatherForecast.CACHE_KEY.equals(key)) restoreForecast();
+            };
     private WeatherPlace place;
     private WeatherConditions conditions;
     private boolean enabled, fahrenheit, resumed, failed;
-    private long nextRefresh;
+    private long nextRefresh, lastUpdate;
     private int refreshIndex;
     private int revision;
     private Future<?> forecastTask;
@@ -98,7 +103,7 @@ public final class DashboardWeather {
         this.display = display;
         this.updateClockLayout = updateClockLayout;
         this.refreshButton = refreshButton;
-        refreshButton.setOnClickListener(view -> requestWeather());
+        refreshButton.setOnClickListener(view -> requestWeather(true));
         this.locationLabel = locationLabel;
         this.lastUpdateLabel = lastUpdateLabel;
         this.windLabel = windLabel;
@@ -108,15 +113,7 @@ public final class DashboardWeather {
         this.temperatureLabel = temperatureLabel;
         this.summaryLabel = summaryLabel;
         this.statusLabel = statusLabel;
-        String name = preferences.getString("weather.name", "");
-        if (!name.isEmpty()) {
-            place =
-                    new WeatherPlace(
-                            name,
-                            preferences.getString("weather.detail", ""),
-                            Double.longBitsToDouble(preferences.getLong("weather.lat", 0)),
-                            Double.longBitsToDouble(preferences.getLong("weather.lon", 0)));
-        }
+        place = WeatherForecast.location(preferences);
         enabled = preferences.getBoolean("weather.enabled", false);
         fahrenheit = preferences.getBoolean("weather.fahrenheit", false);
         refreshIndex = DEFAULT_REFRESH_INDEX;
@@ -128,7 +125,7 @@ public final class DashboardWeather {
                 break;
             }
         }
-        render();
+        restoreForecast();
     }
 
     /**
@@ -136,8 +133,9 @@ public final class DashboardWeather {
      * può partire subito.
      */
     public void resume() {
+        if (!resumed) preferences.registerOnSharedPreferenceChangeListener(forecastChanged);
         resumed = true;
-        schedule();
+        restoreForecast();
     }
 
     /**
@@ -145,6 +143,7 @@ public final class DashboardWeather {
      * obsoleto venga applicato alla schermata non attiva.
      */
     public void pause() {
+        preferences.unregisterOnSharedPreferenceChangeListener(forecastChanged);
         resumed = false;
         handler.removeCallbacks(refresh);
         invalidateForecast();
@@ -190,7 +189,7 @@ public final class DashboardWeather {
      * permettono. Scarta risposte di revisioni superate, salva l’ora del successo e pianifica
      * intervallo normale o retry.
      */
-    private void requestWeather() {
+    private void requestWeather(boolean manual) {
         if (!resumed || !enabled || place == null || forecastTask != null) {
             return;
         }
@@ -201,13 +200,9 @@ public final class DashboardWeather {
         forecastTask =
                 forecastWorker.submit(
                         () -> {
-                            WeatherConditions received = null;
-                            try {
-                                received = OpenMeteoClient.current(activity, requested);
-                            } catch (Exception | LinkageError exception) {
-                                WeatherLog.warn(WeatherLog.Operation.FORECAST, exception);
-                            }
-                            WeatherConditions result = received;
+                            boolean success =
+                                    WeatherForecast.refresh(
+                                            activity, preferences, requested, manual);
                             handler.post(
                                     () -> {
                                         if (revision != requestRevision) {
@@ -215,29 +210,26 @@ public final class DashboardWeather {
                                         }
                                         forecastTask = null;
                                         refreshButton.setEnabled(true);
-                                        failed = result == null;
-                                        if (!failed) {
-                                            conditions = result;
-                                            // Wall-clock time of the successful fetch; scheduling
-                                            // uses elapsed time.
-                                            preferences
-                                                    .edit()
-                                                    .putLong(
-                                                            LAST_SUCCESS_PREFERENCE,
-                                                            System.currentTimeMillis())
-                                                    .apply();
-                                        }
-                                        nextRefresh =
-                                                SystemClock.elapsedRealtime()
-                                                        + it.timewall.app.domain.weather
-                                                                .WeatherRefreshPolicy.delayMillis(
-                                                                REFRESH_MINUTES[refreshIndex],
-                                                                failed);
-                                        render();
-                                        schedule();
+                                        failed = !success;
+                                        restoreForecast();
                                     });
                         });
         renderLastUpdate();
+    }
+
+    private void restoreForecast() {
+        WeatherForecast forecast = WeatherForecast.cached(preferences, place);
+        long timestamp = forecast == null ? 0 : forecast.updatedAt;
+        if (timestamp != lastUpdate && timestamp > 0) failed = false;
+        conditions = forecast == null ? null : forecast.conditions;
+        lastUpdate = timestamp;
+        long delay =
+                failed
+                        ? WeatherRefreshPolicy.delayMillis(REFRESH_MINUTES[refreshIndex], true)
+                        : WeatherForecast.delay(preferences, forecast);
+        nextRefresh = SystemClock.elapsedRealtime() + delay;
+        render();
+        schedule();
     }
 
     /**
@@ -257,26 +249,16 @@ public final class DashboardWeather {
                         ? I18n.text(activity, "weather_unavailable")
                         : I18n.text(activity, "loading_weather");
         temperatureLabel.setVisibility(conditions == null ? View.INVISIBLE : View.VISIBLE);
-        NumberFormat format = NumberFormat.getNumberInstance(I18n.locale(activity));
-        format.setMaximumFractionDigits(1);
-        boolean hasWind = conditions != null && conditions.windSpeedAt10mKmh != null;
-        ((View) windLabel.getParent()).setVisibility(hasWind ? View.VISIBLE : View.INVISIBLE);
-        if (hasWind) {
-            String wind = Math.round(conditions.windSpeedAt10mKmh) + " km/h";
-            if (conditions.windDirectionAt10mDegrees != null) {
-                wind += " " + cardinalDirection(conditions.windDirectionAt10mDegrees);
-            }
-            windLabel.setText(wind);
-        }
+        WeatherText format = new WeatherText(activity, fahrenheit);
+        showMetric(windLabel, conditions == null ? null : format.wind(conditions));
         Double apparent = conditions == null ? null : conditions.apparentCelsius;
         Double probability = conditions == null ? null : conditions.precipitationProbabilityPercent;
         Double amount = conditions == null ? null : conditions.precipitationMm;
-        showMetric(apparentLabel, apparent == null ? null : formatTemperature(format, apparent));
-        showMetric(
-                precipitationLabel, probability == null ? null : format.format(probability) + "%");
-        showMetric(precipitationAmountLabel, amount == null ? null : format.format(amount) + " mm");
+        showMetric(apparentLabel, apparent == null ? null : format.temperature(apparent));
+        showMetric(precipitationLabel, format.measure(probability, "%"));
+        showMetric(precipitationAmountLabel, format.measure(amount, " mm"));
         if (conditions != null) {
-            temperatureLabel.setText(formatTemperature(format, conditions.celsius));
+            temperatureLabel.setText(format.temperature(conditions.celsius));
             summary = I18n.text(activity, conditions.descriptionKey);
         }
         locationLabel.setText(place.name);
@@ -309,7 +291,8 @@ public final class DashboardWeather {
      */
     private static void showMetric(TextView label, String text) {
         label.setText(text);
-        ((View) label.getParent()).setVisibility(text == null ? View.INVISIBLE : View.VISIBLE);
+        ((View) label.getParent())
+                .setVisibility(text == null || text.isEmpty() ? View.INVISIBLE : View.VISIBLE);
     }
 
     /**
@@ -322,45 +305,11 @@ public final class DashboardWeather {
             lastUpdateLabel.setVisibility(View.VISIBLE);
             return;
         }
-        long lastUpdate = preferences.getLong(LAST_SUCCESS_PREFERENCE, 0);
         lastUpdateLabel.setVisibility(lastUpdate > 0 ? View.VISIBLE : View.GONE);
         if (lastUpdate > 0) {
             String time = TimeDisplay.time(activity, preferences, lastUpdate);
             lastUpdateLabel.setText(I18n.text(activity, "last_update", time));
         }
-    }
-
-    /**
-     * Converte la misura canonica Celsius nell’unità selezionata e la formatta con il suffisso °C o
-     * °F senza spazio.
-     *
-     * @param format formattatore numerico della lingua attiva
-     * @param celsius temperatura effettiva in gradi Celsius
-     * @return temperatura locale con suffisso °C o °F senza spazio
-     */
-    private String formatTemperature(NumberFormat format, double celsius) {
-        double value = fahrenheit ? celsius * 1.8 + 32 : celsius;
-        return format.format(value) + (fahrenheit ? "°F" : "°C");
-    }
-
-    /**
-     * Normalizza l’angolo del vento e lo associa al settore della rosa a sedici direzioni,
-     * risolvendo il nome nella lingua attiva.
-     *
-     * @param degrees direzione del vento in gradi
-     * @return abbreviazione tradotta della direzione del vento
-     */
-    private String cardinalDirection(double degrees) {
-        double normalized = (degrees % 360 + 360) % 360;
-        String[] points =
-                activity.getResources()
-                        .getStringArray(
-                                activity.getResources()
-                                        .getIdentifier(
-                                                "wind_directions",
-                                                "array",
-                                                activity.getPackageName()));
-        return points[(int) Math.round(normalized / 22.5) % points.length];
     }
 
     public final class Settings implements TextWatcher {
@@ -383,19 +332,22 @@ public final class DashboardWeather {
          * Costruisce il form della bozza meteo con abilitazione, ricerca località, unità, frequenza
          * e indicazione del provider. La scelta di un risultato aggiorna la bozza senza salvarla.
          *
+         * @param views factory dello stile delle impostazioni
          * @param locationIcon vista del glifo di localizzazione da aggiungere al form
          * @return vista costruita o aggiornata, pronta per il contenitore chiamante
          */
-        public View createView(TextView locationIcon) {
-            LinearLayout form = new LinearLayout(activity);
-            form.setOrientation(LinearLayout.VERTICAL);
+        public View createView(ViewFactory views, TextView locationIcon) {
+            LinearLayout form = views.column();
+            views.styleSettingInput(toggle);
+            views.styleSettingInput(query);
+            views.styleSettingInput(selectedLabel);
 
-            addHeading(form, I18n.text(activity, "weather_enable"), 0);
+            views.addSettingHeading(form, I18n.text(activity, "weather_enable"), false);
             toggle.setText(I18n.text(activity, "enable_show"));
             toggle.setChecked(enabled);
             form.addView(toggle);
 
-            addHeading(form, I18n.text(activity, "place"), 12);
+            views.addSettingHeading(form, I18n.text(activity, "place"), false);
             LinearLayout location = new LinearLayout(activity);
             location.setGravity(android.view.Gravity.CENTER_VERTICAL);
             location.addView(locationIcon);
@@ -420,55 +372,28 @@ public final class DashboardWeather {
                         toggle.setChecked(true);
                     });
 
-            addHeading(form, I18n.text(activity, "temperature_unit"), 12);
+            views.addSettingHeading(form, I18n.text(activity, "temperature_unit"), false);
             ArrayAdapter<String> units =
-                    new ArrayAdapter<>(
-                            activity,
-                            android.R.layout.simple_spinner_item,
-                            new String[] {
-                                I18n.text(activity, "celsius"), I18n.text(activity, "fahrenheit")
-                            });
-            units.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    views.settingChoices(
+                            I18n.text(activity, "celsius"), I18n.text(activity, "fahrenheit"));
             unit.setAdapter(units);
             unit.setSelection(fahrenheit ? 1 : 0);
             form.addView(unit);
 
-            addHeading(form, I18n.text(activity, "refresh_frequency"), 12);
+            views.addSettingHeading(form, I18n.text(activity, "refresh_frequency"), false);
             ArrayAdapter<String> frequencies =
-                    new ArrayAdapter<>(
-                            activity,
-                            android.R.layout.simple_spinner_item,
-                            new String[] {
-                                I18n.text(activity, "frequency_15"),
-                                I18n.text(activity, "frequency_30"),
-                                I18n.text(activity, "frequency_60"),
-                                I18n.text(activity, "frequency_120")
-                            });
-            frequencies.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    views.settingChoices(
+                            I18n.text(activity, "frequency_15"),
+                            I18n.text(activity, "frequency_30"),
+                            I18n.text(activity, "frequency_60"),
+                            I18n.text(activity, "frequency_120"));
             frequency.setAdapter(frequencies);
             frequency.setSelection(refreshIndex);
             form.addView(frequency);
 
-            TextView provider = new TextView(activity);
-            provider.setPadding(0, dp(12), 0, 0);
-            provider.setText(I18n.text(activity, "provider"));
-            form.addView(provider);
+            TextView provider = views.secondaryLabel(I18n.text(activity, "provider"), 15);
+            views.addSettingView(form, provider, false, 0);
             return form;
-        }
-
-        /**
-         * Aggiunge al form una label di gruppo in grassetto con la spaziatura superiore richiesta.
-         *
-         * @param form contenitore verticale dei controlli meteo
-         * @param text testo da visualizzare o analizzare
-         * @param topSpacing spaziatura superiore del gruppo in dp
-         */
-        private void addHeading(LinearLayout form, String text, int topSpacing) {
-            TextView heading = new TextView(activity);
-            heading.setText(text);
-            heading.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-            heading.setPadding(0, dp(topSpacing), 0, dp(4));
-            form.addView(heading);
         }
 
         /**
@@ -514,7 +439,6 @@ public final class DashboardWeather {
         public void save() {
             boolean changedPlace = place != selected;
             boolean changedEnabled = enabled != toggle.isChecked();
-            int previousMinutes = REFRESH_MINUTES[refreshIndex];
             refreshIndex = frequency.getSelectedItemPosition();
             place = selected;
             enabled = toggle.isChecked();
@@ -531,22 +455,12 @@ public final class DashboardWeather {
                         .putLong("weather.lat", Double.doubleToLongBits(place.latitude))
                         .putLong("weather.lon", Double.doubleToLongBits(place.longitude));
             }
-            if (changedPlace) {
-                editor.remove(LAST_SUCCESS_PREFERENCE);
-            }
             editor.apply();
             if (changedPlace || changedEnabled) {
                 invalidateForecast();
-                nextRefresh = 0;
                 failed = false;
-                if (changedPlace) {
-                    conditions = null;
-                }
-            } else if (!failed && conditions != null) {
-                nextRefresh += (REFRESH_MINUTES[refreshIndex] - previousMinutes) * 60_000L;
             }
-            render();
-            schedule();
+            restoreForecast();
         }
 
         /**

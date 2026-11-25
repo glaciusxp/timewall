@@ -55,9 +55,7 @@ public final class DashboardLayout {
     private final Typeface menuIcons;
     private static final int COLUMN_INSET = 12, WEATHER_DETAIL_TEXT_SP = 16;
     private static final String BACKGROUND_URI = "dashboardBackgroundUri";
-    private static final String ICON_REFRESH = "\uf021",
-            ICON_SLIDERS = "\uf1de",
-            ICON_ELLIPSIS_VERTICAL = "\uf142";
+    private static final String ICON_SLIDERS = "\uf1de", ICON_ELLIPSIS_VERTICAL = "\uf142";
     public final FrameLayout dashboardHost;
     public final View dashboardContent;
     public final TextView clock, date, status;
@@ -159,7 +157,7 @@ public final class DashboardLayout {
             locationGroup.addView(weatherLastUpdate, updateLayout);
             Button weatherRefresh = new Button(activity);
             weatherRefresh.setTypeface(menuIcons);
-            weatherRefresh.setText(ICON_REFRESH);
+            weatherRefresh.setText(ViewFactory.REFRESH_GLYPH);
             weatherRefresh.setTextColor(palette.text);
             weatherRefresh.setTextSize(14);
             weatherRefresh.setContentDescription(I18n.text(activity, "refresh_weather"));
@@ -224,7 +222,7 @@ public final class DashboardLayout {
         } else {
             weather = null;
         }
-        clock = accentLabel("", 74, true);
+        clock = customColors == null ? views.label("", 74, true) : accentLabel("", 74, true);
         if (customColors != null && customColors.length > CustomThemeEditor.DATE_COLOR_INDEX) {
             clock.setTextColor(customColors[CustomThemeEditor.CLOCK_COLOR_INDEX]);
         }
@@ -251,7 +249,7 @@ public final class DashboardLayout {
         refreshButton =
                 views.addHeaderButton(
                         eventsHeader,
-                        ICON_REFRESH,
+                        ViewFactory.REFRESH_GLYPH,
                         I18n.text(activity, "refresh_calendars"),
                         view -> actions.refresh());
         refreshButton.setBackground(null);

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="whats_next_widget">"What’s next"</string>
+    <string name="widget_choose_calendars">"Scegli i calendari per questo widget."</string>
+    <string name="widget_no_imminent">"Nessun evento in corso o imminente"</string>
+    <string name="widget_cache_empty">"Apri TimeWall per aggiornare i calendari."</string>
+    <string name="widget_background_transparency">"Trasparenza dello sfondo: %1$s"</string>
+    <string name="widget_settings_title">Impostazioni widget</string>
+    <string name="widget_clock_title">Orologio</string>
+    <string name="widget_enlarge_text">Ingrandisci testo</string>
+    <string name="whats_next_widget_picker_label">TimeWall - What’s next</string>
+    <string name="agenda_widget_picker_label">TimeWall - Agenda</string>
+    <string name="clock_widget_picker_label">TimeWall - Orologio</string>
+    <string name="weather_widget_picker_label">TimeWall - Meteo</string>
+</resources>

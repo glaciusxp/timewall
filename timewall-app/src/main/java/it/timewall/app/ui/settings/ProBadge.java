@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -51,14 +50,16 @@ final class ProBadge {
     static View weatherFields(Activity activity, ViewFactory views) {
         LinearLayout form = views.column();
         form.addView(views.secondaryLabel(I18n.text(activity, "pro_future"), 16));
-        form.addView(views.label(I18n.text(activity, "weather_enable"), 18, true));
+        views.addSettingHeading(form, I18n.text(activity, "weather_enable"), false);
         CheckBox toggle = new CheckBox(activity);
+        views.styleSettingInput(toggle);
         toggle.setText(I18n.text(activity, "enable_show"));
         toggle.setEnabled(false);
         form.addView(toggle);
 
-        form.addView(views.label(I18n.text(activity, "place"), 18, true));
+        views.addSettingHeading(form, I18n.text(activity, "place"), false);
         EditText query = new EditText(activity);
+        views.styleSettingInput(query);
         query.setSingleLine(true);
         query.setHint(I18n.text(activity, "search_place"));
         query.setEnabled(false);
@@ -83,14 +84,13 @@ final class ProBadge {
             LinearLayout form,
             String heading,
             String... keys) {
-        form.addView(views.label(I18n.text(activity, heading), 18, true));
+        views.addSettingHeading(form, I18n.text(activity, heading), false);
         String[] values = new String[keys.length];
         for (int index = 0; index < keys.length; index++) {
             values[index] = I18n.text(activity, keys[index]);
         }
         Spinner picker = new Spinner(activity);
-        picker.setAdapter(
-                new ArrayAdapter<>(activity, android.R.layout.simple_spinner_item, values));
+        picker.setAdapter(views.settingChoices(values));
         picker.setEnabled(false);
         form.addView(picker);
     }

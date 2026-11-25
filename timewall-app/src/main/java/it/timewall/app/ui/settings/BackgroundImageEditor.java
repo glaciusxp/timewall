@@ -84,9 +84,7 @@ public final class BackgroundImageEditor {
                         : BackgroundBlur.levelFromPreference(
                                 preferences.getInt(BackgroundBlur.PREFERENCE, 0));
         selectedName = preferences.getString(BACKGROUND_NAME, "");
-        TextView heading = views.label(I18n.text(activity, "background"), 16, true);
-        heading.setPadding(0, views.dp(12), 0, 0);
-        view.addView(heading);
+        views.addSettingHeading(view, I18n.text(activity, "background"), true);
         LinearLayout buttons = new LinearLayout(activity);
         view.addView(buttons);
         pick.setText(I18n.text(activity, "choose_image"));
@@ -110,14 +108,13 @@ public final class BackgroundImageEditor {
         view.addView(status);
         view.addView(fileName);
         blurControls = views.column();
-        blurControls.setPadding(0, views.dp(12), 0, 0);
-        blurLabel = views.label("", 16, true);
+        blurLabel = views.settingHeading("");
         blurControls.addView(blurLabel);
         blur = new SeekBar(activity);
         blur.setMax(BackgroundBlur.LEVEL_COUNT - 1);
         blur.setProgress(originalBlur);
         blurControls.addView(blur);
-        view.addView(blurControls);
+        views.addSettingView(view, blurControls, false, 0);
         blur.setOnSeekBarChangeListener(
                 new SeekBar.OnSeekBarChangeListener() {
                     @Override

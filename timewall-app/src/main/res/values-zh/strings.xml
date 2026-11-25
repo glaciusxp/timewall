@@ -223,4 +223,5 @@
   <string name="pro_future">Pro 功能 · 日后提供</string>
   <string name="calendar_limit">最多可刷新 %1$d 个日历。</string>
   <string name="background_blur">背景模糊：%1$s</string>
+  <string name="starts_in_moments">即将开始</string>
 </resources>

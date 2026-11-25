@@ -225,4 +225,5 @@
   <string name="pro_future">Função Pro · Disponível futuramente</string>
   <string name="calendar_limit">É possível atualizar até %1$d calendários.</string>
   <string name="background_blur">Desfoque do fundo: %1$s</string>
+  <string name="starts_in_moments">Começa dentro de instantes</string>
 </resources>

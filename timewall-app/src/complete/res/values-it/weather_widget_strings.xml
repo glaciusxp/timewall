@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_weather_last_update">Ult. agg.: %1$s</string>
+</resources>

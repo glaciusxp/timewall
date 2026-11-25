@@ -35,6 +35,8 @@ Usa questo file come contesto iniziale per lavorare in `C:\workspace\android-app
 
 ## Build, installazione e ripresa
 
+- Dopo ogni modifica all'app, compila e installa sul TF303CL tutte e tre le varianti della Dashboard via ADB con i rispettivi ID: completa, Free Play e Free sito. Usa gli APK dei task `assembleCompleteRelease`, `assemblePlayFreeRelease` e `assembleSiteFreeWebsite`. Il collaudo sul dispositivo resta all'utente, salvo richiesta esplicita.
+
 - Da questa radice usa `.uild.ps1 -Dashboard` per test JVM, lint, build release e pacchetti della Dashboard completa. Usa `.uild.ps1 -All` quando servono entrambi i progetti. Usa `-UpdateLocks` solo per aggiornare intenzionalmente i lock.
 - Per build e installazione sul tablet collegato via ADB usa `.uild_and_install_dashboard.ps1`. Lo script compila la Dashboard e installa `build\TimeWall-Dashboard.apk` con `adb install -r` solo dopo il successo della build. `GRADLE_USER_HOME` è già configurato come variabile utente Windows.
 - Preserva la firma storica della release e la firma v1 necessaria su KitKat. La chiave è configurata in locale, tramite `.signing` o le variabili indicate nel README. Mantieni chiavi e credenziali fuori da Git e dagli ZIP.

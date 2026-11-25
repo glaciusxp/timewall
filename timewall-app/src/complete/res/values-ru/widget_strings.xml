@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="whats_next_widget">"Ближайшие события"</string>
+    <string name="widget_choose_calendars">"Выберите календари для этого виджета."</string>
+    <string name="widget_no_imminent">"Нет текущих или скорых событий"</string>
+    <string name="widget_cache_empty">"Откройте TimeWall, чтобы обновить календари."</string>
+    <string name="widget_background_transparency">"Прозрачность фона: %1$s"</string>
+    <string name="widget_settings_title">Настройки виджета</string>
+    <string name="widget_clock_title">Часы</string>
+    <string name="widget_enlarge_text">Увеличить текст</string>
+    <string name="whats_next_widget_picker_label">TimeWall - Ближайшие события</string>
+    <string name="agenda_widget_picker_label">TimeWall - Повестка</string>
+    <string name="clock_widget_picker_label">TimeWall - Часы</string>
+    <string name="weather_widget_picker_label">TimeWall - Погода</string>
+</resources>

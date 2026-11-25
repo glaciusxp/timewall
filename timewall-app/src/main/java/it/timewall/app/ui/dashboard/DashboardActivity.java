@@ -38,7 +38,9 @@ import it.timewall.app.configuration.Palette;
 import it.timewall.app.configuration.SettingsStore;
 import it.timewall.app.data.calendar.CalendarDiskCache;
 import it.timewall.app.data.calendar.CalendarFeed;
+import it.timewall.app.data.calendar.CalendarRefreshWorker;
 import it.timewall.app.data.calendar.CalendarRepository;
+import it.timewall.app.data.weather.WeatherForecast;
 import it.timewall.app.domain.alerts.EventAlerts;
 import it.timewall.app.domain.model.CalendarEvent;
 import it.timewall.app.domain.model.Feed;
@@ -87,7 +89,6 @@ public final class DashboardActivity extends Activity {
     private final Handler handler = new Handler();
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     // Survives Activity recreation: deletion must not be dropped by the image worker's shutdown.
-    private static final ExecutorService CALENDAR_WORKER = Executors.newSingleThreadExecutor();
     private CalendarRepository calendars;
     private final List<Feed> feeds = new ArrayList<>();
     private final Set<String> excludedCalendars = new HashSet<>();
@@ -197,19 +198,8 @@ public final class DashboardActivity extends Activity {
             if (colors != null) {
                 int automaticText = ViewFactory.contrastingText(colors[1]);
                 automaticCardText = colors.length == CustomThemeEditor.LEGACY_COLOR_COUNT;
-                int text = automaticCardText ? automaticText : colors[4];
-                int secondaryText = automaticCardText ? automaticText : colors[5];
                 darkTheme = automaticText == Color.WHITE;
-                int border = darkTheme ? 0x55ffffff : 0x55000000;
-                palette =
-                        new Palette(
-                                colors[1],
-                                colors[0],
-                                text,
-                                secondaryText,
-                                colors[2],
-                                colors[3],
-                                border);
+                palette = CustomThemeEditor.customPalette(colors);
             } else {
                 selectedTheme = defaultTheme;
             }
@@ -266,50 +256,7 @@ public final class DashboardActivity extends Activity {
                 .addFlags(
                         WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
                                 | WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        calendars =
-                new CalendarRepository(
-                        CalendarFeed::download,
-                        new CalendarRepository.Store() {
-                            /**
-                             * Shares invalidation across repositories created by different Activity
-                             * instances.
-                             */
-                            @Override
-                            public long generation() {
-                                return CalendarDiskCache.generation();
-                            }
-
-                            /**
-                             * Adatta la lettura della cache del repository alla directory privata
-                             * dell’applicazione, conservando formato e nomi storici dei file.
-                             *
-                             * @param address indirizzo HTTPS del feed o dell’endpoint da
-                             *     interrogare
-                             * @return byte letti o digest calcolato, secondo l’operazione
-                             * @throws Exception se una dipendenza non completa l’operazione; il
-                             *     fallimento viene propagato al chiamante
-                             */
-                            @Override
-                            public byte[] read(String address) throws Exception {
-                                return CalendarDiskCache.read(getFilesDir(), address);
-                            }
-
-                            /**
-                             * Adatta la scrittura atomica della cache alla directory privata
-                             * dell’applicazione.
-                             *
-                             * @param address indirizzo HTTPS del feed o dell’endpoint da
-                             *     interrogare
-                             * @param body corpo completo del feed già ricevuto
-                             * @throws Exception se una dipendenza non completa l’operazione; il
-                             *     fallimento viene propagato al chiamante
-                             */
-                            @Override
-                            public void write(String address, byte[] body, long generation)
-                                    throws Exception {
-                                CalendarDiskCache.write(getFilesDir(), address, body, generation);
-                            }
-                        });
+        calendars = CalendarRefreshWorker.open(getFilesDir());
         loadFeeds();
         pruneCalendarCache();
         excludedCalendars.addAll(
@@ -761,17 +708,22 @@ public final class DashboardActivity extends Activity {
         row.setFocusable(true);
         row.setOnClickListener(
                 view -> new EventDetailsDialog(this, palette, views, feeds, use24Hour).show(event));
-        int detailSize = featured ? 23 : 15;
+        int detailSize = featured ? DashboardStyle.FEATURED_DETAIL_SP : 15;
         String eventStatus = "";
         if (active || next) {
             long remaining = (active ? event.end : event.start) - now;
-            String duration = countdownDuration(remaining);
-            eventStatus = I18n.text(this, active ? "ends_in" : "starts_in", duration);
+            eventStatus =
+                    active
+                            ? I18n.text(
+                                    this, "ends_in", TimeDisplay.countdownDuration(this, remaining))
+                            : TimeDisplay.startsIn(this, remaining);
             if (remaining >= 60_000L) {
                 nextChange = Math.min(nextChange, now + remaining % 60_000L + 1);
             }
         }
-        TextView title = views.label(eventTitle(event), featured ? 32 : 17, true);
+        TextView title =
+                views.label(
+                        eventTitle(event), featured ? DashboardStyle.FEATURED_TITLE_SP : 17, true);
         String time =
                 event.allDay
                         ? I18n.text(DashboardActivity.this, "all_day")
@@ -801,37 +753,6 @@ public final class DashboardActivity extends Activity {
     }
 
     /**
-     * Esprime la durata residua in minuti oppure in ore e minuti, usando le forme plurali della
-     * lingua attiva e la divisione intera dei millisecondi.
-     *
-     * @param remaining durata residua in millisecondi
-     * @return durata tradotta in minuti, oppure ore e minuti da un’ora in poi
-     */
-    private String countdownDuration(long remaining) {
-        long minutes = remaining / 60_000L;
-        if (minutes < 60) {
-            return minuteLabel(minutes);
-        }
-        long hours = minutes / 60;
-        long extraMinutes = minutes % 60;
-        return I18n.text(
-                this,
-                "duration_join",
-                I18n.quantity(this, "hours", hours),
-                minuteLabel(extraMinutes));
-    }
-
-    /**
-     * Formatta un conteggio di minuti con la forma plurale tradotta corretta.
-     *
-     * @param minutes intervallo o conteggio espresso in minuti
-     * @return conteggio tradotto con la forma plurale di minuti
-     */
-    private String minuteLabel(long minutes) {
-        return I18n.quantity(this, "minutes", minutes);
-    }
-
-    /**
      * Restituisce il titolo dell’evento o la label tradotta per un evento privo di titolo.
      *
      * @param event occorrenza da visualizzare o frammento iCal da usare nella fixture
@@ -854,6 +775,7 @@ public final class DashboardActivity extends Activity {
                         feeds.subList(0, Math.min(feeds.size(), BuildConfig.CALENDAR_LIMIT)));
         refreshButton.setEnabled(false);
         if (configured.isEmpty()) {
+            if (!BuildConfig.FREE) updateCalendarWidgets();
             status.setText("");
             events = Collections.emptyList();
             haveInitialEvents = true;
@@ -863,7 +785,7 @@ public final class DashboardActivity extends Activity {
         status.setText(I18n.text(DashboardActivity.this, "refreshing_calendars"));
         boolean showCachedEvents = !haveInitialEvents;
         long cacheGeneration = calendars.generation();
-        CALENDAR_WORKER.execute(
+        CalendarRefreshWorker.EXECUTOR.execute(
                 () ->
                         calendars.refresh(
                                 configured,
@@ -895,6 +817,16 @@ public final class DashboardActivity extends Activity {
                                 },
                                 cacheGeneration));
         handler.postDelayed(refresh, REFRESH_MS);
+    }
+
+    private void updateCalendarWidgets() {
+        sendBroadcast(
+                new Intent("it.timewall.app.action.UPDATE_WHATS_NEXT")
+                        .setClassName(
+                                getPackageName(), "it.timewall.app.ui.widget.WhatsNextWidget"));
+        sendBroadcast(
+                new Intent("it.timewall.app.action.UPDATE_WHATS_NEXT")
+                        .setClassName(getPackageName(), "it.timewall.app.ui.widget.AgendaWidget"));
     }
 
     /**
@@ -932,6 +864,7 @@ public final class DashboardActivity extends Activity {
                     }
                     haveInitialEvents = true;
                     events = loaded;
+                    if (!BuildConfig.FREE && failures >= 0) updateCalendarWidgets();
                     render(now, false);
                 });
     }
@@ -1065,7 +998,7 @@ public final class DashboardActivity extends Activity {
         Set<String> addresses = new HashSet<>();
         for (Feed feed : feeds) addresses.add(feed.address);
         long generation = CalendarDiskCache.generation();
-        CALENDAR_WORKER.execute(
+        CalendarRefreshWorker.EXECUTOR.execute(
                 () -> {
                     if (generation != CalendarDiskCache.generation()) return;
                     try {
@@ -1099,7 +1032,7 @@ public final class DashboardActivity extends Activity {
         haveInitialEvents = false;
         render(System.currentTimeMillis(), true);
         status.setText(I18n.text(this, "clearing_calendar_cache"));
-        CALENDAR_WORKER.execute(
+        CalendarRefreshWorker.EXECUTOR.execute(
                 () -> {
                     boolean cleared;
                     repository.clearMemory();
@@ -1124,6 +1057,7 @@ public final class DashboardActivity extends Activity {
                                                                 : "calendar_cache_error"),
                                                 Toast.LENGTH_LONG)
                                         .show();
+                                if (!BuildConfig.FREE) updateCalendarWidgets();
                                 if (success) refreshFeeds();
                                 else {
                                     status.setText(I18n.text(this, "calendar_cache_error"));
@@ -1236,6 +1170,15 @@ public final class DashboardActivity extends Activity {
                                                 showSeconds,
                                                 use24Hour));
                                 date.setText(clockDate(System.currentTimeMillis()));
+                                if (!BuildConfig.FREE) {
+                                    updateCalendarWidgets();
+                                    WeatherForecast.notifyWidgets(DashboardActivity.this);
+                                    sendBroadcast(
+                                            new Intent("it.timewall.app.action.UPDATE_CLOCK_WIDGET")
+                                                    .setClassName(
+                                                            getPackageName(),
+                                                            "it.timewall.app.ui.widget.ClockWidget"));
+                                }
                                 if (refreshActivity) recreate();
                                 else {
                                     render(System.currentTimeMillis(), false);

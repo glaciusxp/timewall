@@ -2,7 +2,6 @@ package it.timewall.app.data.weather;
 
 import android.content.Context;
 
-import it.timewall.app.domain.model.WeatherConditions;
 import it.timewall.app.domain.model.WeatherPlace;
 import it.timewall.app.localization.I18n;
 import it.timewall.app.platform.tls.OpenMeteoTrust;
@@ -72,20 +71,18 @@ public final class OpenMeteoClient {
      * @throws Exception se una dipendenza non completa l’operazione; il fallimento viene propagato
      *     al chiamante
      */
-    public static WeatherConditions current(Context context, WeatherPlace place) throws Exception {
-        JSONObject current =
-                get(
-                                context,
-                                new URL(
-                                        "https://api.open-meteo.com/v1/forecast?latitude="
-                                                + place.latitude
-                                                + "&longitude="
-                                                + place.longitude
-                                                + "&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm"
-                                                + "&current=temperature_2m,weather_code,apparent_temperature,precipitation_probability"
-                                                + ",wind_direction_10m,precipitation,wind_speed_10m"))
-                        .getJSONObject("current");
-        return WeatherResponseParser.parse(current);
+    static JSONObject current(Context context, WeatherPlace place) throws Exception {
+        return get(
+                        context,
+                        new URL(
+                                "https://api.open-meteo.com/v1/forecast?latitude="
+                                        + place.latitude
+                                        + "&longitude="
+                                        + place.longitude
+                                        + "&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm"
+                                        + "&current=temperature_2m,weather_code,apparent_temperature,precipitation_probability"
+                                        + ",wind_direction_10m,precipitation,wind_speed_10m"))
+                .getJSONObject("current");
     }
 
     /**

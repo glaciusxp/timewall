@@ -8,6 +8,8 @@ import it.timewall.app.configuration.Palette;
 
 /** Resolved presentation options passed to screens, independently of their draft settings. */
 public final class DashboardStyle {
+    public static final int FEATURED_TITLE_SP = 32;
+    public static final int FEATURED_DETAIL_SP = 23;
     public final Palette palette;
     public final Typeface font, icons;
     public final DashboardTheme theme;

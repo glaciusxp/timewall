@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="whats_next_widget">"次の予定"</string>
+    <string name="widget_choose_calendars">"このウィジェットに表示するカレンダーを選択してください。"</string>
+    <string name="widget_no_imminent">"進行中またはまもなく始まる予定はありません"</string>
+    <string name="widget_cache_empty">"TimeWall を開いてカレンダーを更新してください。"</string>
+    <string name="widget_background_transparency">"背景の透明度：%1$s"</string>
+    <string name="widget_settings_title">ウィジェット設定</string>
+    <string name="widget_clock_title">時計</string>
+    <string name="widget_enlarge_text">文字を大きくする</string>
+    <string name="whats_next_widget_picker_label">TimeWall - 次の予定</string>
+    <string name="agenda_widget_picker_label">TimeWall - 予定表</string>
+    <string name="clock_widget_picker_label">TimeWall - 時計</string>
+    <string name="weather_widget_picker_label">TimeWall - 天気</string>
+</resources>

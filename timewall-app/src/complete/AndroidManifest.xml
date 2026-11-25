@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <receiver android:name="it.timewall.app.ui.widget.WhatsNextWidget"
+            android:label="@string/whats_next_widget_picker_label" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/whats_next_widget" />
+        </receiver>
+        <receiver android:name="it.timewall.app.ui.widget.AgendaWidget"
+            android:label="@string/agenda_widget_picker_label" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/agenda_widget" />
+        </receiver>
+        <receiver android:name="it.timewall.app.ui.widget.ClockWidget"
+            android:label="@string/clock_widget_picker_label" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/clock_widget" />
+        </receiver>
+        <receiver android:name="it.timewall.app.ui.widget.WeatherWidget"
+            android:label="@string/weather_widget_picker_label" android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/weather_widget" />
+        </receiver>
+        <receiver android:name="it.timewall.app.ui.widget.WeatherWidget$InternalReceiver"
+            android:exported="false" />
+        <service android:name="it.timewall.app.ui.widget.WidgetWeatherRefresh$LegacyService"
+            android:exported="false" />
+        <service android:name="it.timewall.app.ui.widget.WidgetWeatherRefresh$BackgroundJob"
+            android:exported="true" android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service android:name="it.timewall.app.ui.widget.AgendaWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS" android:exported="false" />
+        <service android:name="it.timewall.app.ui.widget.WidgetCalendarRefresh$LegacyService"
+            android:exported="false" />
+        <service android:name="it.timewall.app.ui.widget.WidgetCalendarRefresh$BackgroundJob"
+            android:exported="true" android:permission="android.permission.BIND_JOB_SERVICE" />
+        <activity android:name="it.timewall.app.ui.widget.WhatsNextConfig" android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

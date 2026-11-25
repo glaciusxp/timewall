@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/weather_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
+        android:src="@drawable/whats_next_background"
+        android:id="@+id/widget_background" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/weather_updated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:visibility="gone" />
+            <ImageView
+                android:id="@+id/weather_updated_font"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerInside"
+                android:visibility="gone" />
+            <ImageView
+                android:id="@+id/weather_refresh"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:scaleType="centerInside"
+                android:padding="8dp" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/weather_temperature_row"
+            android:layout_width="wrap_content"
+            android:layout_height="58dp"
+            android:gravity="center">
+            <ImageView
+                android:id="@+id/weather_icon"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:scaleType="fitCenter"
+                android:visibility="gone"
+                android:layout_marginRight="8dp" />
+            <TextView
+                android:id="@+id/weather_temperature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:visibility="gone" />
+            <ImageView
+                android:id="@+id/weather_temperature_font"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerInside"
+                android:visibility="gone" />
+        </LinearLayout>
+        <TextView
+            android:id="@+id/weather_place"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:visibility="gone" />
+        <ImageView
+            android:id="@+id/weather_place_font"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="centerInside"
+            android:visibility="gone" />
+        <TextView
+            android:id="@+id/weather_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:visibility="gone" />
+        <ImageView
+            android:id="@+id/weather_status_font"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="centerInside"
+            android:visibility="gone" />
+    </LinearLayout>
+</FrameLayout>

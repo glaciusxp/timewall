@@ -203,11 +203,10 @@ public final class SettingsScreen {
         sections[1].addView(calendarList);
         new CalendarSettingsSection(activity, views).render(calendarList, pendingFeeds);
         TextView cacheHint = views.secondaryLabel(I18n.text(activity, "calendar_cache_hint"), 15);
-        cacheHint.setPadding(0, views.dp(24), 0, views.dp(8));
-        sections[1].addView(cacheHint);
+        views.addSettingView(sections[1], cacheHint, false, 6);
         sections[1].addView(clearCache);
         LinearLayout fields = sections[0];
-        fields.addView(views.label(I18n.text(activity, "language"), 18, true));
+        views.addSettingHeading(fields, I18n.text(activity, "language"), true);
         SharedPreferences preferences = this.preferences;
         String selectedLanguage = preferences.getString(I18n.LANGUAGE_PREFERENCE, I18n.SYSTEM);
         List<String> languages = new ArrayList<>();
@@ -222,14 +221,12 @@ public final class SettingsScreen {
                             I18n.SYSTEM.equals(code) ? "language_system" : "language_name_" + code);
         }
         Spinner languagePicker = new Spinner(activity);
-        ArrayAdapter<String> languageChoices =
-                new ArrayAdapter<>(activity, android.R.layout.simple_spinner_item, languageNames);
-        languageChoices.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> languageChoices = views.settingChoices(languageNames);
         languagePicker.setAdapter(languageChoices);
         languagePicker.setSelection(Math.max(0, languages.indexOf(selectedLanguage)));
         fields.addView(languagePicker);
         fields = sections[2];
-        fields.addView(views.label(I18n.text(activity, "theme"), 18, true));
+        views.addSettingHeading(fields, I18n.text(activity, "theme"), true);
 
         List<DashboardTheme> themes = new ArrayList<>(Arrays.asList(DashboardTheme.values()));
         themes.remove(DashboardTheme.CUSTOM);
@@ -253,7 +250,6 @@ public final class SettingsScreen {
         Spinner themePicker = new Spinner(activity);
         ArrayAdapter<String> choices =
                 choices(names, position -> themes.get(position).availableInFreeEdition());
-        choices.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         themePicker.setAdapter(choices);
         themePicker.setSelection(themes.indexOf(selectedTheme));
         fields.addView(themePicker);
@@ -264,27 +260,23 @@ public final class SettingsScreen {
                         : new BackgroundImageEditor(activity, views, worker, preferences);
 
         CustomThemeEditor customTheme =
-                BuildConfig.FREE ? null : new CustomThemeEditor(activity, preferences);
+                BuildConfig.FREE ? null : new CustomThemeEditor(activity, views, preferences);
         if (customTheme != null) {
-            fields.addView(customTheme);
-            TextView paletteHeading = views.label(I18n.text(activity, "palette"), 18, true);
-            paletteHeading.setPadding(0, views.dp(16), 0, views.dp(6));
-            customTheme.addView(paletteHeading, 0);
+            views.addSettingView(fields, customTheme, false, 0);
             customTheme.setVisibility(
                     selectedTheme == DashboardTheme.CUSTOM ? View.VISIBLE : View.GONE);
         }
 
         if (imageSettings != null) {
-            fields.addView(imageSettings.view);
+            views.addSettingView(fields, imageSettings.view, false, 0);
         } else if (BuildConfig.PLAY_PREVIEW) {
-            TextView background = views.label(I18n.text(activity, "background"), 18, true);
+            TextView background = views.settingHeading(I18n.text(activity, "background"));
+            background.setTextColor(palette.secondaryText);
             background.setEnabled(false);
-            fields.addView(ProBadge.row(activity, views, background));
+            views.addSettingView(fields, ProBadge.row(activity, views, background), false, 0);
         }
         fields = sections[0];
-        TextView fontHeading = views.label(I18n.text(activity, "font"), 18, true);
-        fontHeading.setPadding(0, views.dp(16), 0, views.dp(6));
-        fields.addView(fontHeading);
+        views.addSettingHeading(fields, I18n.text(activity, "font"), false);
         DashboardFont[] fonts =
                 BuildConfig.FREE && !BuildConfig.PLAY_PREVIEW
                         ? new DashboardFont[] {
@@ -304,7 +296,6 @@ public final class SettingsScreen {
         Spinner fontPicker = new Spinner(activity);
         ArrayAdapter<String> fontChoices =
                 choices(fontNames, position -> fonts[position].availableInFreeEdition());
-        fontChoices.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         fontPicker.setAdapter(fontChoices);
         fontPicker.setSelection(Arrays.asList(fonts).indexOf(selectedFont));
         fields.addView(fontPicker);
@@ -312,23 +303,18 @@ public final class SettingsScreen {
         CheckBox secondsToggle = new CheckBox(activity);
         secondsToggle.setText(I18n.text(activity, "show_seconds"));
         secondsToggle.setChecked(showSeconds);
-        secondsToggle.setPadding(0, views.dp(12), 0, 0);
+        views.styleSettingInput(secondsToggle);
         fields.addView(secondsToggle);
 
-        fields.addView(views.label(I18n.text(activity, "time_format"), 18, true));
+        views.addSettingHeading(fields, I18n.text(activity, "time_format"), false);
         Spinner timeFormatPicker = new Spinner(activity);
         ArrayAdapter<String> timeChoices =
-                new ArrayAdapter<>(
-                        activity,
-                        android.R.layout.simple_spinner_item,
-                        new String[] {
-                            I18n.text(activity, "hour_24"), I18n.text(activity, "hour_12")
-                        });
-        timeChoices.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                views.settingChoices(
+                        I18n.text(activity, "hour_24"), I18n.text(activity, "hour_12"));
         timeFormatPicker.setAdapter(timeChoices);
         timeFormatPicker.setSelection(use24Hour ? 0 : 1);
         fields.addView(timeFormatPicker);
-        fields.addView(views.label(I18n.text(activity, "date_format"), 18, true));
+        views.addSettingHeading(fields, I18n.text(activity, "date_format"), false);
         String[] datePreviews = new String[4];
         long previewTime = System.currentTimeMillis();
         for (int index = 0; index < datePreviews.length; index++) {
@@ -338,20 +324,17 @@ public final class SettingsScreen {
                             : dates.format(previewTime, TimeDisplay.datePattern(activity, index));
         }
         Spinner dateFormatPicker = new Spinner(activity);
-        ArrayAdapter<String> dateChoices =
-                new ArrayAdapter<>(activity, android.R.layout.simple_spinner_item, datePreviews);
-        dateChoices.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> dateChoices = views.settingChoices(datePreviews);
         dateFormatPicker.setAdapter(dateChoices);
         dateFormatPicker.setSelection(
                 clockDateFormat >= 0 && clockDateFormat < 4 ? clockDateFormat : 0);
         fields.addView(dateFormatPicker);
         fields = sections[3];
-        TextView weatherHeading = views.label(I18n.text(activity, "weather"), 18, true);
-        weatherHeading.setPadding(0, views.dp(16), 0, views.dp(6));
+        TextView weatherHeading = views.settingHeading(I18n.text(activity, "weather"));
         DashboardWeather.Settings weatherSettings = weather == null ? null : weather.new Settings();
         if (weatherSettings != null) {
             fields.addView(weatherHeading);
-            fields.addView(weatherSettings.createView(views.weatherGlyph("\uf3c5")));
+            fields.addView(weatherSettings.createView(views, views.weatherGlyph("\uf3c5")));
         } else if (BuildConfig.PLAY_PREVIEW) {
             fields.addView(ProBadge.row(activity, views, weatherHeading));
             fields.addView(ProBadge.weatherFields(activity, views));
@@ -658,7 +641,7 @@ public final class SettingsScreen {
     }
 
     private ArrayAdapter<String> choices(String[] labels, FreeChoice freeChoice) {
-        return new ArrayAdapter<String>(activity, android.R.layout.simple_spinner_item, labels) {
+        return views.new SettingChoices(labels) {
             @Override
             public boolean areAllItemsEnabled() {
                 return !BuildConfig.PLAY_PREVIEW;
