@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.View;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import it.timewall.app.R;
 import it.timewall.app.configuration.Palette;
@@ -62,8 +63,16 @@ public final class WeatherWidget extends AppWidgetProvider {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (MANUAL.equals(action) || DUE.equals(action)) {
-                if (ids(context).length > 0) {
-                    WidgetWeatherRefresh.enqueue(context, MANUAL.equals(action));
+                if (ids(context).length == 0) return;
+                boolean manual = MANUAL.equals(action);
+                if (!WidgetWeatherRefresh.enqueue(context, manual)) {
+                    if (manual) {
+                        SharedPreferences settings =
+                                SettingsStore.open(context, Context.MODE_PRIVATE);
+                        I18n.apply(context, settings);
+                        Toast.makeText(context, R.string.refresh_failed, Toast.LENGTH_SHORT).show();
+                    }
+                    update(context, retryDelay());
                 }
             } else if (RESCHEDULE.equals(action)) {
                 update(context, intent.getBooleanExtra(RETRY, false) ? retryDelay() : 1000L);

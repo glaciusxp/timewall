@@ -46,3 +46,23 @@ La suite delle risorse verifica chiavi e parametri nelle nove lingue.
 
 Le prove automatiche non aprono l'app sul tablet né modificano calendari utente.
 I controlli visivi della sezione e del pulsante restano all'utente dopo l'installazione.
+
+
+## Compatibilità iCalendar
+
+TimeWall espande le ricorrenze giornaliere, settimanali, mensili e annuali basate
+su DTSTART. Supporta INTERVAL, COUNT, UNTIL, BYDAY nelle ricorrenze settimanali
+con settimana che inizia il lunedì, EXDATE, RDATE con una data o un istante e le
+eccezioni per singola occorrenza tramite RECURRENCE-ID. Interpreta DURATION e
+i fusi disponibili in Android, mantenendo l’ora locale durante le ricorrenze.
+
+Per le regole più complesse, come BYSETPOS, i fusi VTIMEZONE definiti dal feed
+con un identificativo sconosciuto e gli intervalli RDATE di tipo PERIOD, il
+supporto è parziale. Le regole di ricorrenza non supportate conservano DTSTART
+e le date esplicite interpretabili. Un fuso sconosciuto o una struttura
+incompleta causa un aggiornamento fallito e preserva la cache valida.
+
+Le occorrenze generate sono limitate ai prossimi 60 giorni, con un giorno
+precedente per gli eventi ancora in corso, e a 512 per feed. Le serie con
+COUNT vengono esplorate al massimo per 8192 periodi. Il repository ricostruisce
+le occorrenze dalla cache quando cambia il giorno locale.

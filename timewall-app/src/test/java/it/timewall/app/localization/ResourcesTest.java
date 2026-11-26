@@ -54,8 +54,7 @@ public class ResourcesTest {
                         "privacy_local",
                         "privacy_retention",
                         "privacy_security",
-                        "privacy_rights",
-                        "privacy_web_pending"
+                        "privacy_rights"
                     }) {
                 assertFalse(
                         folder + " " + key,
@@ -110,12 +109,7 @@ public class ResourcesTest {
             if (font.file.isEmpty()) continue;
             java.nio.ByteBuffer data =
                     java.nio.ByteBuffer.wrap(
-                            Files.readAllBytes(
-                                    Paths.get(
-                                            font.availableInFreeEdition()
-                                                    ? "src/main/assets"
-                                                    : "src/complete/assets",
-                                            font.file)));
+                            Files.readAllBytes(Paths.get("src/main/assets", font.file)));
             int signature = data.getInt();
             assertTrue(font.file, signature == 0x00010000 || signature == 0x4f54544f);
             int tables = data.getShort() & 0xffff;
@@ -189,14 +183,7 @@ public class ResourcesTest {
     public void allRuntimeFontsAndSourceWeatherIconsArePresent() {
         for (DashboardFont font : DashboardFont.values())
             if (!font.file.isEmpty())
-                assertTrue(
-                        font.file,
-                        Files.exists(
-                                Paths.get(
-                                        font.availableInFreeEdition()
-                                                ? "src/main/assets"
-                                                : "src/complete/assets",
-                                        font.file)));
+                assertTrue(font.file, Files.exists(Paths.get("src/main/assets", font.file)));
         for (String name :
                 new String[] {
                     "sole",

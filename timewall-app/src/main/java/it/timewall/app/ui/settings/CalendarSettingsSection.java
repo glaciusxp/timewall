@@ -81,10 +81,7 @@ public final class CalendarSettingsSection {
         boolean atLimit = pendingFeeds.size() >= BuildConfig.CALENDAR_LIMIT;
         if (!atLimit) {
             panel.addView(add);
-        } else if (BuildConfig.PLAY_PREVIEW) {
-            add.setEnabled(false);
-            panel.addView(ProBadge.row(activity, views, add));
-        } else if (!BuildConfig.FREE) {
+        } else {
             add.setEnabled(false);
             panel.addView(add);
             panel.addView(

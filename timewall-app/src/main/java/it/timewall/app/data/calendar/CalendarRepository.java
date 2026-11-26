@@ -2,6 +2,7 @@ package it.timewall.app.data.calendar;
 
 import it.timewall.app.domain.model.CalendarEvent;
 import it.timewall.app.domain.model.Feed;
+import it.timewall.app.domain.time.CalendarDays;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -145,14 +146,15 @@ public final class CalendarRepository {
             clearMemory();
             cacheGeneration = generation;
         }
+        long day = CalendarDays.midnight(System.currentTimeMillis());
         List<CalendarEvent> cached = new ArrayList<>();
         boolean foundCache = false;
         for (Feed feed : feeds) {
             if (!isCurrent(generation)) return;
             Snapshot snapshot = cache.get(feed.address);
-            if (snapshot == null || snapshot.color != feed.color) {
+            if (snapshot == null || snapshot.color != feed.color || snapshot.day != day) {
                 try {
-                    snapshot = parse(feed, store.read(feed.address));
+                    snapshot = parse(feed, store.read(feed.address), day);
                     cache.put(feed.address, snapshot);
                 } catch (Exception unavailable) {
                     continue;
@@ -176,12 +178,14 @@ public final class CalendarRepository {
                 byte[] hash = CalendarFeed.hash(body);
                 if (previous == null
                         || previous.color != feed.color
+                        || previous.day != day
                         || !Arrays.equals(previous.hash, hash)) {
                     current =
                             new Snapshot(
                                     hash,
                                     feed.color,
-                                    IcalendarParser.parse(body, feed.color, feed.address));
+                                    IcalendarParser.parse(body, feed.color, feed.address, day),
+                                    day);
                     try {
                         store.write(feed.address, body, generation);
                     } catch (Exception unavailable) {
@@ -211,17 +215,19 @@ public final class CalendarRepository {
      * @throws Exception se una dipendenza non completa l’operazione; il fallimento viene propagato
      *     al chiamante
      */
-    private static Snapshot parse(Feed feed, byte[] body) throws Exception {
+    private static Snapshot parse(Feed feed, byte[] body, long day) throws Exception {
         return new Snapshot(
                 CalendarFeed.hash(body),
                 feed.color,
-                IcalendarParser.parse(body, feed.color, feed.address));
+                IcalendarParser.parse(body, feed.color, feed.address, day),
+                day);
     }
 
     private static final class Snapshot {
         final byte[] hash;
         final int color;
         final List<CalendarEvent> events;
+        final long day;
 
         /**
          * Raggruppa hash, colore e lista già interpretata di un feed per poter riusare il parsing
@@ -232,10 +238,11 @@ public final class CalendarRepository {
          * @param events occorrenze da elaborare o pubblicare; nella lettura iCal è la lista di
          *     destinazione dei blocchi
          */
-        Snapshot(byte[] hash, int color, List<CalendarEvent> events) {
+        Snapshot(byte[] hash, int color, List<CalendarEvent> events, long day) {
             this.hash = hash;
             this.color = color;
             this.events = events;
+            this.day = day;
         }
     }
 }

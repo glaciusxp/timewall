@@ -1,6 +1,6 @@
 # TimeWall — Sicurezza dei dati per Google Play
 
-Preparato il 20 novembre 2026 per TimeWall 0.101, package `it.timewall.dashboard`.
+Bozza per la revisione di TimeWall 0.104 in vista del primo upload. Confermare il package Play prima di inviare la dichiarazione.
 Titolare: Andrea Persano. Contatto: andreapersano@gmail.com.
 
 Documento di compilazione: non è il testo della privacy policy e non è una dichiarazione già inviata a Google. Le risposte sotto sono proposte basate sui sorgenti correnti e sulle informative pubbliche dei fornitori. Dove la classificazione dipende dal comportamento dei server è indicata una verifica ancora necessaria. Il questionario deve coprire tutte le versioni distribuite nei canali interessati.
@@ -15,7 +15,7 @@ Documento di compilazione: non è il testo della privacy policy e non è una dic
 | Cancellazione account / relativo URL | **Non applicabile al comportamento attuale** | Non si crea un account TimeWall. Non inserire un indirizzo fittizio. |
 | Gli utenti possono richiedere la cancellazione dei dati raccolti? | **Da completare prima dell'invio** | È possibile eliminare i dati locali, ma ciò non cancella i log dei fornitori. Non rispondere Sì solo per la presenza del pulsante cache o dell'email: occorre una procedura effettiva per i dati raccolti fuori dal dispositivo. Confermare con Open-Meteo; in assenza di una procedura verificata non dichiararla disponibile. |
 | Revisione indipendente della sicurezza | **No** | I test del progetto non sono una certificazione o una revisione indipendente riconosciuta da Google. |
-| Informativa privacy | **Pagina pubblica ancora da pubblicare** | L'informativa in-app esiste, ma l'URL esterno è ancora da definire. Inserire l'URL reale anche nell'app e in Play Console. |
+| Informativa privacy | **Pagina pubblica disponibile** | https://glaciusxp.github.io/timewall-website/it/privacy.html. Rivedere il testo e aggiungere il link nell’app e in Play Console. |
 
 ## 2. Dati da selezionare: proposta da validare
 

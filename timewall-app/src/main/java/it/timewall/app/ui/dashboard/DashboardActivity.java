@@ -187,13 +187,11 @@ public final class DashboardActivity extends Activity {
         DashboardTheme defaultTheme = DashboardTheme.SLATE_AZURE_DARK;
         int savedTheme = preferences.getInt("theme", defaultTheme.id);
         selectedTheme = DashboardTheme.fromSavedId(savedTheme);
-        if (BuildConfig.FREE && !selectedTheme.availableInFreeEdition())
-            selectedTheme = defaultTheme;
         int[] customColors =
-                !BuildConfig.FREE && selectedTheme == DashboardTheme.CUSTOM
+                selectedTheme == DashboardTheme.CUSTOM
                         ? CustomThemeEditor.loadColors(preferences)
                         : null;
-        if (!BuildConfig.FREE && selectedTheme == DashboardTheme.CUSTOM) {
+        if (selectedTheme == DashboardTheme.CUSTOM) {
             int[] colors = customColors;
             if (colors != null) {
                 int automaticText = ViewFactory.contrastingText(colors[1]);
@@ -225,9 +223,6 @@ public final class DashboardActivity extends Activity {
         use24Hour = preferences.getBoolean(TimeDisplay.HOUR_24, true);
         clockDateFormat = preferences.getInt(TimeDisplay.DATE_FORMAT, 0);
         String fontFile = preferences.getString(FONT_PREFERENCE, "");
-        if (BuildConfig.FREE && !DashboardFont.fromSavedFile(fontFile).availableInFreeEdition()) {
-            fontFile = "";
-        }
         if (!"".equals(fontFile)
                 && DashboardFont.fromSavedFile(fontFile) == DashboardFont.SYSTEM_ROBOTO) {
             preferences.edit().remove(FONT_PREFERENCE).apply();
@@ -301,7 +296,7 @@ public final class DashboardActivity extends Activity {
                              */
                             @Override
                             public void filter() {
-                                if (!BuildConfig.FREE) showCalendarFilter();
+                                showCalendarFilter();
                             }
 
                             /**
@@ -775,7 +770,7 @@ public final class DashboardActivity extends Activity {
                         feeds.subList(0, Math.min(feeds.size(), BuildConfig.CALENDAR_LIMIT)));
         refreshButton.setEnabled(false);
         if (configured.isEmpty()) {
-            if (!BuildConfig.FREE) updateCalendarWidgets();
+            updateCalendarWidgets();
             status.setText("");
             events = Collections.emptyList();
             haveInitialEvents = true;
@@ -864,7 +859,7 @@ public final class DashboardActivity extends Activity {
                     }
                     haveInitialEvents = true;
                     events = loaded;
-                    if (!BuildConfig.FREE && failures >= 0) updateCalendarWidgets();
+                    if (failures >= 0) updateCalendarWidgets();
                     render(now, false);
                 });
     }
@@ -1057,7 +1052,7 @@ public final class DashboardActivity extends Activity {
                                                                 : "calendar_cache_error"),
                                                 Toast.LENGTH_LONG)
                                         .show();
-                                if (!BuildConfig.FREE) updateCalendarWidgets();
+                                updateCalendarWidgets();
                                 if (success) refreshFeeds();
                                 else {
                                     status.setText(I18n.text(this, "calendar_cache_error"));
@@ -1170,15 +1165,13 @@ public final class DashboardActivity extends Activity {
                                                 showSeconds,
                                                 use24Hour));
                                 date.setText(clockDate(System.currentTimeMillis()));
-                                if (!BuildConfig.FREE) {
-                                    updateCalendarWidgets();
-                                    WeatherForecast.notifyWidgets(DashboardActivity.this);
-                                    sendBroadcast(
-                                            new Intent("it.timewall.app.action.UPDATE_CLOCK_WIDGET")
-                                                    .setClassName(
-                                                            getPackageName(),
-                                                            "it.timewall.app.ui.widget.ClockWidget"));
-                                }
+                                updateCalendarWidgets();
+                                WeatherForecast.notifyWidgets(DashboardActivity.this);
+                                sendBroadcast(
+                                        new Intent("it.timewall.app.action.UPDATE_CLOCK_WIDGET")
+                                                .setClassName(
+                                                        getPackageName(),
+                                                        "it.timewall.app.ui.widget.ClockWidget"));
                                 if (refreshActivity) recreate();
                                 else {
                                     render(System.currentTimeMillis(), false);
@@ -1355,7 +1348,6 @@ public final class DashboardActivity extends Activity {
                 String address = item.getString("address");
                 if (CalendarFeed.accepts(address)) {
                     feeds.add(new Feed(item.getString("name"), address, item.getInt("color")));
-                    if (BuildConfig.FREE && feeds.size() == BuildConfig.CALENDAR_LIMIT) break;
                 }
             }
         } catch (JSONException exception) {

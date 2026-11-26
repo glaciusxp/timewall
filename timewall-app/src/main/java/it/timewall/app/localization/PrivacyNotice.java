@@ -2,15 +2,12 @@ package it.timewall.app.localization;
 
 import android.content.Context;
 
-/**
- * In-app privacy notice; identity stays invariant across languages, and no provisional website is
- * linked.
- */
+/** In-app privacy notice, bundled for offline reading. */
 public final class PrivacyNotice {
     public static final String CONTROLLER = "Andrea Persano";
     public static final String CONTACT = "andreapersano@gmail.com";
-    public static final String UPDATED = "2026-11-20";
-    public static final String WEBSITE = "";
+    public static final String UPDATED = "2026-11-26";
+    private static final String WEBSITE_ROOT = "https://glaciusxp.github.io/timewall-website/";
 
     /** Prevents instantiation of the notice composer. */
     private PrivacyNotice() {}
@@ -37,8 +34,8 @@ public final class PrivacyNotice {
         }
         text.append("\n\nOpen-Meteo: https://open-meteo.com/en/terms");
         text.append("\nGarante: https://www.garanteprivacy.it/");
-        text.append("\n\n")
-                .append(WEBSITE.isEmpty() ? I18n.text(context, "privacy_web_pending") : WEBSITE);
+        String language = "it".equals(I18n.locale(context).getLanguage()) ? "it" : "en";
+        text.append("\n\n").append(WEBSITE_ROOT).append(language).append("/privacy.html");
         return text.toString();
     }
 }

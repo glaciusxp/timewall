@@ -10,7 +10,7 @@ Importare questa directory direttamente in Android Studio.
 `checkJavaFormat` verifica lo stile Java; `formatJava` lo applica esplicitamente.
 
 SDK richiesto: Platform 37.0, Build Tools 36.0.0. Specificare `ANDROID_HOME` oppure
-un `local.properties` locale. Il wrapper Gradle 9.8.0 verifica il checksum della
+un `local.properties` locale. Il wrapper Gradle 9.9.2 verifica il checksum della
 distribuzione. Il plugin Android è fissato alla versione 9.4.1.
 
 Per firmare con la chiave precedente, conservare `.signing/timewall.jks` oppure
@@ -31,9 +31,9 @@ il target Android mantenendo le API minime e il layout orizzontale esistente.
 ## Varianti gratuite in collaudo
 
 - Google Play: bundlePlayFreeRelease produce l'AAB. Per il collaudo ADB usare
-  assemblePlayFreeRelease. L'ID di prova è it.timewall.dashboard.playfree.
+  assemblePlayFreeRelease. L'ID Play è it.timewall.app.
 - Sito: assembleSiteFreeWebsite produce l'APK release e rimuove il codice
-  inutilizzato tramite R8. L'ID di prova è it.timewall.dashboard.sitefree.
+  inutilizzato tramite R8. L'ID Play è it.timewall.dashboard.sitefree.
 - La variante complete mantiene l'ID storico e lo script di installazione
   dalla radice del repository.
 

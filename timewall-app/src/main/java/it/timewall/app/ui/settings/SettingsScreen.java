@@ -9,7 +9,6 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -237,55 +236,26 @@ public final class SettingsScreen {
                         collator.compare(
                                 I18n.text(activity, first.name), I18n.text(activity, second.name)));
         themes.add(DashboardTheme.CUSTOM);
-        if (BuildConfig.FREE && !BuildConfig.PLAY_PREVIEW) {
-            java.util.Iterator<DashboardTheme> iterator = themes.iterator();
-            while (iterator.hasNext()) {
-                if (!iterator.next().availableInFreeEdition()) iterator.remove();
-            }
-        }
         String[] names = new String[themes.size()];
         for (int index = 0; index < themes.size(); index++) {
             names[index] = I18n.text(activity, themes.get(index).name);
         }
         Spinner themePicker = new Spinner(activity);
-        ArrayAdapter<String> choices =
-                choices(names, position -> themes.get(position).availableInFreeEdition());
+        ArrayAdapter<String> choices = views.settingChoices(names);
         themePicker.setAdapter(choices);
         themePicker.setSelection(themes.indexOf(selectedTheme));
         fields.addView(themePicker);
 
         BackgroundImageEditor imageSettings =
-                BuildConfig.FREE
-                        ? null
-                        : new BackgroundImageEditor(activity, views, worker, preferences);
-
-        CustomThemeEditor customTheme =
-                BuildConfig.FREE ? null : new CustomThemeEditor(activity, views, preferences);
-        if (customTheme != null) {
-            views.addSettingView(fields, customTheme, false, 0);
-            customTheme.setVisibility(
-                    selectedTheme == DashboardTheme.CUSTOM ? View.VISIBLE : View.GONE);
-        }
-
-        if (imageSettings != null) {
-            views.addSettingView(fields, imageSettings.view, false, 0);
-        } else if (BuildConfig.PLAY_PREVIEW) {
-            TextView background = views.settingHeading(I18n.text(activity, "background"));
-            background.setTextColor(palette.secondaryText);
-            background.setEnabled(false);
-            views.addSettingView(fields, ProBadge.row(activity, views, background), false, 0);
-        }
+                new BackgroundImageEditor(activity, views, worker, preferences);
+        CustomThemeEditor customTheme = new CustomThemeEditor(activity, views, preferences);
+        views.addSettingView(fields, customTheme, false, 0);
+        customTheme.setVisibility(
+                selectedTheme == DashboardTheme.CUSTOM ? View.VISIBLE : View.GONE);
+        views.addSettingView(fields, imageSettings.view, false, 0);
         fields = sections[0];
         views.addSettingHeading(fields, I18n.text(activity, "font"), false);
-        DashboardFont[] fonts =
-                BuildConfig.FREE && !BuildConfig.PLAY_PREVIEW
-                        ? new DashboardFont[] {
-                            DashboardFont.SYSTEM_ROBOTO,
-                            DashboardFont.ROBOTO_CONDENSED,
-                            DashboardFont.ROBOTO_SLAB,
-                            DashboardFont.SHANTELL_SANS
-                        }
-                        : DashboardFont.values();
+        DashboardFont[] fonts = DashboardFont.values();
         String[] fontNames = new String[fonts.length];
         for (int index = 0; index < fonts.length; index++) {
             fontNames[index] =
@@ -294,8 +264,7 @@ public final class SettingsScreen {
                             : fonts[index].label;
         }
         Spinner fontPicker = new Spinner(activity);
-        ArrayAdapter<String> fontChoices =
-                choices(fontNames, position -> fonts[position].availableInFreeEdition());
+        ArrayAdapter<String> fontChoices = views.settingChoices(fontNames);
         fontPicker.setAdapter(fontChoices);
         fontPicker.setSelection(Arrays.asList(fonts).indexOf(selectedFont));
         fields.addView(fontPicker);
@@ -335,9 +304,6 @@ public final class SettingsScreen {
         if (weatherSettings != null) {
             fields.addView(weatherHeading);
             fields.addView(weatherSettings.createView(views, views.weatherGlyph("\uf3c5")));
-        } else if (BuildConfig.PLAY_PREVIEW) {
-            fields.addView(ProBadge.row(activity, views, weatherHeading));
-            fields.addView(ProBadge.weatherFields(activity, views));
         }
 
         LinearLayout screen = views.column();
@@ -408,10 +374,6 @@ public final class SettingsScreen {
             row.addView(icon, new LinearLayout.LayoutParams(views.dp(36), -2));
             TextView text = views.label(I18n.text(activity, sectionKeys[index]), 18, false);
             row.addView(text, new LinearLayout.LayoutParams(0, -2, 1));
-            if (index == 3) {
-                if (BuildConfig.PLAY_PREVIEW) ProBadge.add(activity, views, row);
-                else if (BuildConfig.FREE) row.setVisibility(View.GONE);
-            }
             navigationRows[index] = row;
             navigationLabels[index] = text;
             navigationIcons[index] = icon;
@@ -448,7 +410,7 @@ public final class SettingsScreen {
                         settingsExitDialog.dismiss();
                     }
                     if (weatherSettings != null) weatherSettings.cancelSearch();
-                    if (imageSettings != null) imageSettings.dispose();
+                    imageSettings.dispose();
                     if (backgroundSettings == imageSettings) {
                         backgroundSettings = null;
                     }
@@ -468,7 +430,7 @@ public final class SettingsScreen {
         int initialDateFormat = dateFormatPicker.getSelectedItemPosition();
         boolean initialSeconds = secondsToggle.isChecked();
         String initialCalendars = serializeFeeds(pendingFeeds);
-        String[] initialColors = customTheme == null ? null : customTheme.inputValues();
+        String[] initialColors = customTheme.inputValues();
         String initialWeather = weatherSettings == null ? null : weatherSettings.snapshot();
         requestSettingsExit =
                 () -> {
@@ -482,12 +444,10 @@ public final class SettingsScreen {
                                             != initialDateFormat
                                     || secondsToggle.isChecked() != initialSeconds
                                     || !serializeFeeds(pendingFeeds).equals(initialCalendars)
-                                    || (customTheme != null
-                                            && !Arrays.equals(
-                                                    customTheme.inputValues(), initialColors))
+                                    || !Arrays.equals(customTheme.inputValues(), initialColors)
                                     || (weatherSettings != null
                                             && !weatherSettings.snapshot().equals(initialWeather))
-                                    || (imageSettings != null && imageSettings.changed());
+                                    || imageSettings.changed();
                     if (!changed) {
                         closeSettings.run();
                         return;
@@ -518,16 +478,13 @@ public final class SettingsScreen {
                     boolean custom =
                             themes.get(themePicker.getSelectedItemPosition())
                                     == DashboardTheme.CUSTOM;
-                    if (customTheme != null)
-                        customTheme.setVisibility(custom ? View.VISIBLE : View.GONE);
+                    customTheme.setVisibility(custom ? View.VISIBLE : View.GONE);
                     save.setEnabled(
-                            (imageSettings == null || !imageSettings.loading)
-                                    && (!custom
-                                            || (customTheme != null
-                                                    && customTheme.readColors() != null)));
+                            !imageSettings.loading
+                                    && (!custom || customTheme.readColors() != null));
                 };
-        if (imageSettings != null) imageSettings.onChange = updateThemeFields;
-        if (customTheme != null) customTheme.setOnChange(updateThemeFields);
+        imageSettings.onChange = updateThemeFields;
+        customTheme.setOnChange(updateThemeFields);
         themePicker.setOnItemSelectedListener(
                 new android.widget.AdapterView.OnItemSelectedListener() {
                     /**
@@ -566,11 +523,8 @@ public final class SettingsScreen {
                         return;
                     }
                     DashboardTheme theme = themes.get(themePicker.getSelectedItemPosition());
-                    int[] colors =
-                            theme == DashboardTheme.CUSTOM && customTheme != null
-                                    ? customTheme.readColors()
-                                    : null;
-                    if ((imageSettings != null && imageSettings.loading)
+                    int[] colors = theme == DashboardTheme.CUSTOM ? customTheme.readColors() : null;
+                    if (imageSettings.loading
                             || (theme == DashboardTheme.CUSTOM && colors == null)) {
                         selectSection[2].run();
                         return;
@@ -579,16 +533,11 @@ public final class SettingsScreen {
                         selectSection[3].run();
                         return;
                     }
-                    if (imageSettings != null && !imageSettings.retainAccess()) {
+                    if (!imageSettings.retainAccess()) {
                         selectSection[2].run();
                         return;
                     }
                     DashboardFont font = fonts[fontPicker.getSelectedItemPosition()];
-                    if (BuildConfig.FREE
-                            && (!theme.availableInFreeEdition()
-                                    || !font.availableInFreeEdition())) {
-                        return;
-                    }
                     if (!font.file.isEmpty()) {
                         try {
                             Typeface.createFromAsset(activity.getAssets(), font.file);
@@ -606,7 +555,7 @@ public final class SettingsScreen {
                     boolean changed =
                             theme != selectedTheme
                                     || font != selectedFont
-                                    || (imageSettings != null && imageSettings.changed())
+                                    || imageSettings.changed()
                                     || !language.equals(selectedLanguage);
                     SharedPreferences.Editor editor =
                             preferences
@@ -622,47 +571,18 @@ public final class SettingsScreen {
                                             TimeDisplay.DATE_FORMAT,
                                             dateFormatPicker.getSelectedItemPosition())
                                     .putString("feeds", serializedFeeds);
-                    if (!BuildConfig.FREE && colors != null) {
+                    if (colors != null) {
                         changed |=
                                 !Arrays.equals(colors, CustomThemeEditor.loadColors(preferences));
                         CustomThemeEditor.saveColors(editor, colors);
                     }
-                    if (imageSettings != null) imageSettings.save(editor);
+                    imageSettings.save(editor);
                     editor.apply();
                     if (weatherSettings != null) weatherSettings.save();
-                    if (imageSettings != null) imageSettings.releasePrevious();
+                    imageSettings.releasePrevious();
                     closeSettings.run();
                     host.saved(pendingFeeds, changed);
                 });
-    }
-
-    private interface FreeChoice {
-        boolean allows(int position);
-    }
-
-    private ArrayAdapter<String> choices(String[] labels, FreeChoice freeChoice) {
-        return views.new SettingChoices(labels) {
-            @Override
-            public boolean areAllItemsEnabled() {
-                return !BuildConfig.PLAY_PREVIEW;
-            }
-
-            @Override
-            public boolean isEnabled(int position) {
-                return !BuildConfig.PLAY_PREVIEW || freeChoice.allows(position);
-            }
-
-            @Override
-            public View getDropDownView(int position, View recycled, ViewGroup parent) {
-                if (!BuildConfig.PLAY_PREVIEW)
-                    return super.getDropDownView(position, recycled, parent);
-                TextView item = (TextView) super.getDropDownView(position, null, parent);
-                if (isEnabled(position)) return item;
-                item.setEnabled(false);
-                ProBadge.markChoice(activity, views, item);
-                return item;
-            }
-        };
     }
 
     /**

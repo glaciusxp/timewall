@@ -31,15 +31,16 @@ public final class WidgetCalendarRefresh {
 
     private WidgetCalendarRefresh() {}
 
-    static void schedule(Context context, int widgetId) {
+    static boolean schedule(Context context, int widgetId) {
         Intent work =
                 new Intent()
                         .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
                         .putExtra(REQUESTED_AT, SystemClock.elapsedRealtime());
-        if (Build.VERSION.SDK_INT >= 26) {
-            BackgroundJob.enqueue(context, work);
-        } else {
-            context.startService(work.setClass(context, LegacyService.class));
+        try {
+            if (Build.VERSION.SDK_INT >= 26) return BackgroundJob.enqueue(context, work);
+            return context.startService(work.setClass(context, LegacyService.class)) != null;
+        } catch (IllegalStateException | SecurityException rejected) {
+            return false;
         }
     }
 
@@ -99,14 +100,15 @@ public final class WidgetCalendarRefresh {
         private static final int JOB_ID = 101;
         private volatile JobParameters running;
 
-        private static void enqueue(Context context, Intent work) {
+        private static boolean enqueue(Context context, Intent work) {
             JobScheduler scheduler =
                     (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
             JobInfo job =
                     new JobInfo.Builder(JOB_ID, new ComponentName(context, BackgroundJob.class))
                             .setOverrideDeadline(0)
                             .build();
-            scheduler.enqueue(job, new JobWorkItem(work));
+            return scheduler != null
+                    && scheduler.enqueue(job, new JobWorkItem(work)) == JobScheduler.RESULT_SUCCESS;
         }
 
         @Override

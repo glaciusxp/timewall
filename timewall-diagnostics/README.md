@@ -4,7 +4,7 @@ Applicazione indipendente dalla dashboard: sorgenti, risorse, wrapper e suite
 di test propri. Non aggiungere dipendenze a `timewall-app`.
 
 Requisiti: JDK 17, Android SDK Platform 37.0, Build Tools 36.0.0.
-Gradle 9.8.0 con checksum e Android Gradle Plugin 9.4.1 fissati.
+Gradle 9.9.2 con checksum e Android Gradle Plugin 9.4.1 fissati.
 Java 8, minSdk 19, targetSdk 28.
 
 ```powershell

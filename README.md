@@ -12,7 +12,7 @@ collegamento simbolico o dipendenza dai sorgenti dell'altra applicazione.
 Le piccole implementazioni TLS sono intenzionalmente duplicate.
 
 Prerequisiti: JDK 17, Android SDK Platform 37.0 e Build Tools 36.0.0.
-Gradle 9.8.0 è incluso tramite wrapper con checksum; Android Gradle Plugin 9.4.1.
+Gradle 9.9.2 è incluso tramite wrapper con checksum; Android Gradle Plugin 9.4.1.
 Il bytecode usa Java 8 e la versione minima resta API 19. La dashboard usa target 36;
 la diagnostica indipendente conserva target 28.
 
@@ -20,6 +20,17 @@ la diagnostica indipendente conserva target 28.
 cd timewall-app
 .\gradlew.bat testCompleteDebugUnitTest lintCompleteRelease assembleCompleteRelease
 ```
+
+Per contribuire o sperimentare con un agente di coding, parti da [AGENTS.md](AGENTS.md).
+Una build di sviluppo usa la firma debug di Android e non richiede la chiave ufficiale:
+
+```powershell
+.\gradlew.bat testCompleteDebugUnitTest assembleCompleteDebug
+```
+
+Tutti i canali della Dashboard offrono le stesse funzionalità gratuitamente.
+I nomi Gradle `playFree` e `siteFree` identificano i canali esistenti.
+Per Play usa `bundlePlayFreeRelease`; per il sito usa `assembleSiteFreeWebsite`.
 
 La build release richiede la chiave storica, disponibile localmente nella cartella
 ignorata `.signing` di ciascun progetto. Le chiavi **non sono incluse negli ZIP**.
@@ -41,3 +52,9 @@ applicazioni. I dettagli tecnici sono nella documentazione dei due progetti.
 
 La versione precedente alla riorganizzazione è conservata localmente in
 `build/baseline-0.93.zip`; non è un secondo albero di sorgenti attivo.
+
+## Licenza
+
+Il codice TimeWall è distribuito con licenza [MIT](LICENSE). Font, icone di terzi
+e dati meteo mantengono le rispettive licenze e attribuzioni. La provenienza
+delle risorse originali è descritta in [Artwork provenance](timewall-app/docs/artwork-provenance.md).

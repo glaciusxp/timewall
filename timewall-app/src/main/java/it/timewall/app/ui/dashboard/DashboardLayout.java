@@ -5,8 +5,12 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
+import android.text.Layout;
+import android.text.TextPaint;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -16,7 +20,6 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import it.timewall.app.BuildConfig;
 import it.timewall.app.configuration.Palette;
 import it.timewall.app.localization.I18n;
 import it.timewall.app.platform.images.BackgroundBlur;
@@ -106,8 +109,8 @@ public final class DashboardLayout {
         dashboard.addView(background, new FrameLayout.LayoutParams(-1, -1));
         dashboard.addView(root, new FrameLayout.LayoutParams(-1, -1));
         activity.setContentView(dashboard);
-        String backgroundUri = BuildConfig.FREE ? "" : preferences.getString(BACKGROUND_URI, "");
-        if (!BuildConfig.FREE && !backgroundUri.isEmpty()) {
+        String backgroundUri = preferences.getString(BACKGROUND_URI, "");
+        if (!backgroundUri.isEmpty()) {
             int blurLevel = preferences.getInt(BackgroundBlur.PREFERENCE, 0);
             Uri uri = Uri.parse(backgroundUri);
             worker.execute(
@@ -128,100 +131,96 @@ public final class DashboardLayout {
         root.addView(left, new LinearLayout.LayoutParams(0, -1, 3));
         root.addView(right, new LinearLayout.LayoutParams(0, -1, 2));
 
-        LinearLayout clockArea = views.column();
+        ClockArea clockArea = new ClockArea(activity);
         clockArea.setGravity(Gravity.CENTER);
         left.addView(clockArea, new LinearLayout.LayoutParams(-1, 0, 1));
         featuredList = views.column();
         featuredList.setGravity(Gravity.CENTER_VERTICAL);
         featuredScroll = scroll(left, featuredList);
         featuredScroll.setFillViewport(true);
-        if (!BuildConfig.FREE) {
-            LinearLayout weatherDisplay = views.column();
-            weatherDisplay.setPadding(views.dp(COLUMN_INSET), 0, views.dp(COLUMN_INSET), 0);
+        LinearLayout weatherDisplay = views.column();
+        weatherDisplay.setPadding(views.dp(COLUMN_INSET), 0, views.dp(COLUMN_INSET), 0);
 
-            LinearLayout locationGroup = new LinearLayout(activity);
-            locationGroup.setGravity(Gravity.CENTER_VERTICAL);
-            weatherDisplay.addView(locationGroup, new LinearLayout.LayoutParams(-1, -2));
-            TextView locationIcon = views.weatherGlyph("\uf3c5");
-            locationIcon.setTextSize(16);
-            locationGroup.addView(locationIcon);
-            TextView weatherPlace = views.secondaryLabel("", WEATHER_DETAIL_TEXT_SP);
-            weatherPlace.setSingleLine(true);
-            weatherPlace.setEllipsize(android.text.TextUtils.TruncateAt.END);
-            locationGroup.addView(weatherPlace, new LinearLayout.LayoutParams(0, -2, 1));
-            TextView weatherLastUpdate = views.secondaryLabel("", 13);
-            weatherLastUpdate.setGravity(Gravity.RIGHT);
-            weatherLastUpdate.setSingleLine(true);
-            LinearLayout.LayoutParams updateLayout = new LinearLayout.LayoutParams(-2, -2);
-            updateLayout.leftMargin = views.dp(8);
-            locationGroup.addView(weatherLastUpdate, updateLayout);
-            Button weatherRefresh = new Button(activity);
-            weatherRefresh.setTypeface(menuIcons);
-            weatherRefresh.setText(ViewFactory.REFRESH_GLYPH);
-            weatherRefresh.setTextColor(palette.text);
-            weatherRefresh.setTextSize(14);
-            weatherRefresh.setContentDescription(I18n.text(activity, "refresh_weather"));
-            weatherRefresh.setGravity(Gravity.CENTER);
-            weatherRefresh.setBackground(null);
-            weatherRefresh.setPadding(0, 0, 0, 0);
-            locationGroup.addView(
-                    weatherRefresh, new LinearLayout.LayoutParams(views.dp(36), views.dp(36)));
+        LinearLayout locationGroup = new LinearLayout(activity);
+        locationGroup.setGravity(Gravity.CENTER_VERTICAL);
+        weatherDisplay.addView(locationGroup, new LinearLayout.LayoutParams(-1, -2));
+        TextView locationIcon = views.weatherGlyph("\uf3c5");
+        locationIcon.setTextSize(16);
+        locationGroup.addView(locationIcon);
+        TextView weatherPlace = views.secondaryLabel("", WEATHER_DETAIL_TEXT_SP);
+        weatherPlace.setSingleLine(true);
+        weatherPlace.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        locationGroup.addView(weatherPlace, new LinearLayout.LayoutParams(0, -2, 1));
+        TextView weatherLastUpdate = views.secondaryLabel("", 13);
+        weatherLastUpdate.setGravity(Gravity.RIGHT);
+        weatherLastUpdate.setSingleLine(true);
+        LinearLayout.LayoutParams updateLayout = new LinearLayout.LayoutParams(-2, -2);
+        updateLayout.leftMargin = views.dp(8);
+        locationGroup.addView(weatherLastUpdate, updateLayout);
+        Button weatherRefresh = new Button(activity);
+        weatherRefresh.setTypeface(menuIcons);
+        weatherRefresh.setText(ViewFactory.REFRESH_GLYPH);
+        weatherRefresh.setTextColor(palette.text);
+        weatherRefresh.setTextSize(14);
+        weatherRefresh.setContentDescription(I18n.text(activity, "refresh_weather"));
+        weatherRefresh.setGravity(Gravity.CENTER);
+        weatherRefresh.setBackground(null);
+        weatherRefresh.setPadding(0, 0, 0, 0);
+        locationGroup.addView(
+                weatherRefresh, new LinearLayout.LayoutParams(views.dp(36), views.dp(36)));
 
-            LinearLayout weatherGrid = new LinearLayout(activity);
-            weatherDisplay.addView(weatherGrid, new LinearLayout.LayoutParams(-1, -2));
-            LinearLayout weatherLeft = views.column();
-            weatherGrid.addView(weatherLeft, new LinearLayout.LayoutParams(0, -1, 1));
-            TextView weatherWind = addWeatherMetric(weatherLeft, false, "\uf72e");
-            TextView weatherApparent = addWeatherMetric(weatherLeft, false, "\uf2c9", "\uf183");
+        LinearLayout weatherGrid = new LinearLayout(activity);
+        weatherDisplay.addView(weatherGrid, new LinearLayout.LayoutParams(-1, -2));
+        LinearLayout weatherLeft = views.column();
+        weatherGrid.addView(weatherLeft, new LinearLayout.LayoutParams(0, -1, 1));
+        TextView weatherWind = addWeatherMetric(weatherLeft, false, "\uf72e");
+        TextView weatherApparent = addWeatherMetric(weatherLeft, false, "\uf2c9", "\uf183");
 
-            TextView weatherTemperature = views.label("", 44, false);
-            weatherTemperature.setSingleLine(true);
-            weatherTemperature.setMinHeight(views.dp(68));
-            weatherTemperature.setGravity(Gravity.CENTER);
-            weatherTemperature.setPadding(views.dp(12), 0, views.dp(12), 0);
-            weatherGrid.addView(weatherTemperature, new LinearLayout.LayoutParams(-2, -2));
+        TextView weatherTemperature = views.label("", 44, false);
+        weatherTemperature.setSingleLine(true);
+        weatherTemperature.setMinHeight(views.dp(68));
+        weatherTemperature.setGravity(Gravity.CENTER);
+        weatherTemperature.setPadding(views.dp(12), 0, views.dp(12), 0);
+        weatherGrid.addView(weatherTemperature, new LinearLayout.LayoutParams(-2, -2));
 
-            LinearLayout weatherRight = views.column();
-            weatherGrid.addView(weatherRight, new LinearLayout.LayoutParams(0, -1, 1));
-            TextView weatherPrecipitation = addWeatherMetric(weatherRight, true, "\uf0e9");
-            TextView weatherPrecipitationAmount = addWeatherMetric(weatherRight, true, "\uf043");
+        LinearLayout weatherRight = views.column();
+        weatherGrid.addView(weatherRight, new LinearLayout.LayoutParams(0, -1, 1));
+        TextView weatherPrecipitation = addWeatherMetric(weatherRight, true, "\uf0e9");
+        TextView weatherPrecipitationAmount = addWeatherMetric(weatherRight, true, "\uf043");
 
-            TextView weatherSummary = views.label("", 20, false);
-            weatherSummary.setGravity(Gravity.CENTER);
-            weatherDisplay.addView(weatherSummary, new LinearLayout.LayoutParams(-1, -2));
+        TextView weatherSummary = views.label("", 20, false);
+        weatherSummary.setGravity(Gravity.CENTER);
+        weatherDisplay.addView(weatherSummary, new LinearLayout.LayoutParams(-1, -2));
 
-            TextView weatherStatus = views.secondaryLabel("", 22);
-            weatherStatus.setGravity(Gravity.CENTER);
-            weatherDisplay.addView(weatherStatus, new LinearLayout.LayoutParams(-1, -2));
-            LinearLayout.LayoutParams weatherLayout = new LinearLayout.LayoutParams(-1, -2);
-            weatherLayout.bottomMargin = views.dp(22);
-            clockArea.addView(weatherDisplay, weatherLayout);
-            View weatherSpacer = new android.widget.Space(activity);
-            clockArea.addView(weatherSpacer, new LinearLayout.LayoutParams(-1, 0, 1));
-            weather =
-                    new DashboardWeather(
-                            activity,
-                            preferences,
-                            weatherDisplay,
-                            weatherPlace,
-                            weatherTemperature,
-                            weatherSummary,
-                            weatherStatus,
-                            weatherWind,
-                            weatherApparent,
-                            weatherPrecipitation,
-                            weatherPrecipitationAmount,
-                            weatherLastUpdate,
-                            weatherRefresh,
-                            () -> {
-                                boolean showing = weatherDisplay.getVisibility() == View.VISIBLE;
-                                weatherSpacer.setVisibility(showing ? View.VISIBLE : View.GONE);
-                                clockArea.setGravity(
-                                        showing ? Gravity.CENTER_HORIZONTAL : Gravity.CENTER);
-                            });
-        } else {
-            weather = null;
-        }
+        TextView weatherStatus = views.secondaryLabel("", 22);
+        weatherStatus.setGravity(Gravity.CENTER);
+        weatherDisplay.addView(weatherStatus, new LinearLayout.LayoutParams(-1, -2));
+        LinearLayout.LayoutParams weatherLayout = new LinearLayout.LayoutParams(-1, -2);
+        weatherLayout.bottomMargin = views.dp(22);
+        clockArea.addView(weatherDisplay, weatherLayout);
+        View weatherSpacer = new android.widget.Space(activity);
+        clockArea.addView(weatherSpacer, new LinearLayout.LayoutParams(-1, 0, 1));
+        weather =
+                new DashboardWeather(
+                        activity,
+                        preferences,
+                        weatherDisplay,
+                        weatherPlace,
+                        weatherTemperature,
+                        weatherSummary,
+                        weatherStatus,
+                        weatherWind,
+                        weatherApparent,
+                        weatherPrecipitation,
+                        weatherPrecipitationAmount,
+                        weatherLastUpdate,
+                        weatherRefresh,
+                        () -> {
+                            boolean showing = weatherDisplay.getVisibility() == View.VISIBLE;
+                            weatherSpacer.setVisibility(showing ? View.VISIBLE : View.GONE);
+                            clockArea.setGravity(
+                                    showing ? Gravity.CENTER_HORIZONTAL : Gravity.CENTER);
+                        });
         clock = customColors == null ? views.label("", 74, true) : accentLabel("", 74, true);
         if (customColors != null && customColors.length > CustomThemeEditor.DATE_COLOR_INDEX) {
             clock.setTextColor(customColors[CustomThemeEditor.CLOCK_COLOR_INDEX]);
@@ -238,6 +237,7 @@ public final class DashboardLayout {
         }
         date.setGravity(Gravity.CENTER);
         clockArea.addView(date);
+        clockArea.bind(weatherDisplay, weatherTemperature, clock, date);
 
         LinearLayout eventsHeader = new LinearLayout(activity);
         eventsHeader.setPadding(views.dp(COLUMN_INSET), 0, 0, 0);
@@ -253,14 +253,12 @@ public final class DashboardLayout {
                         I18n.text(activity, "refresh_calendars"),
                         view -> actions.refresh());
         refreshButton.setBackground(null);
-        if (!BuildConfig.FREE) {
-            views.addHeaderButton(
-                            eventsHeader,
-                            ICON_SLIDERS,
-                            I18n.text(activity, "filter_events"),
-                            view -> actions.filter())
-                    .setBackground(null);
-        }
+        views.addHeaderButton(
+                        eventsHeader,
+                        ICON_SLIDERS,
+                        I18n.text(activity, "filter_events"),
+                        view -> actions.filter())
+                .setBackground(null);
         views.addHeaderButton(
                         eventsHeader,
                         ICON_ELLIPSIS_VERTICAL,
@@ -291,6 +289,145 @@ public final class DashboardLayout {
         upcoming.addView(accentLabel(I18n.text(activity, "upcoming"), 21, true));
         upcomingList = views.column();
         upcoming.addView(upcomingList);
+    }
+
+    private static final class ClockArea extends LinearLayout {
+        private LinearLayout weather;
+        private TextView temperature, clock, date;
+        private float temperatureSize, clockSize, dateSize;
+        private final float density;
+        private final TextPaint measurementPaint = new TextPaint();
+
+        ClockArea(Activity activity) {
+            super(activity);
+            setOrientation(VERTICAL);
+            density = getResources().getDisplayMetrics().density;
+        }
+
+        void bind(LinearLayout weather, TextView temperature, TextView clock, TextView date) {
+            this.weather = weather;
+            this.temperature = temperature;
+            this.clock = clock;
+            this.date = date;
+            temperatureSize = temperature.getTextSize();
+            clockSize = clock.getTextSize();
+            dateSize = date.getTextSize();
+        }
+
+        @Override
+        protected void onMeasure(int widthSpec, int heightSpec) {
+            if (clock != null
+                    && MeasureSpec.getMode(widthSpec) != MeasureSpec.UNSPECIFIED
+                    && MeasureSpec.getMode(heightSpec) != MeasureSpec.UNSPECIFIED) {
+                fit(MeasureSpec.getSize(widthSpec), MeasureSpec.getSize(heightSpec));
+            }
+            super.onMeasure(widthSpec, heightSpec);
+        }
+
+        private void fit(int width, int height) {
+            boolean hasWeather = weather.getVisibility() == VISIBLE;
+            int contentSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST);
+            int freeSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+            float hourWidth = clockWidth();
+            float widthScale =
+                    hourWidth > width ? Math.max(1f / clockSize, (width - 1f) / hourWidth) : 1f;
+            float temperatureWidth = hasWeather ? temperatureWidth() : 0f;
+            for (int step = 0; step <= 8; step++) {
+                if (hasWeather) {
+                    int spacingStep = Math.min(step, 2);
+                    int margin = dp(22 - 10 * spacingStep);
+                    LayoutParams params = (LayoutParams) weather.getLayoutParams();
+                    params.bottomMargin = margin;
+
+                    float scale = 1f - 0.1f * Math.min(4, Math.max(0, step - 2));
+                    int padding = dp(12 - 4 * spacingStep);
+                    // Leave room for the two columns of secondary weather metrics.
+                    int centerWidth =
+                            width
+                                    - weather.getPaddingLeft()
+                                    - weather.getPaddingRight()
+                                    - dp(156)
+                                    - padding * 2;
+                    if (temperatureWidth > centerWidth && temperatureWidth > 0f) {
+                        scale = Math.min(scale, Math.max(0.6f, centerWidth / temperatureWidth));
+                    }
+                    if (temperature.getPaddingLeft() != padding) {
+                        temperature.setPadding(padding, 0, padding, 0);
+                    }
+                    setSize(temperature, temperatureSize * scale);
+                    resizeWeatherIcon(scale);
+                    int minimum = dp(Math.round((68 - 4 * spacingStep) * scale));
+                    if (temperature.getMinHeight() != minimum) {
+                        temperature.setMinHeight(minimum);
+                    }
+                    weather.measure(
+                            MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), freeSpec);
+                }
+
+                float scale = Math.min(widthScale, 1f - 0.1f * Math.max(0, step - 2));
+                setSize(clock, clockSize * scale);
+                setSize(date, dateSize * (step <= 4 ? 1f : 1f - 0.1f * (step - 4)));
+                clock.measure(contentSpec, freeSpec);
+                date.measure(contentSpec, freeSpec);
+                int weatherHeight =
+                        hasWeather
+                                ? weather.getMeasuredHeight()
+                                        + ((LayoutParams) weather.getLayoutParams()).bottomMargin
+                                : 0;
+                if (weatherHeight + clock.getMeasuredHeight() + date.getMeasuredHeight()
+                        <= height) {
+                    break;
+                }
+            }
+        }
+
+        private float clockWidth() {
+            // Reserve the widest digit so the clock does not resize as seconds change.
+            measurementPaint.set(clock.getPaint());
+            measurementPaint.setTextSize(clockSize);
+            float widest = 0;
+            for (char digit = '0'; digit <= '9'; digit++) {
+                widest = Math.max(widest, measurementPaint.measureText(String.valueOf(digit)));
+            }
+            CharSequence text = clock.getText();
+            float width = Layout.getDesiredWidth(text, measurementPaint);
+            for (int i = 0; i < text.length(); i++) {
+                char digit = text.charAt(i);
+                if (digit >= '0' && digit <= '9') {
+                    width += widest - measurementPaint.measureText(String.valueOf(digit));
+                }
+            }
+            return width + clock.getCompoundPaddingLeft() + clock.getCompoundPaddingRight();
+        }
+
+        private float temperatureWidth() {
+            measurementPaint.set(temperature.getPaint());
+            measurementPaint.setTextSize(temperatureSize);
+            float width = Layout.getDesiredWidth(temperature.getText(), measurementPaint);
+            if (temperature.getCompoundDrawables()[0] != null) {
+                width += dp(60) + temperature.getCompoundDrawablePadding();
+            }
+            return width;
+        }
+
+        private void resizeWeatherIcon(float scale) {
+            Drawable icon = temperature.getCompoundDrawables()[0];
+            int size = dp(Math.round(60 * scale));
+            if (icon != null && icon.getBounds().width() != size) {
+                icon.setBounds(0, 0, size, size);
+                temperature.setCompoundDrawables(icon, null, null, null);
+            }
+        }
+
+        private static void setSize(TextView view, float size) {
+            if (view.getTextSize() != size) {
+                view.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
+            }
+        }
+
+        private int dp(int value) {
+            return Math.round(value * density);
+        }
     }
 
     /**

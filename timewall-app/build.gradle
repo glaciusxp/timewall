@@ -10,8 +10,9 @@ android {
         applicationId 'it.timewall.dashboard'
         minSdk 19
         targetSdk 36
-        versionCode 103
-        versionName '0.103'
+        buildConfigField 'int', 'CALENDAR_LIMIT', '20'
+        versionCode 105
+        versionName '0.105'
     }
     compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
     androidResources { noCompress += ['ttf', 'otf'] }
@@ -25,28 +26,25 @@ android {
             enableV2Signing true
         }
     }
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
     buildFeatures { buildConfig = true }
-    flavorDimensions += 'edition'
+    // The flavors retain the application IDs of the existing distribution channels.
+    flavorDimensions += 'channel'
     productFlavors {
         complete {
-            dimension 'edition'
-            buildConfigField 'int', 'CALENDAR_LIMIT', '20'
-            buildConfigField 'boolean', 'FREE', 'false'
-            buildConfigField 'boolean', 'PLAY_PREVIEW', 'false'
+            dimension 'channel'
         }
         playFree {
-            dimension 'edition'
-            buildConfigField 'int', 'CALENDAR_LIMIT', '1'
-            applicationIdSuffix '.playfree'
-            buildConfigField 'boolean', 'FREE', 'true'
-            buildConfigField 'boolean', 'PLAY_PREVIEW', 'true'
+            dimension 'channel'
+            applicationId 'it.timewall.app'
         }
         siteFree {
-            dimension 'edition'
-            buildConfigField 'int', 'CALENDAR_LIMIT', '1'
+            dimension 'channel'
             applicationIdSuffix '.sitefree'
-            buildConfigField 'boolean', 'FREE', 'true'
-            buildConfigField 'boolean', 'PLAY_PREVIEW', 'false'
         }
     }
     buildTypes {
@@ -109,15 +107,15 @@ abstract class ClockFontResources extends DefaultTask {
 }
 
 def clockFontResources = tasks.register('generateClockFontResources', ClockFontResources) {
-    fontAssets.from(fileTree('src/main/assets') { include 'Roboto*-Regular.ttf', 'ShantellSans-Regular.ttf' })
-    fontAssets.from(fileTree('src/complete/assets') { include '*.ttf', '*.otf' })
-    clockLayout.set(layout.projectDirectory.file('src/complete/res/layout/widget_clock_digits.xml'))
+    fontAssets.from(fileTree('src/main/assets') {
+        include '*.ttf', '*.otf'
+        exclude 'font-awesome-solid.ttf'
+    })
+    clockLayout.set(layout.projectDirectory.file('src/main/res/layout/widget_clock_digits.xml'))
     outputDirectory.set(layout.buildDirectory.dir('generated/clockWidget/res'))
 }
 androidComponents.onVariants(androidComponents.selector().all()) { variant ->
-    if (variant.flavorName == 'complete') {
-        variant.sources.res.addGeneratedSourceDirectory(clockFontResources, { task -> task.outputDirectory })
-    }
+    variant.sources.res.addGeneratedSourceDirectory(clockFontResources, { task -> task.outputDirectory })
 }
 
 dependencyLocking { lockAllConfigurations() }

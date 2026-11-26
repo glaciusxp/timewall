@@ -1,6 +1,6 @@
 # TimeWall — Materiale per la scheda Google Play
 
-Preparato il 20 novembre 2026 sulla versione 0.101. Testi proposti, non ancora pubblicati. I blocchi tra `INIZIO` e `FINE` sono i contenuti da copiare nei rispettivi campi; i delimitatori non fanno parte del testo.
+Bozza aggiornata per TimeWall 0.104, app gratuita e open source (MIT). Testi proposti, non ancora pubblicati. I blocchi tra `INIZIO` e `FINE` sono i contenuti da copiare nei rispettivi campi; i delimitatori non fanno parte del testo.
 
 ## Scheda italiana
 
@@ -17,7 +17,7 @@ Agenda, orologio e meteo in una dashboard pensata per il tuo tablet.
 Trasforma il tuo tablet in una dashboard per la giornata. TimeWall riunisce orologio, agenda e meteo in una schermata orizzontale, con le informazioni principali visibili a colpo d'occhio.
 
 LA TUA AGENDA
-Aggiungi uno o più calendari tramite indirizzi HTTPS iCal (.ics) accessibili senza autenticazione. Assegna un nome e un colore a ogni calendario e filtra quelli che vuoi vedere.
+Aggiungi fino a 20 calendari tramite indirizzi HTTPS iCal (.ics) accessibili senza autenticazione. Assegna un nome e un colore a ogni calendario e filtra quelli che vuoi vedere.
 
 Consulta gli impegni di oggi e dei giorni successivi. Gli eventi in corso e quelli di tutta la giornata restano in evidenza; sotto l'orologio trovi un riepilogo più grande degli impegni attuali o del prossimo evento odierno. Tocca un evento per leggere titolo completo, orari, descrizione, luogo, calendario e data di creazione, quando disponibili nel file iCal.
 
@@ -40,6 +40,9 @@ Il meteo è facoltativo. Ricerca località e richieste meteo contattano Open-Met
 
 Dati meteo: Open-Meteo, licenza CC BY 4.0. Informazioni e assistenza: andreapersano@gmail.com.
 
+WIDGET PER LA HOME
+Aggiungi Orologio, What’s next, Agenda e Meteo alla schermata Home. Configura font e trasparenza per ciascuna istanza.
+
 **Descrizione completa — FINE**
 
 ## English listing
@@ -57,7 +60,7 @@ Calendar, clock and weather in a dashboard designed for your tablet.
 Turn your tablet into a dashboard for the day. TimeWall brings your clock, agenda and weather together in a landscape screen, with key information easy to read at a glance.
 
 YOUR AGENDA
-Add one or more calendars using HTTPS iCal (.ics) URLs that can be accessed without signing in. Give each calendar a name and color, then filter the calendars you want to see.
+Add up to 20 calendars using HTTPS iCal (.ics) URLs that can be accessed without signing in. Give each calendar a name and color, then filter the calendars you want to see.
 
 Browse today's appointments and upcoming days. Ongoing and all-day events are highlighted. A larger summary beneath the clock shows current events or the next event scheduled for today. Tap an event to see its full title, times, description, location, calendar and creation date, when supplied by the iCal feed.
 
@@ -80,6 +83,9 @@ Weather is optional. Location searches and weather requests contact Open-Meteo; 
 
 Weather data: Open-Meteo, CC BY 4.0. Support: andreapersano@gmail.com.
 
+HOME SCREEN WIDGETS
+Add Clock, What’s next, Agenda and Weather to your home screen. Set the font and transparency for each widget.
+
 **Full description — END**
 
 ## Impostazioni della scheda proposte
@@ -90,8 +96,8 @@ Weather data: Open-Meteo, CC BY 4.0. Support: andreapersano@gmail.com.
 | Categoria | Produttività — proposta da confermare |
 | Sviluppatore / autore | Andrea Persano; verificare il nome pubblico effettivo dell'account Play |
 | Email di assistenza | andreapersano@gmail.com |
-| Sito web | Da definire; non inserire un URL fittizio |
-| URL privacy | **Da pubblicare e inserire obbligatoriamente** |
+| Sito web | https://glaciusxp.github.io/timewall-website/ |
+| URL privacy | https://glaciusxp.github.io/timewall-website/it/privacy.html |
 | Pubblicità | No, nell'implementazione corrente |
 | Accesso all'app | Nessun account TimeWall o login necessario |
 | Prezzo e monetizzazione | Decisione del titolare ancora da confermare; nessuna promessa di gratuità inserita nei testi |

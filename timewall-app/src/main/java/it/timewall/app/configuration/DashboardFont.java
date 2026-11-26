@@ -16,13 +16,6 @@ public enum DashboardFont {
     public final String label;
     public final String file;
 
-    public boolean availableInFreeEdition() {
-        return this == SYSTEM_ROBOTO
-                || this == ROBOTO_CONDENSED
-                || this == ROBOTO_SLAB
-                || this == SHANTELL_SANS;
-    }
-
     /** Restituisce il font salvato per nome file; font rimossi o sconosciuti usano il sistema. */
     public static DashboardFont fromSavedFile(String file) {
         for (DashboardFont font : values()) {

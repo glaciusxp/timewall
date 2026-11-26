@@ -17,6 +17,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.view.View;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import it.timewall.app.BuildConfig;
 import it.timewall.app.R;
@@ -122,7 +123,10 @@ public class WhatsNextWidget extends AppWidgetProvider {
                     intent.getIntExtra(
                             AppWidgetManager.EXTRA_APPWIDGET_ID,
                             AppWidgetManager.INVALID_APPWIDGET_ID);
-            WidgetCalendarRefresh.schedule(context, id);
+            if (!WidgetCalendarRefresh.schedule(context, id)) {
+                I18n.apply(context, SettingsStore.open(context, Context.MODE_PRIVATE));
+                Toast.makeText(context, R.string.refresh_failed, Toast.LENGTH_SHORT).show();
+            }
             return;
         }
         if (UPDATE.equals(action)

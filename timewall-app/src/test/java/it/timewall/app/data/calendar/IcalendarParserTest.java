@@ -200,4 +200,48 @@ public class IcalendarParserTest {
                         "https://example.org/a b",
                         "https://example.org:99999/a")) assertFalse(bad, CalendarFeed.accepts(bad));
     }
+
+    @Test
+    public void recurringEventsHonorCountAndExceptionDatesAcrossDst() throws Exception {
+        String events =
+                "DTSTART;TZID=Europe/Rome:20260323T090000\n"
+                        + "DURATION:PT90M\nRRULE:FREQ=WEEKLY;BYDAY=MO,WE;COUNT=5\n"
+                        + "EXDATE;TZID=Europe/Rome:20260325T090000\n"
+                        + "RDATE;TZID=Europe/Rome:20260402T090000\n";
+        List<CalendarEvent> result = dated(events, "20260323T080000Z");
+        assertEquals(5, result.size());
+        assertEquals(
+                IcalendarParser.parseDate("20260330T070000Z", null).getTime(), result.get(1).start);
+        assertEquals(90 * 60_000L, result.get(1).end - result.get(1).start);
+        assertEquals(
+                IcalendarParser.parseDate("20260402T070000Z", null).getTime(), result.get(3).start);
+    }
+
+    @Test
+    public void monthlySeriesSkipsMonthsWithoutTheStartDayAndHonorsUntil() throws Exception {
+        List<CalendarEvent> result =
+                dated(
+                        "DTSTART:20260131T100000Z\n"
+                                + "RRULE:FREQ=MONTHLY;UNTIL=20260331T100000Z\n",
+                        "20260215T000000Z");
+        assertEquals(2, result.size());
+        assertEquals(
+                IcalendarParser.parseDate("20260331T100000Z", null).getTime(), result.get(1).start);
+    }
+
+    @Test
+    public void unsupportedTimeZoneFailsInsteadOfUsingGmt() {
+        assertThrows(
+                java.io.IOException.class,
+                () -> dated("DTSTART;TZID=Unavailable/Zone:20260323T090000\n", "20260323T000000Z"));
+    }
+
+    private List<CalendarEvent> dated(String event, String now) throws Exception {
+        return IcalendarParser.parse(
+                ("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" + event + "END:VEVENT\nEND:VCALENDAR\n")
+                        .getBytes(StandardCharsets.UTF_8),
+                0,
+                "https://example.org/calendar.ics",
+                IcalendarParser.parseDate(now, null).getTime());
+    }
 }

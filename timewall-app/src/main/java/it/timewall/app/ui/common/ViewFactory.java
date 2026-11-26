@@ -84,10 +84,6 @@ public final class ViewFactory {
         }
     }
 
-    public boolean isDarkTheme() {
-        return darkTheme;
-    }
-
     private final int accentColor;
 
     /**

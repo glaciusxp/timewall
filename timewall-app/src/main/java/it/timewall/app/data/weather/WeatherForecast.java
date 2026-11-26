@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
 
-import it.timewall.app.BuildConfig;
 import it.timewall.app.domain.model.WeatherConditions;
 import it.timewall.app.domain.model.WeatherPlace;
 import it.timewall.app.domain.weather.WeatherRefreshPolicy;
@@ -101,13 +100,11 @@ public final class WeatherForecast {
     }
 
     public static void notifyWidgets(Context context) {
-        if (!BuildConfig.FREE) {
-            context.sendBroadcast(
-                    new Intent(WIDGET_UPDATE)
-                            .setClassName(
-                                    context.getPackageName(),
-                                    "it.timewall.app.ui.widget.WeatherWidget$InternalReceiver"));
-        }
+        context.sendBroadcast(
+                new Intent(WIDGET_UPDATE)
+                        .setClassName(
+                                context.getPackageName(),
+                                "it.timewall.app.ui.widget.WeatherWidget$InternalReceiver"));
     }
 
     private static boolean isCurrent(SharedPreferences settings, WeatherPlace place) {

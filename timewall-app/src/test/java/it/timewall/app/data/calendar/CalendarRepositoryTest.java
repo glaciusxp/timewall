@@ -11,6 +11,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class CalendarRepositoryTest {
+    @Test
+    public void incompleteComponentCannotOverwriteValidCache() {
+        Memory store = new Memory();
+        store.saved = valid;
+        byte[] incomplete =
+                ("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" + "DTSTART:20261119T100000Z\nEND:VCALENDAR\n")
+                        .getBytes(StandardCharsets.UTF_8);
+        CalendarRepository repo = new CalendarRepository(url -> incomplete, store);
+        Result result = new Result();
+        repo.refresh(Arrays.asList(feed), true, result);
+        assertEquals(0, store.writes);
+        assertArrayEquals(valid, store.saved);
+        assertEquals(1, result.loaded.size());
+    }
+
     /** Rejects a queued refresh captured before an invalidation, without contacting its old URL. */
     @Test
     public void queuedOldGenerationNeverDownloads() {
