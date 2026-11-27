@@ -236,6 +236,33 @@ public class IcalendarParserTest {
                 () -> dated("DTSTART;TZID=Unavailable/Zone:20260323T090000\n", "20260323T000000Z"));
     }
 
+    @Test
+    public void rejectsMissingBodyAndNestedCalendar() {
+        assertThrows(IOException.class, () -> IcalendarParser.parse(null, 0, ""));
+        byte[] nested =
+                ("BEGIN:VCALENDAR\nBEGIN:VCALENDAR\nEND:VCALENDAR\nEND:VCALENDAR\n")
+                        .getBytes(StandardCharsets.UTF_8);
+        assertThrows(IOException.class, () -> IcalendarParser.parse(nested, 0, ""));
+    }
+
+    @Test
+    public void cancelledOccurrenceRemovesOnlyItsOwnStart() throws Exception {
+        List<CalendarEvent> result =
+                dated(
+                        "UID:series\n"
+                                + "DTSTART:20260323T090000Z\n"
+                                + "RRULE:FREQ=DAILY;COUNT=3\n"
+                                + "END:VEVENT\n"
+                                + "BEGIN:VEVENT\n"
+                                + "UID:series\n"
+                                + "RECURRENCE-ID:20260324T090000Z\n"
+                                + "STATUS:CANCELLED\n",
+                        "20260323T000000Z");
+        assertEquals(2, result.size());
+        assertEquals(
+                IcalendarParser.parseDate("20260325T090000Z", null).getTime(), result.get(1).start);
+    }
+
     private List<CalendarEvent> dated(String event, String now) throws Exception {
         return IcalendarParser.parse(
                 ("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" + event + "END:VEVENT\nEND:VCALENDAR\n")

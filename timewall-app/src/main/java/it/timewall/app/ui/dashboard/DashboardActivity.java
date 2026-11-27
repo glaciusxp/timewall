@@ -18,6 +18,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -86,7 +87,7 @@ public final class DashboardActivity extends Activity {
     private static final String ICON_INFO = "\uf05a";
     private static final String ICON_CHECK = "\uf00c";
 
-    private final Handler handler = new Handler();
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     // Survives Activity recreation: deletion must not be dropped by the image worker's shutdown.
     private CalendarRepository calendars;
@@ -1424,20 +1425,6 @@ public final class DashboardActivity extends Activity {
             }
             return text;
         }
-    }
-
-    /**
-     * Crea una label usando il colore principale del tema anziché il testo ordinario.
-     *
-     * @param text testo da visualizzare o analizzare
-     * @param size dimensione in sp per il testo o in dp per il pallino, secondo il controllo
-     * @param bold true per una label in grassetto
-     * @return label configurata secondo lo stile descritto
-     */
-    private TextView accentLabel(String text, int size, boolean bold) {
-        TextView view = views.label(text, size, bold);
-        view.setTextColor(accentColor);
-        return view;
     }
 
     /**

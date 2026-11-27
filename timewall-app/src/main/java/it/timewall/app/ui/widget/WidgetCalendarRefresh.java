@@ -2,13 +2,7 @@ package it.timewall.app.ui.widget;
 
 import android.annotation.TargetApi;
 import android.app.IntentService;
-import android.app.job.JobInfo;
-import android.app.job.JobParameters;
-import android.app.job.JobScheduler;
-import android.app.job.JobService;
-import android.app.job.JobWorkItem;
 import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -96,48 +90,19 @@ public final class WidgetCalendarRefresh {
     }
 
     @TargetApi(26)
-    public static final class BackgroundJob extends JobService {
-        private static final int JOB_ID = 101;
-        private volatile JobParameters running;
-
+    public static final class BackgroundJob extends WidgetRefreshJob {
         private static boolean enqueue(Context context, Intent work) {
-            JobScheduler scheduler =
-                    (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-            JobInfo job =
-                    new JobInfo.Builder(JOB_ID, new ComponentName(context, BackgroundJob.class))
-                            .setOverrideDeadline(0)
-                            .build();
-            return scheduler != null
-                    && scheduler.enqueue(job, new JobWorkItem(work)) == JobScheduler.RESULT_SUCCESS;
+            return enqueue(context, work, 101, BackgroundJob.class);
         }
 
         @Override
-        public boolean onStartJob(JobParameters parameters) {
-            running = parameters;
-            CalendarRefreshWorker.EXECUTOR.execute(
-                    () -> {
-                        try {
-                            while (running == parameters) {
-                                JobWorkItem item = parameters.dequeueWork();
-                                if (item == null) break;
-                                try {
-                                    refresh(this, item.getIntent());
-                                } finally {
-                                    if (running == parameters) parameters.completeWork(item);
-                                }
-                            }
-                        } catch (IllegalArgumentException stopped) {
-                            // JobScheduler can stop the job before onStopJob reaches the main
-                            // thread.
-                        }
-                    });
-            return true;
+        protected void execute(Runnable work) {
+            CalendarRefreshWorker.EXECUTOR.execute(work);
         }
 
         @Override
-        public boolean onStopJob(JobParameters parameters) {
-            running = null;
-            return true;
+        protected void refresh(Intent work) {
+            WidgetCalendarRefresh.refresh(this, work);
         }
     }
 }

@@ -161,6 +161,32 @@ public class CalendarRepositoryTest {
                             + "END:VCALENDAR\n")
                     .getBytes(StandardCharsets.UTF_8);
 
+    @Test
+    public void cacheInvalidatedDuringReadIsNotPublishedOrFollowedByDownload() {
+        Memory store =
+                new Memory() {
+                    @Override
+                    public byte[] read(String address) {
+                        generation++;
+                        return valid;
+                    }
+                };
+        CalendarRepository repository =
+                new CalendarRepository(
+                        address -> {
+                            throw new AssertionError("Invalidated refresh contacted the network");
+                        },
+                        store);
+        Result result = new Result();
+        repository.refresh(
+                java.util.Collections.singletonList(
+                        new Feed("Test", "https://example.org/test.ics", 0)),
+                true,
+                result);
+        assertTrue(result.order.isEmpty());
+        assertEquals(0, store.writes);
+    }
+
     private static class Memory implements CalendarRepository.Store {
         byte[] saved;
         int writes;

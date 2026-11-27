@@ -155,6 +155,7 @@ public final class CalendarRepository {
             if (snapshot == null || snapshot.color != feed.color || snapshot.day != day) {
                 try {
                     snapshot = parse(feed, store.read(feed.address), day);
+                    if (!isCurrent(generation)) return;
                     cache.put(feed.address, snapshot);
                 } catch (Exception unavailable) {
                     continue;
@@ -200,6 +201,7 @@ public final class CalendarRepository {
                 loaded.addAll(current.events);
             }
         }
+        if (!isCurrent(generation)) return;
         cache.clear();
         cache.putAll(updated);
         if (isCurrent(generation)) listener.loaded(loaded, failures);

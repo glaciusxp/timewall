@@ -46,6 +46,7 @@ public final class IcalendarParser {
 
     static List<CalendarEvent> parse(byte[] data, int color, String feedAddress, long now)
             throws IOException {
+        if (data == null) throw new IOException("Missing iCalendar body");
         String body = new String(data, Charset.forName("UTF-8")).replaceFirst("^\uFEFF", "");
         String[] lines = body.replaceAll("\r?\n[ \t]", "").split("\r?\n");
         if (lines.length < 2
@@ -61,6 +62,7 @@ public final class IcalendarParser {
             String line = lines[index];
             if (line.regionMatches(true, 0, "BEGIN:", 0, 6)) {
                 String name = line.substring(6).toUpperCase(Locale.ROOT);
+                if ("VCALENDAR".equals(name)) throw new IOException("Nested VCALENDAR");
                 if ("VEVENT".equals(name)) {
                     if (!stack.isEmpty()) throw new IOException("Nested VEVENT");
                     component = new EventComponent();

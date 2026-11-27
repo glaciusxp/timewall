@@ -246,9 +246,9 @@ public final class ClockWidget extends AppWidgetProvider {
             boolean hour24) {
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         float density = context.getResources().getDisplayMetrics().density;
-        float scaledDensity = context.getResources().getDisplayMetrics().scaledDensity;
+        android.util.DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         paint.setTypeface(Typeface.create(timeFace, Typeface.BOLD));
-        paint.setTextSize(42 * scaledDensity);
+        paint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 42, metrics));
         float widestDigit = 0;
         for (char digit = '0'; digit <= '9'; digit++) {
             widestDigit = Math.max(widestDigit, paint.measureText(Character.toString(digit)));
@@ -263,7 +263,7 @@ public final class ClockWidget extends AppWidgetProvider {
         }
         float timeHeight = paint.descent() - paint.ascent();
         paint.setTypeface(dateFace);
-        paint.setTextSize(18 * scaledDensity);
+        paint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 18, metrics));
         float dateWidth = paint.measureText(date);
         float blockHeight = timeHeight + paint.descent() - paint.ascent();
         float widthBudget = Math.max(1, Math.min(width * 0.86f, width - 16)) * density;

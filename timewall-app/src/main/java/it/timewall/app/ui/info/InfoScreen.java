@@ -2,8 +2,6 @@ package it.timewall.app.ui.info;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.text.Spannable;
 import android.text.style.URLSpan;
@@ -17,6 +15,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import it.timewall.app.BuildConfig;
 import it.timewall.app.configuration.Palette;
 import it.timewall.app.localization.I18n;
 import it.timewall.app.localization.PrivacyNotice;
@@ -178,14 +177,12 @@ public final class InfoScreen {
      */
     private String sectionText(int index) {
         if (index == 0) {
-            String version;
-            try {
-                PackageInfo info =
-                        activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0);
-                version = I18n.text(activity, "version_build", info.versionName, info.versionCode);
-            } catch (PackageManager.NameNotFoundException exception) {
-                version = I18n.text(activity, "version_unavailable");
-            }
+            String version =
+                    I18n.text(
+                            activity,
+                            "version_build",
+                            BuildConfig.VERSION_NAME,
+                            BuildConfig.VERSION_CODE);
             return version + "\n\n" + I18n.text(activity, "author");
         }
         if (index == 1) return PrivacyNotice.text(activity);

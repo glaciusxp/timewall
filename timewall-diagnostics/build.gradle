@@ -3,7 +3,7 @@ plugins { id 'com.android.application' version '9.4.1' }
 android {
     // This diagnostic project contains Java only.
     enableKotlin = false
-    namespace 'it.timewall.diagnostics'
+    namespace = 'it.timewall.diagnostics'
     compileSdk { version = release(37) { minorApiLevel = 0 } }
     buildToolsVersion '36.0.0'
     defaultConfig {
@@ -21,17 +21,17 @@ android {
             storePassword providers.environmentVariable('TIMEWALL_STORE_PASSWORD').getOrElse('android')
             keyAlias providers.environmentVariable('TIMEWALL_KEY_ALIAS').getOrElse('androiddebugkey')
             keyPassword providers.environmentVariable('TIMEWALL_KEY_PASSWORD').getOrElse('android')
-            enableV1Signing true
-            enableV2Signing true
+            enableV1Signing = true
+            enableV2Signing = true
         }
     }
-    buildTypes { release { signingConfig signingConfigs.release; minifyEnabled false } }
+    buildTypes { release { signingConfig = signingConfigs.release; minifyEnabled false } }
     testOptions { unitTests.returnDefaultValues = false }
-    lint { abortOnError true; disable 'ExpiredTargetSdkVersion', 'OldTargetApi', 'GradleDependency', 'ObsoleteSdkInt' }
+    lint { abortOnError = true; disable 'ExpiredTargetSdkVersion', 'OldTargetApi', 'GradleDependency', 'ObsoleteSdkInt' }
 }
 dependencies {
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.json:json:20240303'
+    testImplementation 'org.json:json:20260814'
 }
 
 dependencyLocking { lockAllConfigurations() }

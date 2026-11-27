@@ -9,6 +9,7 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -42,17 +43,17 @@ final class WidgetText {
     int lineWidthDp(String text, int sizeSp) {
         TextPaint paint = new TextPaint();
         paint.setTypeface(normal);
-        paint.setTextSize(sizeSp * metrics.scaledDensity);
+        paint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sizeSp, metrics));
         return (int) Math.ceil((paint.measureText(text) + 2) / metrics.density);
     }
 
     int heightDp(int titleSp, int detailSp, boolean hasStatus) {
         TextPaint paint = new TextPaint();
         paint.setTypeface(bold == null ? Typeface.DEFAULT_BOLD : bold);
-        paint.setTextSize(titleSp * metrics.scaledDensity);
+        paint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, titleSp, metrics));
         float titleHeight = paint.descent() - paint.ascent();
         paint.setTypeface(normal);
-        paint.setTextSize(detailSp * metrics.scaledDensity);
+        paint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, detailSp, metrics));
         float detailHeight = paint.descent() - paint.ascent();
         return (int)
                 Math.ceil((titleHeight + detailHeight * (hasStatus ? 2 : 1)) / metrics.density);
@@ -75,14 +76,14 @@ final class WidgetText {
         if (!raster) {
             views.setTextViewText(textId, text);
             views.setTextColor(textId, color);
-            views.setTextViewTextSize(textId, android.util.TypedValue.COMPLEX_UNIT_SP, sizeSp);
+            views.setTextViewTextSize(textId, TypedValue.COMPLEX_UNIT_SP, sizeSp);
             return;
         }
 
         int width = Math.max(1, Math.round((widthDp - horizontalInsetDp) * metrics.density));
         TextPaint paint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG | TextPaint.SUBPIXEL_TEXT_FLAG);
         paint.setTypeface(emphasis ? bold : normal);
-        paint.setTextSize(sizeSp * metrics.scaledDensity);
+        paint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sizeSp, metrics));
         paint.setColor(color);
         String line = text.replace('\n', ' ').replace('\r', ' ');
         CharSequence fitted = TextUtils.ellipsize(line, paint, width, TextUtils.TruncateAt.END);

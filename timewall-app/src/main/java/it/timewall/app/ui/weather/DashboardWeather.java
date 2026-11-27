@@ -3,8 +3,10 @@ package it.timewall.app.ui.weather;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -47,7 +49,7 @@ public final class DashboardWeather {
             statusLabel,
             lastUpdateLabel;
     private final TextView windLabel, apparentLabel, precipitationLabel, precipitationAmountLabel;
-    private final Handler handler = new Handler();
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private final ExecutorService forecastWorker = Executors.newSingleThreadExecutor();
     private final ExecutorService searchWorker = Executors.newSingleThreadExecutor();
     private final Runnable refresh = () -> requestWeather(false);
@@ -275,7 +277,9 @@ public final class DashboardWeather {
             if (id != 0) {
                 icon = activity.getResources().getDrawable(id).mutate();
                 icon.setBounds(0, 0, dp(60), dp(60));
-                icon.setColorFilter(temperatureLabel.getCurrentTextColor(), PorterDuff.Mode.SRC_IN);
+                icon.setColorFilter(
+                        new PorterDuffColorFilter(
+                                temperatureLabel.getCurrentTextColor(), PorterDuff.Mode.SRC_IN));
             }
         }
         temperatureLabel.setCompoundDrawablePadding(icon == null ? 0 : dp(8));
