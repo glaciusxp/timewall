@@ -189,7 +189,7 @@ public final class SettingsScreen {
      * validazione, confronto delle modifiche e salvataggio; aggiorna preferenze e controller
      * soltanto dopo una conferma valida.
      */
-    public void show() {
+    public void show(boolean addCalendar) {
         if (closeSettings != null) {
             return;
         }
@@ -223,7 +223,8 @@ public final class SettingsScreen {
                 });
         LinearLayout calendarList = views.column();
         sections[1].addView(calendarList);
-        new CalendarSettingsSection(activity, views).render(calendarList, pendingFeeds);
+        CalendarSettingsSection calendarSettings = new CalendarSettingsSection(activity, views);
+        calendarSettings.render(calendarList, pendingFeeds);
         TextView cacheHint = views.secondaryLabel(I18n.text(activity, "calendar_cache_hint"), 15);
         views.addSettingView(sections[1], cacheHint, false, 6);
         sections[1].addView(clearCache);
@@ -429,7 +430,6 @@ public final class SettingsScreen {
                     };
             row.setOnClickListener(view -> selectSection[selected].run());
         }
-        selectSection[0].run();
         backgroundSettings = imageSettings;
         closeSettings =
                 () -> {
@@ -501,7 +501,7 @@ public final class SettingsScreen {
                 .setSoftInputMode(
                         WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
                                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        screen.requestFocus();
+        selectSection[addCalendar ? 1 : 0].run();
         Runnable updateThemeFields =
                 () -> {
                     boolean custom =
@@ -612,6 +612,7 @@ public final class SettingsScreen {
                     closeSettings.run();
                     host.saved(pendingFeeds, changed);
                 });
+        if (addCalendar) calendarSettings.addCalendar(calendarList, pendingFeeds);
     }
 
     /**

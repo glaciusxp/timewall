@@ -89,7 +89,7 @@ public final class CalendarSettingsSection {
                             I18n.text(activity, "calendar_limit", BuildConfig.CALENDAR_LIMIT), 15));
         }
         Runnable updated = () -> render(panel, pendingFeeds);
-        add.setOnClickListener(view -> editCalendar(-1, pendingFeeds, updated));
+        add.setOnClickListener(view -> addCalendar(panel, pendingFeeds));
         if (pendingFeeds.isEmpty()) {
             panel.addView(views.label(I18n.text(activity, "no_calendars"), 18, false));
         }
@@ -116,6 +116,10 @@ public final class CalendarSettingsSection {
                     });
             panel.addView(row);
         }
+    }
+
+    void addCalendar(LinearLayout panel, List<Feed> pendingFeeds) {
+        editCalendar(-1, pendingFeeds, () -> render(panel, pendingFeeds));
     }
 
     /**

@@ -49,6 +49,8 @@ public final class DashboardLayout {
          * @param anchor vista a cui ancorare il menu
          */
         void menu(View anchor);
+
+        void addCalendar();
     }
 
     private final Activity activity;
@@ -64,7 +66,7 @@ public final class DashboardLayout {
     public final TextView clock, date, status;
     public final LinearLayout featuredList, todayList, upcomingList;
     public final ScrollView featuredScroll, eventsScroll;
-    public final Button refreshButton;
+    public final Button refreshButton, addCalendarButton;
     public final DashboardWeather weather;
 
     /**
@@ -272,6 +274,15 @@ public final class DashboardLayout {
         status = views.secondaryLabel("", 13);
         status.setPadding(views.dp(COLUMN_INSET), 0, 0, 0);
         agenda.addView(status);
+        addCalendarButton = new Button(activity);
+        addCalendarButton.setText("+ " + I18n.text(activity, "add_calendar"));
+        addCalendarButton.setAllCaps(false);
+        addCalendarButton.setVisibility(View.GONE);
+        addCalendarButton.setOnClickListener(view -> actions.addCalendar());
+        LinearLayout.LayoutParams addCalendarParams = new LinearLayout.LayoutParams(-2, -2);
+        addCalendarParams.setMarginStart(views.dp(COLUMN_INSET));
+        addCalendarParams.topMargin = views.dp(8);
+        agenda.addView(addCalendarButton, addCalendarParams);
 
         LinearLayout today = views.column();
         agenda.addView(today);

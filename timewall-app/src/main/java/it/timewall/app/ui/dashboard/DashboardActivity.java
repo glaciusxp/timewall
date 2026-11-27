@@ -95,6 +95,7 @@ public final class DashboardActivity extends Activity {
     private final Set<String> excludedCalendars = new HashSet<>();
     private List<CalendarEvent> events = Collections.emptyList();
     private TextView clock, date, status;
+    private Button addCalendarButton;
     private LinearLayout todayList, upcomingList, featuredList;
     private ScrollView eventsScroll, featuredScroll;
     private DashboardDates dates;
@@ -310,12 +311,18 @@ public final class DashboardActivity extends Activity {
                             public void menu(View anchor) {
                                 showMenu(anchor);
                             }
+
+                            @Override
+                            public void addCalendar() {
+                                showSettings(true);
+                            }
                         });
         dashboardHost = layout.dashboardHost;
         dashboardContent = layout.dashboardContent;
         clock = layout.clock;
         date = layout.date;
         status = layout.status;
+        addCalendarButton = layout.addCalendarButton;
         featuredList = layout.featuredList;
         todayList = layout.todayList;
         upcomingList = layout.upcomingList;
@@ -431,8 +438,9 @@ public final class DashboardActivity extends Activity {
         ((View) upcomingList.getParent()).setVisibility(configured ? View.VISIBLE : View.GONE);
         status.setTextSize(configured ? 13 : 17);
         status.setPadding(status.getPaddingLeft(), configured ? 0 : views.dp(16), 0, 0);
+        addCalendarButton.setVisibility(configured ? View.GONE : View.VISIBLE);
         if (!configured) {
-            status.setText(I18n.text(this, "no_calendars_configured"));
+            status.setText(I18n.text(this, "no_calendars"));
             return;
         }
         List<CalendarEvent> current = new ArrayList<>();
@@ -1066,6 +1074,10 @@ public final class DashboardActivity extends Activity {
      * l’Activity soltanto quando serve.
      */
     private void showSettings() {
+        showSettings(false);
+    }
+
+    private void showSettings(boolean addCalendar) {
         if (settingsScreen != null) return;
         settingsScreen =
                 new SettingsScreen(
@@ -1199,7 +1211,7 @@ public final class DashboardActivity extends Activity {
                                 selectedFont,
                                 darkTheme),
                         worker);
-        settingsScreen.show();
+        settingsScreen.show(addCalendar);
     }
 
     /**

@@ -14,7 +14,7 @@
   <string name="unavailable">"Non disponibile"</string>
   <string name="calendar">"Calendario"</string>
   <string name="created">"Data di inserimento"</string>
-  <string name="add_calendar">"Aggiungi Calendario"</string>
+  <string name="add_calendar">"Aggiungi calendario"</string>
   <string name="refresh_calendars">"Aggiorna calendari"</string>
   <string name="refreshing_calendars">"Aggiornamento calendari…"</string>
   <string name="filter_events">"Filtra eventi"</string>
