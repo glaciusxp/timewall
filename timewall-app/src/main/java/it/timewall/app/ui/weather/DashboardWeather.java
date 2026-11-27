@@ -64,7 +64,7 @@ public final class DashboardWeather {
     private int refreshIndex;
     private int revision;
     private Future<?> forecastTask;
-    private final Runnable updateClockLayout;
+    private final Runnable onWeatherRendered;
 
     /**
      * Collega le viste del blocco meteo, ripristina località, unità e frequenza dalle preferenze e
@@ -83,7 +83,7 @@ public final class DashboardWeather {
      * @param precipitationAmountLabel label dei millimetri di precipitazione
      * @param lastUpdateLabel label dell’ultima rilevazione o dell’aggiornamento in corso
      * @param refreshButton pulsante di aggiornamento da collegare al controller
-     * @param updateClockLayout aggiornamento del layout dopo il cambio di visibilità del meteo
+     * @param onWeatherRendered callback eseguito dopo aver aggiornato le viste meteo
      */
     public DashboardWeather(
             Activity activity,
@@ -99,11 +99,11 @@ public final class DashboardWeather {
             TextView precipitationAmountLabel,
             TextView lastUpdateLabel,
             View refreshButton,
-            Runnable updateClockLayout) {
+            Runnable onWeatherRendered) {
         this.activity = activity;
         this.preferences = preferences;
         this.display = display;
-        this.updateClockLayout = updateClockLayout;
+        this.onWeatherRendered = onWeatherRendered;
         this.refreshButton = refreshButton;
         refreshButton.setOnClickListener(view -> requestWeather(true));
         this.locationLabel = locationLabel;
@@ -242,8 +242,8 @@ public final class DashboardWeather {
     private void render() {
         int visibility = enabled && place != null ? View.VISIBLE : View.GONE;
         display.setVisibility(visibility);
-        updateClockLayout.run();
         if (!enabled || place == null) {
+            onWeatherRendered.run();
             return;
         }
         String summary =
@@ -284,6 +284,7 @@ public final class DashboardWeather {
         }
         temperatureLabel.setCompoundDrawablePadding(icon == null ? 0 : dp(8));
         temperatureLabel.setCompoundDrawables(icon, null, null, null);
+        onWeatherRendered.run();
     }
 
     /**

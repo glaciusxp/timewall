@@ -33,16 +33,14 @@ su KitKat. Le popup native continuano a gestire la propria finestra.
 
 ## Orientamento e limiti di questo passaggio
 
-Per conservare la dashboard orizzontale si usa sulla sua Activity la proprietà
-`android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY=true`, prevista
-da Android come opt-out temporaneo per le app con target 36 sui display grandi.
-Non è un opt-out dall'edge-to-edge o da Indietro, già migrati.
+La Dashboard segue l'orientamento della finestra. In orizzontale mantiene le
+due colonne 60/40. In verticale usa una colonna scorrevole con un header fisso
+per aggiornamento calendari, filtro e menu, e un pannello meteo espandibile.
+Le impostazioni in verticale usano una barra orizzontale scorrevole.
 
-La proprietà non varrà più quando l'app passerà al target 37: prima di quel passo
-serviranno layout realmente adattabili a verticale e finestre strette, insieme
-al ripristino completo della bozza delle impostazioni durante una ricreazione.
-Il layout 60/40 continua a usare pesi proporzionali, ma questo passaggio non lo
-trasforma in un'interfaccia universale per tutti i telefoni e le finestre.
+La ricreazione della schermata conserva gli eventi in memoria e lo stato di
+espansione del meteo. Il ripristino completo della bozza delle impostazioni
+durante una ricreazione resta da implementare.
 
 ## Altri cambiamenti di target già valutati
 

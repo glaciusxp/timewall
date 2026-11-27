@@ -98,6 +98,7 @@ public final class DashboardActivity extends Activity {
     private Button addCalendarButton;
     private LinearLayout todayList, upcomingList, featuredList;
     private ScrollView eventsScroll, featuredScroll;
+    private DashboardLayout layout;
     private DashboardDates dates;
     private Typeface menuIcons;
     private ViewFactory views;
@@ -268,7 +269,7 @@ public final class DashboardActivity extends Activity {
             haveInitialEvents = true;
         }
 
-        DashboardLayout layout =
+        layout =
                 new DashboardLayout(
                         this,
                         preferences,
@@ -316,7 +317,8 @@ public final class DashboardActivity extends Activity {
                             public void addCalendar() {
                                 showSettings(true);
                             }
-                        });
+                        },
+                        state != null && state.getBoolean("weatherExpanded"));
         dashboardHost = layout.dashboardHost;
         dashboardContent = layout.dashboardContent;
         clock = layout.clock;
@@ -387,6 +389,12 @@ public final class DashboardActivity extends Activity {
         super.onDestroy();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        state.putBoolean("weatherExpanded", layout.isWeatherExpanded());
+    }
+
     /**
      * Conserva eventi già caricati, deduplicazione delle notifiche e scroll delle due liste
      * attraverso una ricreazione dell’Activity.
@@ -397,7 +405,10 @@ public final class DashboardActivity extends Activity {
     public Object onRetainNonConfigurationInstance() {
         return haveInitialEvents
                 ? new RetainedEvents(
-                        events, eventAlerts, eventsScroll.getScrollY(), featuredScroll.getScrollY())
+                        events,
+                        eventAlerts,
+                        eventsScroll.getScrollY(),
+                        (featuredScroll == null ? 0 : featuredScroll.getScrollY()))
                 : null;
     }
 
@@ -422,7 +433,9 @@ public final class DashboardActivity extends Activity {
         int featuredY =
                 restoredFeaturedScroll >= 0
                         ? restoredFeaturedScroll
-                        : resetScroll ? 0 : featuredScroll.getScrollY();
+                        : resetScroll
+                                ? 0
+                                : (featuredScroll == null ? 0 : featuredScroll.getScrollY());
         restoredAgendaScroll = -1;
         restoredFeaturedScroll = -1;
         todayList.removeAllViews();
@@ -492,7 +505,9 @@ public final class DashboardActivity extends Activity {
             addStatusLabel(upcomingList, 17, false, "no_upcoming");
         }
         eventsScroll.post(() -> eventsScroll.scrollTo(0, scrollY));
-        featuredScroll.post(() -> featuredScroll.scrollTo(0, featuredY));
+        if (featuredScroll != null) {
+            featuredScroll.post(() -> featuredScroll.scrollTo(0, featuredY));
+        }
     }
 
     /**

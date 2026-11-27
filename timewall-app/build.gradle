@@ -11,8 +11,8 @@ android {
         minSdk 19
         targetSdk 36
         buildConfigField 'int', 'CALENDAR_LIMIT', '20'
-        versionCode 109
-        versionName '1.0.alpha-2'
+        versionCode 110
+        versionName '1.0.alpha-3'
     }
     compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
     androidResources { noCompress += ['ttf', 'otf'] }

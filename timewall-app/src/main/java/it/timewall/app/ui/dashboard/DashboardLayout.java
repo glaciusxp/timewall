@@ -2,6 +2,7 @@ package it.timewall.app.ui.dashboard;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -31,7 +32,7 @@ import it.timewall.app.ui.weather.DashboardWeather;
 
 import java.util.concurrent.ExecutorService;
 
-/** Builds native landscape views; event data and Activity lifecycle live elsewhere. */
+/** Builds native dashboard views for portrait and landscape. */
 public final class DashboardLayout {
     public interface Actions {
         /**
@@ -59,6 +60,7 @@ public final class DashboardLayout {
     private final int accentColor;
     private final Typeface menuIcons;
     private static final int COLUMN_INSET = 12, WEATHER_DETAIL_TEXT_SP = 16;
+    private static final int DATE_TEXT_SIZE_SP = 28;
     private static final String BACKGROUND_URI = "dashboardBackgroundUri";
     private static final String ICON_SLIDERS = "\uf1de", ICON_ELLIPSIS_VERTICAL = "\uf142";
     public final FrameLayout dashboardHost;
@@ -68,9 +70,14 @@ public final class DashboardLayout {
     public final ScrollView featuredScroll, eventsScroll;
     public final Button refreshButton, addCalendarButton;
     public final DashboardWeather weather;
+    private boolean weatherExpanded;
+
+    public boolean isWeatherExpanded() {
+        return weatherExpanded;
+    }
 
     /**
-     * Costruisce il layout orizzontale 60/40, i controlli meteo, l’orologio e l’Agenda; collega le
+     * Costruisce la dashboard a una colonna in verticale e a due colonne in orizzontale; collega le
      * azioni al controller e carica lo sfondo sul worker senza bloccare il thread UI.
      *
      * @param activity Activity proprietaria delle viste e dei servizi Android
@@ -80,6 +87,7 @@ public final class DashboardLayout {
      * @param views factory dei componenti coerenti con il tema
      * @param customColors palette personalizzata; null quando non applicabile
      * @param actions callback delle azioni della dashboard
+     * @param weatherExpanded stato del pannello meteo verticale da ripristinare
      */
     public DashboardLayout(
             Activity activity,
@@ -88,14 +96,19 @@ public final class DashboardLayout {
             DashboardStyle style,
             ViewFactory views,
             int[] customColors,
-            Actions actions) {
+            Actions actions,
+            boolean weatherExpanded) {
         this.activity = activity;
         this.views = views;
         this.palette = style.palette;
         this.accentColor = palette.accent;
         this.menuIcons = style.icons;
+        this.weatherExpanded = weatherExpanded;
+        boolean portrait =
+                activity.getResources().getConfiguration().orientation
+                        == Configuration.ORIENTATION_PORTRAIT;
         LinearLayout root = new LinearLayout(activity);
-        root.setOrientation(LinearLayout.HORIZONTAL);
+        root.setOrientation(portrait ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
         root.setPadding(views.dp(20), views.dp(16), views.dp(20), views.dp(16));
         FrameLayout dashboard = new FrameLayout(activity);
         dashboardHost = dashboard;
@@ -130,16 +143,35 @@ public final class DashboardLayout {
         }
         LinearLayout left = views.column();
         LinearLayout right = views.column();
-        root.addView(left, new LinearLayout.LayoutParams(0, -1, 3));
-        root.addView(right, new LinearLayout.LayoutParams(0, -1, 2));
+        LinearLayout agenda = views.column();
+        if (portrait) {
+            refreshButton = addControls(root, "TimeWall", actions);
+            addSectionDivider(root, 0);
+            LinearLayout page = views.column();
+            eventsScroll = scroll(root, page);
+            page.addView(left);
+            page.addView(right);
+        } else {
+            root.addView(left, new LinearLayout.LayoutParams(0, -1, 3));
+            root.addView(right, new LinearLayout.LayoutParams(0, -1, 2));
+            refreshButton = addControls(right, I18n.text(activity, "agenda"), actions);
+            addSectionDivider(right, COLUMN_INSET);
+            eventsScroll = scroll(right, agenda);
+        }
 
         ClockArea clockArea = new ClockArea(activity);
         clockArea.setGravity(Gravity.CENTER);
-        left.addView(clockArea, new LinearLayout.LayoutParams(-1, 0, 1));
         featuredList = views.column();
-        featuredList.setGravity(Gravity.CENTER_VERTICAL);
-        featuredScroll = scroll(left, featuredList);
-        featuredScroll.setFillViewport(true);
+        if (portrait) {
+            left.addView(clockArea, new LinearLayout.LayoutParams(-1, -2));
+            left.addView(featuredList, new LinearLayout.LayoutParams(-1, -2));
+            featuredScroll = null;
+        } else {
+            left.addView(clockArea, new LinearLayout.LayoutParams(-1, 0, 1));
+            featuredList.setGravity(Gravity.CENTER_VERTICAL);
+            featuredScroll = scroll(left, featuredList);
+            featuredScroll.setFillViewport(true);
+        }
         LinearLayout weatherDisplay = views.column();
         weatherDisplay.setPadding(views.dp(COLUMN_INSET), 0, views.dp(COLUMN_INSET), 0);
 
@@ -158,6 +190,11 @@ public final class DashboardLayout {
         weatherLastUpdate.setSingleLine(true);
         LinearLayout.LayoutParams updateLayout = new LinearLayout.LayoutParams(-2, -2);
         updateLayout.leftMargin = views.dp(8);
+        if (portrait) {
+            updateLayout.width = 0;
+            updateLayout.weight = 1;
+            weatherLastUpdate.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        }
         locationGroup.addView(weatherLastUpdate, updateLayout);
         Button weatherRefresh = new Button(activity);
         weatherRefresh.setTypeface(menuIcons);
@@ -198,15 +235,20 @@ public final class DashboardLayout {
         weatherStatus.setGravity(Gravity.CENTER);
         weatherDisplay.addView(weatherStatus, new LinearLayout.LayoutParams(-1, -2));
         LinearLayout.LayoutParams weatherLayout = new LinearLayout.LayoutParams(-1, -2);
-        weatherLayout.bottomMargin = views.dp(22);
-        clockArea.addView(weatherDisplay, weatherLayout);
+        weatherLayout.bottomMargin = views.dp(portrait ? 8 : 22);
+        CompactWeatherHeader compactWeather =
+                portrait ? new CompactWeatherHeader(weatherDisplay) : null;
+        LinearLayout weatherPanel = portrait ? compactWeather.panel : weatherDisplay;
+        clockArea.addView(weatherPanel, weatherLayout);
         View weatherSpacer = new android.widget.Space(activity);
-        clockArea.addView(weatherSpacer, new LinearLayout.LayoutParams(-1, 0, 1));
+        if (!portrait) {
+            clockArea.addView(weatherSpacer, new LinearLayout.LayoutParams(-1, 0, 1));
+        }
         weather =
                 new DashboardWeather(
                         activity,
                         preferences,
-                        weatherDisplay,
+                        weatherPanel,
                         weatherPlace,
                         weatherTemperature,
                         weatherSummary,
@@ -218,7 +260,12 @@ public final class DashboardLayout {
                         weatherLastUpdate,
                         weatherRefresh,
                         () -> {
-                            boolean showing = weatherDisplay.getVisibility() == View.VISIBLE;
+                            if (compactWeather != null) {
+                                compactWeather.render(
+                                        weatherTemperature, weatherSummary, weatherPlace);
+                                return;
+                            }
+                            boolean showing = weatherPanel.getVisibility() == View.VISIBLE;
                             weatherSpacer.setVisibility(showing ? View.VISIBLE : View.GONE);
                             clockArea.setGravity(
                                     showing ? Gravity.CENTER_HORIZONTAL : Gravity.CENTER);
@@ -233,7 +280,7 @@ public final class DashboardLayout {
         clock.setSingleLine(true);
         clock.setGravity(Gravity.CENTER);
         clockArea.addView(clock);
-        date = accentLabel("", 28, false);
+        date = accentLabel("", DATE_TEXT_SIZE_SP, false);
         if (customColors != null && customColors.length > CustomThemeEditor.DATE_COLOR_INDEX) {
             date.setTextColor(customColors[CustomThemeEditor.DATE_COLOR_INDEX]);
         }
@@ -241,36 +288,13 @@ public final class DashboardLayout {
         clockArea.addView(date);
         clockArea.bind(weatherDisplay, weatherTemperature, clock, date);
 
-        LinearLayout eventsHeader = new LinearLayout(activity);
-        eventsHeader.setPadding(views.dp(COLUMN_INSET), 0, 0, 0);
-        eventsHeader.setGravity(Gravity.CENTER_VERTICAL);
-        right.addView(eventsHeader);
-        eventsHeader.addView(
-                accentLabel(I18n.text(activity, "agenda"), 24, true),
-                new LinearLayout.LayoutParams(0, -2, 1));
-        refreshButton =
-                views.addHeaderButton(
-                        eventsHeader,
-                        ViewFactory.REFRESH_GLYPH,
-                        I18n.text(activity, "refresh_calendars"),
-                        view -> actions.refresh());
-        refreshButton.setBackground(null);
-        views.addHeaderButton(
-                        eventsHeader,
-                        ICON_SLIDERS,
-                        I18n.text(activity, "filter_events"),
-                        view -> actions.filter())
-                .setBackground(null);
-        views.addHeaderButton(
-                        eventsHeader,
-                        ICON_ELLIPSIS_VERTICAL,
-                        I18n.text(activity, "open_menu"),
-                        actions::menu)
-                .setBackground(null);
-        addSectionDivider(right, COLUMN_INSET);
-
-        LinearLayout agenda = views.column();
-        eventsScroll = scroll(right, agenda);
+        if (portrait) {
+            TextView agendaTitle = accentLabel(I18n.text(activity, "agenda"), 24, true);
+            agendaTitle.setPadding(views.dp(COLUMN_INSET), views.dp(12), 0, views.dp(6));
+            right.addView(agendaTitle);
+            addSectionDivider(right, COLUMN_INSET);
+            right.addView(agenda);
+        }
         status = views.secondaryLabel("", 13);
         status.setPadding(views.dp(COLUMN_INSET), 0, 0, 0);
         agenda.addView(status);
@@ -302,6 +326,122 @@ public final class DashboardLayout {
         upcoming.addView(upcomingList);
     }
 
+    private Button addControls(LinearLayout parent, String title, Actions actions) {
+        LinearLayout eventsHeader = new LinearLayout(activity);
+        eventsHeader.setPadding(views.dp(COLUMN_INSET), 0, 0, 0);
+        eventsHeader.setGravity(Gravity.CENTER_VERTICAL);
+        parent.addView(eventsHeader);
+        eventsHeader.addView(accentLabel(title, 24, true), new LinearLayout.LayoutParams(0, -2, 1));
+        Button refresh =
+                views.addHeaderButton(
+                        eventsHeader,
+                        ViewFactory.REFRESH_GLYPH,
+                        I18n.text(activity, "refresh_calendars"),
+                        view -> actions.refresh());
+        refresh.setBackground(null);
+        views.addHeaderButton(
+                        eventsHeader,
+                        ICON_SLIDERS,
+                        I18n.text(activity, "filter_events"),
+                        view -> actions.filter())
+                .setBackground(null);
+        views.addHeaderButton(
+                        eventsHeader,
+                        ICON_ELLIPSIS_VERTICAL,
+                        I18n.text(activity, "open_menu"),
+                        actions::menu)
+                .setBackground(null);
+        return refresh;
+    }
+
+    private final class CompactWeatherHeader {
+        private final LinearLayout panel = views.column();
+        private static final int SECONDARY_TEXT_SIZE_SP = 25;
+        private final TextView temperature = views.label("", DATE_TEXT_SIZE_SP, false);
+        private final TextView summary = views.label("", DATE_TEXT_SIZE_SP, false);
+        private final TextView place = views.secondaryLabel("", SECONDARY_TEXT_SIZE_SP);
+
+        CompactWeatherHeader(LinearLayout details) {
+            LinearLayout row = new LinearLayout(activity);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            row.setMinimumHeight(views.dp(48));
+            row.setPadding(views.dp(COLUMN_INSET), 0, views.dp(COLUMN_INSET), 0);
+            TypedValue background = new TypedValue();
+            activity.getTheme()
+                    .resolveAttribute(android.R.attr.selectableItemBackground, background, true);
+            row.setBackgroundResource(background.resourceId);
+            panel.addView(row, new LinearLayout.LayoutParams(-1, -2));
+
+            FrameLayout compactSlot = new FrameLayout(activity);
+            row.addView(compactSlot, new LinearLayout.LayoutParams(0, -2, 1));
+            LinearLayout compact = new LinearLayout(activity);
+            compact.setGravity(Gravity.CENTER_VERTICAL);
+            compactSlot.addView(compact, new FrameLayout.LayoutParams(-2, -2, Gravity.CENTER));
+            temperature.setSingleLine(true);
+            temperature.setPadding(0, 0, views.dp(6), 0);
+            compact.addView(temperature);
+            addCompactLabel(compact, summary);
+            compact.addView(views.secondaryLabel(" - ", SECONDARY_TEXT_SIZE_SP));
+            TextView pin = views.weatherGlyph("\uf3c5");
+            pin.setTextSize(SECONDARY_TEXT_SIZE_SP);
+            compact.addView(pin);
+            addCompactLabel(compact, place);
+
+            TextView title = accentLabel(I18n.text(activity, "weather"), 19, true);
+            row.addView(title, new LinearLayout.LayoutParams(0, -2, 1));
+            TextView chevron = views.label("", 16, false);
+            chevron.setTypeface(menuIcons);
+            chevron.setPadding(views.dp(8), 0, 0, 0);
+            chevron.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            row.addView(chevron);
+            panel.addView(details, new LinearLayout.LayoutParams(-1, -2));
+            Runnable update =
+                    () -> {
+                        compactSlot.setVisibility(weatherExpanded ? View.GONE : View.VISIBLE);
+                        title.setVisibility(weatherExpanded ? View.VISIBLE : View.GONE);
+                        details.setVisibility(weatherExpanded ? View.VISIBLE : View.GONE);
+                        chevron.setText(weatherExpanded ? "\uf077" : "\uf078");
+                        row.setSelected(weatherExpanded);
+                    };
+            row.setFocusable(true);
+            row.setOnClickListener(
+                    view -> {
+                        weatherExpanded = !weatherExpanded;
+                        update.run();
+                    });
+            update.run();
+        }
+
+        private void addCompactLabel(LinearLayout parent, TextView label) {
+            label.setSingleLine(true);
+            label.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            parent.addView(label, new LinearLayout.LayoutParams(-2, -2, 1));
+        }
+
+        void render(TextView sourceTemperature, TextView sourceSummary, TextView sourcePlace) {
+            temperature.setVisibility(
+                    sourceTemperature.getVisibility() == View.VISIBLE ? View.VISIBLE : View.GONE);
+            temperature.setText(sourceTemperature.getText());
+            summary.setText(sourceSummary.getText());
+            place.setText(sourcePlace.getText());
+            Drawable fullIcon = sourceTemperature.getCompoundDrawables()[0];
+            Drawable.ConstantState iconState =
+                    fullIcon == null ? null : fullIcon.getConstantState();
+            Drawable icon =
+                    iconState == null
+                            ? null
+                            : iconState.newDrawable(activity.getResources()).mutate();
+            if (icon != null) {
+                int size = views.dp(39);
+                icon.setBounds(0, 0, size, size);
+                icon.setColorFilter(
+                        temperature.getCurrentTextColor(), android.graphics.PorterDuff.Mode.SRC_IN);
+            }
+            temperature.setCompoundDrawablePadding(views.dp(4));
+            temperature.setCompoundDrawables(icon, null, null, null);
+        }
+    }
+
     private static final class ClockArea extends LinearLayout {
         private LinearLayout weather;
         private TextView temperature, clock, date;
@@ -327,16 +467,19 @@ public final class DashboardLayout {
 
         @Override
         protected void onMeasure(int widthSpec, int heightSpec) {
-            if (clock != null
-                    && MeasureSpec.getMode(widthSpec) != MeasureSpec.UNSPECIFIED
-                    && MeasureSpec.getMode(heightSpec) != MeasureSpec.UNSPECIFIED) {
-                fit(MeasureSpec.getSize(widthSpec), MeasureSpec.getSize(heightSpec));
+            if (clock != null && MeasureSpec.getMode(widthSpec) != MeasureSpec.UNSPECIFIED) {
+                int height =
+                        MeasureSpec.getMode(heightSpec) == MeasureSpec.UNSPECIFIED
+                                ? Integer.MAX_VALUE
+                                : MeasureSpec.getSize(heightSpec);
+                fit(MeasureSpec.getSize(widthSpec), height);
             }
             super.onMeasure(widthSpec, heightSpec);
         }
 
         private void fit(int width, int height) {
             boolean hasWeather = weather.getVisibility() == VISIBLE;
+            boolean weatherInClockArea = weather.getParent() == this;
             int contentSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST);
             int freeSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
             float hourWidth = clockWidth();
@@ -348,10 +491,10 @@ public final class DashboardLayout {
                     int spacingStep = Math.min(step, 2);
                     int margin = dp(22 - 10 * spacingStep);
                     LayoutParams params = (LayoutParams) weather.getLayoutParams();
-                    params.bottomMargin = margin;
+                    if (weatherInClockArea) params.bottomMargin = margin;
 
                     float scale = 1f - 0.1f * Math.min(4, Math.max(0, step - 2));
-                    int padding = dp(12 - 4 * spacingStep);
+                    int padding = dp(weatherInClockArea ? 12 - 4 * spacingStep : 4);
                     // Leave room for the two columns of secondary weather metrics.
                     int centerWidth =
                             width
@@ -381,7 +524,7 @@ public final class DashboardLayout {
                 clock.measure(contentSpec, freeSpec);
                 date.measure(contentSpec, freeSpec);
                 int weatherHeight =
-                        hasWeather
+                        hasWeather && weatherInClockArea
                                 ? weather.getMeasuredHeight()
                                         + ((LayoutParams) weather.getLayoutParams()).bottomMargin
                                 : 0;

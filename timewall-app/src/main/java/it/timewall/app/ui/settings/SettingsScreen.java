@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
@@ -371,15 +372,30 @@ public final class SettingsScreen {
         header.addView(save, new LinearLayout.LayoutParams(-2, -1));
         LinearLayout body = new LinearLayout(activity);
         screen.addView(body, new LinearLayout.LayoutParams(-1, 0, 1));
-        ScrollView navigationScroll = new ScrollView(activity);
+        boolean portrait =
+                activity.getResources().getConfiguration().orientation
+                        == android.content.res.Configuration.ORIENTATION_PORTRAIT;
         LinearLayout navigation = views.column();
-        navigationScroll.addView(navigation);
-        body.addView(navigationScroll, new LinearLayout.LayoutParams(views.dp(330), -1));
+        if (portrait) {
+            body.setOrientation(LinearLayout.VERTICAL);
+            navigation.setOrientation(LinearLayout.HORIZONTAL);
+            HorizontalScrollView navigationScroll = new HorizontalScrollView(activity);
+            navigationScroll.addView(navigation);
+            body.addView(navigationScroll, new LinearLayout.LayoutParams(-1, -2));
+        } else {
+            ScrollView navigationScroll = new ScrollView(activity);
+            navigationScroll.addView(navigation);
+            body.addView(navigationScroll, new LinearLayout.LayoutParams(views.dp(330), -1));
+        }
         View divider = new View(activity);
         divider.setBackgroundColor(palette.border);
-        body.addView(divider, new LinearLayout.LayoutParams(views.dp(1), -1));
+        body.addView(
+                divider,
+                new LinearLayout.LayoutParams(
+                        portrait ? -1 : views.dp(1), portrait ? views.dp(1) : -1));
         FrameLayout content = new FrameLayout(activity);
-        body.addView(content, new LinearLayout.LayoutParams(0, -1, 1));
+        body.addView(
+                content, new LinearLayout.LayoutParams(portrait ? -1 : 0, portrait ? 0 : -1, 1));
         String[] sectionKeys = {
             "general", "calendars", "personalization", "weather", "date_time", "backup_title"
         };
@@ -401,11 +417,12 @@ public final class SettingsScreen {
             icon.setTypeface(menuIcons);
             row.addView(icon, new LinearLayout.LayoutParams(views.dp(36), -2));
             TextView text = views.label(I18n.text(activity, sectionKeys[index]), 18, false);
-            row.addView(text, new LinearLayout.LayoutParams(0, -2, 1));
+            row.addView(
+                    text, new LinearLayout.LayoutParams(portrait ? -2 : 0, -2, portrait ? 0 : 1));
             navigationRows[index] = row;
             navigationLabels[index] = text;
             navigationIcons[index] = icon;
-            navigation.addView(row, new LinearLayout.LayoutParams(-1, -2));
+            navigation.addView(row, new LinearLayout.LayoutParams(portrait ? -2 : -1, -2));
             final int selected = index;
             selectSection[index] =
                     () -> {
