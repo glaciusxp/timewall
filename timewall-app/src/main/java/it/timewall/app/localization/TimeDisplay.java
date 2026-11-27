@@ -3,6 +3,8 @@ package it.timewall.app.localization;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import it.timewall.app.domain.time.TodayEvents;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -16,6 +18,17 @@ public final class TimeDisplay {
     public static String startsIn(Context context, long remaining) {
         if (remaining < 60_000L) return I18n.text(context, "starts_in_moments");
         return I18n.text(context, "starts_in", countdownDuration(context, remaining));
+    }
+
+    public static String focusStart(Context context, long start, long now, boolean hour24) {
+        return TodayEvents.isImminent(start, now)
+                ? startsIn(context, start - now)
+                : I18n.text(context, "focus_later", time(context, start, false, hour24));
+    }
+
+    public static String focusEmptyKey(TodayEvents selection) {
+        if (!selection.hasEvents) return "focus_no_events";
+        return selection.hasOngoingAllDay ? "focus_no_other_events" : "day_complete";
     }
 
     /** Formats the time remaining using the dashboard's localised duration units. */

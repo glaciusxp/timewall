@@ -228,4 +228,18 @@
   <string name="calendar_limit">Обновляется не более %1$d календарей.</string>
   <string name="background_blur">Размытие фона: %1$s</string>
   <string name="starts_in_moments">Начнётся через несколько мгновений</string>
+    <string name="backup_title">Резервное копирование и восстановление</string>
+    <string name="backup_hint">Сохраните настройки панели. Файл может содержать закрытые ссылки на календари. Храните его в безопасном месте.</string>
+    <string name="backup_export">Создать резервную копию</string>
+    <string name="backup_import">Восстановить из файла</string>
+    <string name="backup_confirm">Заменить сохранённые настройки панели? Несохранённые изменения будут потеряны.</string>
+    <string name="backup_exported">Резервная копия сохранена</string>
+    <string name="backup_restored">Настройки восстановлены</string>
+    <string name="backup_invalid">Файл не является резервной копией TimeWall.</string>
+    <string name="backup_newer">Для этой копии требуется более новая версия TimeWall.</string>
+    <string name="backup_error">Не удалось завершить операцию.</string>
+    <string name="focus_heading">В центре внимания</string>
+    <string name="focus_later">Позже · Сегодня в %1$s</string>
+    <string name="focus_no_events">На сегодня ничего не запланировано</string>
+    <string name="focus_no_other_events">Сегодня больше нет событий</string>
 </resources>

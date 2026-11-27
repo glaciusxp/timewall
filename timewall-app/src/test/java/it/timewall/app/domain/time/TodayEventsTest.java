@@ -3,6 +3,7 @@ package it.timewall.app.domain.time;
 import static org.junit.Assert.*;
 
 import it.timewall.app.domain.model.CalendarEvent;
+import it.timewall.app.localization.TimeDisplay;
 
 import org.junit.Test;
 
@@ -23,11 +24,11 @@ public class TodayEventsTest {
     }
 
     /**
-     * Verifica la selezione dell’evento attivo, del successivo e degli eventi giornalieri
-     * simultaneamente visibili.
+     * Verifica la selezione dell’evento attivo e del successivo in presenza di un evento
+     * giornaliero.
      */
     @Test
-    public void activeHasPriorityOverNextAndAllDayRemainsVisible() {
+    public void activeHasPriorityOverNextAndAllDay() {
         CalendarEvent day = e(0, 10000, true),
                 active = e(100, 300, false),
                 next = e(400, 500, false);
@@ -36,22 +37,37 @@ public class TodayEventsTest {
         assertSame(active, t.featured);
         assertSame(next, t.next);
         assertEquals(300, t.nextChange);
-        assertEquals(Arrays.asList(day), t.allDay);
+        assertTrue(t.hasOngoingAllDay);
     }
 
     @Test
-    public void nextEventOnlyBecomesFeaturedAtTheInclusiveThirtyMinuteBoundary() {
+    public void nextEventIsAlreadyFeaturedBeforeTheThirtyMinuteBoundary() {
         CalendarEvent next = e(3_600_000L, 4_000_000L, false);
         long boundary = next.start - 1_800_000L;
-
         TodayEvents before = new TodayEvents(Collections.singletonList(next), boundary - 1);
-        assertSame(next, before.next);
-        assertNull(before.featured);
+        assertSame(next, before.featured);
+        assertFalse(TodayEvents.isImminent(next.start, boundary - 1));
         assertEquals(boundary, before.nextChange);
 
         TodayEvents atBoundary = new TodayEvents(Collections.singletonList(next), boundary);
         assertSame(next, atBoundary.featured);
+        assertTrue(TodayEvents.isImminent(next.start, boundary));
         assertEquals(next.start, atBoundary.nextChange);
+    }
+
+    @Test
+    public void emptyFocusDistinguishesNoEventsFinishedDayAndOngoingAllDayEvent() {
+        TodayEvents empty = new TodayEvents(Collections.emptyList(), 200);
+        assertEquals("focus_no_events", TimeDisplay.focusEmptyKey(empty));
+
+        TodayEvents complete = new TodayEvents(Collections.singletonList(e(100, 200, false)), 200);
+        assertNull(complete.featured);
+        assertEquals("day_complete", TimeDisplay.focusEmptyKey(complete));
+
+        TodayEvents allDay = new TodayEvents(Collections.singletonList(e(0, 300, true)), 200);
+        assertNull(allDay.featured);
+        assertEquals("focus_no_other_events", TimeDisplay.focusEmptyKey(allDay));
+        assertEquals(300, allDay.nextChange);
     }
 
     /** Verifica che l’istante di fine sia escluso dalla condizione di evento attivo. */

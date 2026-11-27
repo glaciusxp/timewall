@@ -2,7 +2,6 @@
 <resources>
     <string name="whats_next_widget">"What’s next"</string>
     <string name="widget_choose_calendars">"Choose the calendars for this widget."</string>
-    <string name="widget_no_imminent">"No event in progress or starting soon"</string>
     <string name="widget_cache_empty">"Open TimeWall to refresh your calendars."</string>
     <string name="widget_background_transparency">"Background transparency: %1$s"</string>
     <string name="widget_settings_title">Widget settings</string>

@@ -224,4 +224,18 @@
   <string name="calendar_limit">Jusqu’à %1$d calendriers peuvent être actualisés.</string>
   <string name="background_blur">Flou de l’arrière-plan : %1$s</string>
   <string name="starts_in_moments">Commence dans quelques instants</string>
+    <string name="backup_title">Sauvegarde et restauration</string>
+    <string name="backup_hint">Sauvegardez les paramètres du tableau de bord. Le fichier peut contenir des liens privés vers les agendas. Conservez-le en lieu sûr.</string>
+    <string name="backup_export">Créer une sauvegarde</string>
+    <string name="backup_import">Restaurer depuis un fichier</string>
+    <string name="backup_confirm">Remplacer les paramètres enregistrés du tableau de bord ? Les modifications non enregistrées seront perdues.</string>
+    <string name="backup_exported">Sauvegarde enregistrée</string>
+    <string name="backup_restored">Paramètres restaurés</string>
+    <string name="backup_invalid">Ce fichier ne constitue pas une sauvegarde TimeWall valide.</string>
+    <string name="backup_newer">Cette sauvegarde nécessite une version plus récente de TimeWall.</string>
+    <string name="backup_error">Impossible de terminer cette opération.</string>
+    <string name="focus_heading">À la une</string>
+    <string name="focus_later">Plus tard · Aujourd’hui à %1$s</string>
+    <string name="focus_no_events">Aucun événement prévu aujourd’hui</string>
+    <string name="focus_no_other_events">Aucun autre événement aujourd’hui</string>
 </resources>

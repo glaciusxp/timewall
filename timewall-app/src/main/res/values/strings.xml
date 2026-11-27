@@ -225,4 +225,18 @@ Build: %2$d"</string>
   <string name="calendar_limit">Up to %1$d calendars can be refreshed.</string>
   <string name="background_blur">Background blur: %1$s</string>
   <string name="starts_in_moments">Starts in a few moments</string>
+    <string name="backup_title">Backup and restore</string>
+    <string name="backup_hint">Back up saved dashboard settings. The file can contain private calendar links. Keep it in a safe place.</string>
+    <string name="backup_export">Create backup</string>
+    <string name="backup_import">Restore from file</string>
+    <string name="backup_confirm">Replace the saved dashboard settings with this backup? Unsaved changes will be discarded.</string>
+    <string name="backup_exported">Backup saved</string>
+    <string name="backup_restored">Settings restored</string>
+    <string name="backup_invalid">This file is not a valid TimeWall backup.</string>
+    <string name="backup_newer">This backup requires a newer version of TimeWall.</string>
+    <string name="backup_error">Could not complete the backup operation.</string>
+    <string name="focus_heading">In focus</string>
+    <string name="focus_later">Later · Today at %1$s</string>
+    <string name="focus_no_events">No events scheduled for today</string>
+    <string name="focus_no_other_events">No other events today</string>
 </resources>

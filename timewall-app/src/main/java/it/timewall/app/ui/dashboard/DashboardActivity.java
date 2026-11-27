@@ -421,6 +421,11 @@ public final class DashboardActivity extends Activity {
         todayList.removeAllViews();
         upcomingList.removeAllViews();
         featuredList.removeAllViews();
+        TextView focusHeading = views.label(I18n.text(this, "focus_heading"), 19, true);
+        focusHeading.setTextColor(accentColor);
+        focusHeading.setPadding(views.dp(8), 0, 0, views.dp(6));
+        featuredList.addView(focusHeading);
+        featuredList.setPadding(0, views.dp(12), views.dp(COLUMN_INSET), views.dp(12));
         boolean configured = !feeds.isEmpty();
         ((View) todayList.getParent()).setVisibility(configured ? View.VISIBLE : View.GONE);
         ((View) upcomingList.getParent()).setVisibility(configured ? View.VISIBLE : View.GONE);
@@ -428,7 +433,6 @@ public final class DashboardActivity extends Activity {
         status.setPadding(status.getPaddingLeft(), configured ? 0 : views.dp(16), 0, 0);
         if (!configured) {
             status.setText(I18n.text(this, "no_calendars_configured"));
-            featuredList.setPadding(0, 0, 0, 0);
             return;
         }
         List<CalendarEvent> current = new ArrayList<>();
@@ -458,6 +462,17 @@ public final class DashboardActivity extends Activity {
             }
         }
         TodayEvents selection = new TodayEvents(current, now);
+        if (selection.featured != null) {
+            addEvent(
+                    featuredList,
+                    selection.featured,
+                    selection.active != null,
+                    selection.active == null,
+                    now);
+        } else if (haveInitialEvents) {
+            String message = TimeDisplay.focusEmptyKey(selection);
+            addStatusLabel(featuredList, 22, "day_complete".equals(message), message);
+        }
         if (current.isEmpty()) {
             if (haveInitialEvents) {
                 addDayStatusLabel(todayList, 17, false);
@@ -467,17 +482,6 @@ public final class DashboardActivity extends Activity {
         }
         if (upcomingList.getChildCount() == 0 && haveInitialEvents) {
             addStatusLabel(upcomingList, 17, false, "no_upcoming");
-        }
-        boolean showFeaturedStatus =
-                featuredList.getChildCount() == 0 && haveInitialEvents && selection.next == null;
-        int featuredPadding = showFeaturedStatus ? 0 : views.dp(12);
-        featuredList.setPadding(
-                0,
-                featuredPadding,
-                showFeaturedStatus ? 0 : views.dp(COLUMN_INSET),
-                featuredPadding);
-        if (showFeaturedStatus) {
-            addDayStatusLabel(featuredList, 30, !current.isEmpty());
         }
         eventsScroll.post(() -> eventsScroll.scrollTo(0, scrollY));
         featuredScroll.post(() -> featuredScroll.scrollTo(0, featuredY));
@@ -495,17 +499,6 @@ public final class DashboardActivity extends Activity {
         CalendarEvent activeEvent = selection.active;
         CalendarEvent nextEvent = selection.next;
         nextChange = Math.min(nextChange, selection.nextChange);
-        for (CalendarEvent event : selection.allDay)
-            addEvent(featuredList, event, false, false, now);
-        CalendarEvent featuredEvent = selection.featured;
-        if (featuredEvent != null) {
-            addEvent(
-                    featuredList,
-                    featuredEvent,
-                    activeEvent != null,
-                    featuredEvent == nextEvent,
-                    now);
-        }
         boolean linePending = activeEvent == null;
         for (CalendarEvent event : eventsToday) {
             if (linePending && event == nextEvent) {
@@ -712,8 +705,11 @@ public final class DashboardActivity extends Activity {
                     active
                             ? I18n.text(
                                     this, "ends_in", TimeDisplay.countdownDuration(this, remaining))
-                            : TimeDisplay.startsIn(this, remaining);
-            if (remaining >= 60_000L) {
+                            : featured
+                                    ? TimeDisplay.focusStart(this, event.start, now, use24Hour)
+                                    : TimeDisplay.startsIn(this, remaining);
+            if (remaining >= 60_000L
+                    && (active || !featured || TodayEvents.isImminent(event.start, now))) {
                 nextChange = Math.min(nextChange, now + remaining % 60_000L + 1);
             }
         }
@@ -1085,6 +1081,19 @@ public final class DashboardActivity extends Activity {
                                 DashboardActivity.this.clearCalendarCache(completion);
                             }
 
+                            @Override
+                            public void backupRestored() {
+                                CalendarDiskCache.invalidate();
+                                updateCalendarWidgets();
+                                WeatherForecast.notifyWidgets(DashboardActivity.this);
+                                sendBroadcast(
+                                        new Intent("it.timewall.app.action.UPDATE_CLOCK_WIDGET")
+                                                .setClassName(
+                                                        getPackageName(),
+                                                        "it.timewall.app.ui.widget.ClockWidget"));
+                                recreate();
+                            }
+
                             /**
                              * Nasconde il contenuto della dashboard e aggiunge la schermata
                              * impostazioni al contenitore a tutto schermo.
@@ -1220,14 +1229,11 @@ public final class DashboardActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_BACKGROUND
-                && resultCode == RESULT_OK
-                && data != null
-                && data.getData() != null) {
-            if (settingsScreen == null) {
-                showSettings();
-            }
-            settingsScreen.selectBackground(data.getData());
+        if (resultCode != RESULT_OK || data == null || data.getData() == null) return;
+        if (requestCode == PICK_BACKGROUND || SettingsScreen.isBackupRequest(requestCode)) {
+            if (settingsScreen == null) showSettings();
+            if (requestCode == PICK_BACKGROUND) settingsScreen.selectBackground(data.getData());
+            else settingsScreen.selectBackupDocument(requestCode, data.getData());
         }
     }
 

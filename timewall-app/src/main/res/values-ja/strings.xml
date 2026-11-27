@@ -222,4 +222,18 @@
   <string name="calendar_limit">更新できるカレンダーは最大 %1$d 件です。</string>
   <string name="background_blur">背景のぼかし：%1$s</string>
   <string name="starts_in_moments">まもなく開始</string>
+    <string name="backup_title">バックアップと復元</string>
+    <string name="backup_hint">ダッシュボードの設定を保存します。ファイルには非公開のカレンダーリンクが含まれる場合があります。安全な場所に保管してください。</string>
+    <string name="backup_export">バックアップを作成</string>
+    <string name="backup_import">ファイルから復元</string>
+    <string name="backup_confirm">保存済みのダッシュボード設定を置き換えますか？未保存の変更は失われます。</string>
+    <string name="backup_exported">バックアップを保存しました</string>
+    <string name="backup_restored">設定を復元しました</string>
+    <string name="backup_invalid">有効な TimeWall バックアップファイルではありません。</string>
+    <string name="backup_newer">このバックアップには新しいバージョンの TimeWall が必要です。</string>
+    <string name="backup_error">操作を完了できませんでした。</string>
+    <string name="focus_heading">注目の予定</string>
+    <string name="focus_later">このあと · 今日 %1$s</string>
+    <string name="focus_no_events">今日の予定はありません</string>
+    <string name="focus_no_other_events">今日はほかに予定がありません</string>
 </resources>

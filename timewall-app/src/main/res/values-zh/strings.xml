@@ -222,4 +222,18 @@
   <string name="calendar_limit">最多可刷新 %1$d 个日历。</string>
   <string name="background_blur">背景模糊：%1$s</string>
   <string name="starts_in_moments">即将开始</string>
+    <string name="backup_title">备份与恢复</string>
+    <string name="backup_hint">备份已保存的仪表盘设置。文件可能含有私人日历链接，请妥善保管。</string>
+    <string name="backup_export">创建备份</string>
+    <string name="backup_import">从文件恢复</string>
+    <string name="backup_confirm">使用此备份替换已保存的仪表盘设置？未保存的更改将丢失。</string>
+    <string name="backup_exported">备份已保存</string>
+    <string name="backup_restored">设置已恢复</string>
+    <string name="backup_invalid">此文件不是有效的 TimeWall 备份。</string>
+    <string name="backup_newer">此备份需要更新版本的 TimeWall。</string>
+    <string name="backup_error">无法完成备份操作。</string>
+    <string name="focus_heading">当前关注</string>
+    <string name="focus_later">稍后 · 今天 %1$s</string>
+    <string name="focus_no_events">今天没有安排</string>
+    <string name="focus_no_other_events">今天没有其他安排</string>
 </resources>

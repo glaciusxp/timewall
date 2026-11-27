@@ -1,11 +1,13 @@
 package it.timewall.app.ui.widget;
 
+import android.annotation.TargetApi;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
@@ -34,6 +36,40 @@ public final class AgendaWidgetService extends RemoteViewsService {
                 intent.getIntExtra(
                         AppWidgetManager.EXTRA_APPWIDGET_ID,
                         AppWidgetManager.INVALID_APPWIDGET_ID));
+    }
+
+    @TargetApi(35)
+    static final class Api35 {
+        static void setCollection(
+                Context context,
+                RemoteViews widget,
+                List<CalendarEvent> events,
+                boolean selected,
+                boolean hasCache,
+                SharedPreferences dashboard,
+                WidgetText text,
+                boolean raster,
+                int widthDp) {
+            AgendaRows rows = new AgendaRows(context, AppWidgetManager.INVALID_APPWIDGET_ID);
+            rows.populate(dashboard, events, selected, hasCache, new WidgetTheme(dashboard), text);
+            RemoteViews.RemoteCollectionItems.Builder items =
+                    new RemoteViews.RemoteCollectionItems.Builder().setViewTypeCount(3);
+            // Inline collections share the AppWidget Binder payload with the outer view.
+            // Raster fonts also consume a separate bitmap memory budget in the host.
+            int rowLimit = raster ? Math.max(6, Math.min(32, 10_000 / Math.max(1, widthDp))) : 120;
+            Parcel parcel = Parcel.obtain();
+            try {
+                for (int i = 0; i < Math.min(rows.getCount(), rowLimit); i++) {
+                    RemoteViews row = rows.getViewAt(i);
+                    row.writeToParcel(parcel, 0);
+                    if (parcel.dataSize() > 400_000) break;
+                    items.addItem(i, row);
+                }
+            } finally {
+                parcel.recycle();
+            }
+            widget.setRemoteAdapter(R.id.widget_agenda, items.build());
+        }
     }
 
     private static final class AgendaRows implements RemoteViewsFactory {
@@ -84,6 +120,16 @@ public final class AgendaWidgetService extends RemoteViewsService {
                     events.addAll(cached);
                 }
             }
+            populate(dashboard, events, selected, hasCache, theme, text);
+        }
+
+        private void populate(
+                SharedPreferences dashboard,
+                List<CalendarEvent> events,
+                boolean selected,
+                boolean hasCache,
+                WidgetTheme theme,
+                WidgetText text) {
             if (!hasCache) {
                 addLabel(
                         context.getString(

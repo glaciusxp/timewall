@@ -2,7 +2,6 @@
 <resources>
     <string name="whats_next_widget">"Als Nächstes"</string>
     <string name="widget_choose_calendars">"Wähle die Kalender für dieses Widget aus."</string>
-    <string name="widget_no_imminent">"Kein laufender oder bald beginnender Termin"</string>
     <string name="widget_cache_empty">"Öffne TimeWall, um die Kalender zu aktualisieren."</string>
     <string name="widget_background_transparency">"Hintergrundtransparenz: %1$s"</string>
     <string name="widget_settings_title">Widget-Einstellungen</string>

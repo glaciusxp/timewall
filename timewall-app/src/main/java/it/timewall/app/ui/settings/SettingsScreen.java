@@ -55,6 +55,8 @@ public final class SettingsScreen {
          */
         void clearCalendarCache(Runnable completion);
 
+        void backupRestored();
+
         /**
          * Comunica che la schermata impostazioni è pronta per essere inserita nel contenitore della
          * dashboard.
@@ -96,6 +98,7 @@ public final class SettingsScreen {
     private final int clockDateFormat;
     private final java.util.concurrent.ExecutorService worker;
     private BackgroundImageEditor backgroundSettings;
+    private BackupSettingsSection backupSettings;
     private Runnable closeSettings, requestSettingsExit;
     private AlertDialog settingsExitDialog;
 
@@ -164,6 +167,15 @@ public final class SettingsScreen {
         if (backgroundSettings != null) backgroundSettings.select(uri);
     }
 
+    public static boolean isBackupRequest(int requestCode) {
+        return requestCode == BackupSettingsSection.EXPORT
+                || requestCode == BackupSettingsSection.IMPORT;
+    }
+
+    public void selectBackupDocument(int requestCode, Uri uri) {
+        if (backupSettings != null) backupSettings.selected(requestCode, uri);
+    }
+
     /**
      * Chiude la schermata aperta attraverso la stessa procedura di pulizia usata all’uscita, senza
      * salvare la bozza.
@@ -181,8 +193,8 @@ public final class SettingsScreen {
         if (closeSettings != null) {
             return;
         }
-        LinearLayout[] sections = new LinearLayout[5];
-        ScrollView[] sectionScrolls = new ScrollView[5];
+        LinearLayout[] sections = new LinearLayout[6];
+        ScrollView[] sectionScrolls = new ScrollView[6];
         for (int index = 0; index < sections.length; index++) {
             sections[index] = views.column();
             sections[index].setPadding(views.dp(24), views.dp(16), views.dp(24), views.dp(24));
@@ -190,6 +202,17 @@ public final class SettingsScreen {
             sectionScrolls[index].setFillViewport(true);
             sectionScrolls[index].addView(sections[index]);
         }
+        backupSettings =
+                new BackupSettingsSection(
+                        activity,
+                        this.preferences,
+                        worker,
+                        () -> {
+                            dispose();
+                            host.backupRestored();
+                        },
+                        views,
+                        sections[5]);
         List<Feed> pendingFeeds = new ArrayList<>(feeds);
         Button clearCache = new Button(activity);
         clearCache.setText(I18n.text(activity, "clear_calendar_cache"));
@@ -356,8 +379,12 @@ public final class SettingsScreen {
         body.addView(divider, new LinearLayout.LayoutParams(views.dp(1), -1));
         FrameLayout content = new FrameLayout(activity);
         body.addView(content, new LinearLayout.LayoutParams(0, -1, 1));
-        String[] sectionKeys = {"general", "calendars", "personalization", "weather", "date_time"};
-        String[] sectionIcons = {ICON_SETTINGS, ICON_CALENDAR, "\uf53f", "\uf0c2", "\uf017"};
+        String[] sectionKeys = {
+            "general", "calendars", "personalization", "weather", "date_time", "backup_title"
+        };
+        String[] sectionIcons = {
+            ICON_SETTINGS, ICON_CALENDAR, "\uf53f", "\uf0c2", "\uf017", "\uf0c7"
+        };
         LinearLayout[] navigationRows = new LinearLayout[sections.length];
         TextView[] navigationLabels = new TextView[sections.length];
         TextView[] navigationIcons = new TextView[sections.length];
@@ -411,6 +438,8 @@ public final class SettingsScreen {
                     }
                     if (weatherSettings != null) weatherSettings.cancelSearch();
                     imageSettings.dispose();
+                    backupSettings.dispose();
+                    backupSettings = null;
                     if (backgroundSettings == imageSettings) {
                         backgroundSettings = null;
                     }

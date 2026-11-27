@@ -13,7 +13,7 @@ Usa questo file come contesto iniziale per lavorare in `C:\workspace\android-app
 
 - Accetta URL iCal/ICS pubblici raggiungibili senza autenticazione, inclusi link non indicizzati condivisi dall'utente. Il supporto è indipendente dal provider. Elimina dalla Dashboard riferimenti, esempi e assunzioni specifiche di Google Calendar. I riferimenti al canale di distribuzione Google Play e alle coordinate delle dipendenze di build hanno un ruolo distinto.
 - TimeWall supporta fino a 20 calendari con nome e colore. Se un profilo storico supera il limite, conserva tutti i feed per consentirne modifica e rimozione e aggiorna solo i primi 20. Tratta gli URL privati di condivisione e il contenuto iCal come dati riservati. Mantieni l'aggiornamento manuale, quello automatico ogni cinque minuti e la cache locale, inclusa la possibilità di svuotarla. Prima di cambiare persistenza o aggiornamenti, leggi `timewall-app/docs/calendar-cache.md`.
-- La Dashboard mostra orologio con secondi e data, meteo e Agenda con le sezioni Oggi e Prossimi eventi. Conserva la gerarchia visiva esistente, l'indicatore dell'ora corrente, i colori dei calendari e il riepilogo sotto l'orologio con gli eventi di tutta la giornata e quello in corso o imminente.
+- La Dashboard mostra orologio con secondi e data, meteo e Agenda con le sezioni Oggi e Prossimi eventi. Conserva la gerarchia visiva esistente, l'indicatore dell'ora corrente, i colori dei calendari e il quadrante «In primo piano» sotto l’orologio, condiviso con What’s next: evento in corso oppure prossimo evento di oggi. Gli eventi di tutta la giornata restano nell’Agenda.
 - Il messaggio «Nessun calendario configurato. Aggiungi calendario» deve avere più spazio sopra rispetto all'header. Il working tree corrente imposta 16 dp di padding superiore in quello stato. Il collaudo sul TF303CL è stato confermato dall’utente.
 - Nella completa conserva tema e tipografia configurabili. Tra i temi già richiesti figurano Ardesia e Azzurro, scelto come predefinito, e Avorio e Petrolio, con varianti chiare e scure.
 
@@ -38,6 +38,10 @@ Usa questo file come contesto iniziale per lavorare in `C:\workspace\android-app
 - Da questa radice usa `.uild.ps1 -Dashboard` per test JVM, lint, build release e pacchetti della Dashboard completa. Usa `.uild.ps1 -All` quando servono entrambi i progetti. Usa `-UpdateLocks` solo per aggiornare intenzionalmente i lock.
 - Per build e installazione sul tablet collegato via ADB usa `.uild_and_install_dashboard.ps1`. Lo script compila la Dashboard e installa `build\TimeWall-Dashboard.apk` con `adb install -r` solo dopo il successo della build. `GRADLE_USER_HOME` è già configurato come variabile utente Windows.
 - Preserva la firma storica della release e la firma v1 necessaria su KitKat. La chiave è configurata in locale, tramite `.signing` o le variabili indicate nel README. Mantieni chiavi e credenziali fuori da Git e dagli ZIP.
-- La Dashboard in preparazione è alla versione `0.105` (`versionCode 105`). Il sito distribuisce la 0.103 fino al tag di rilascio della versione unificata.
+- La Dashboard in preparazione è alla versione `1.0.alpha-1` (`versionCode 108`). Per i fix del test chiuso incrementa il progressivo dopo alpha e il versionCode. Il sito distribuisce la 0.103 fino al tag di rilascio della versione unificata.
 - Restano da verificare l’aggiornamento in-place, l’ID e la firma Play, il test chiuso eventualmente richiesto da Play Console, Sicurezza dei dati, scheda e materiali store. Mantieni configurazioni e modifiche locali; il commit `1337b8d` resta il riferimento della cache.
 - Per approfondire, leggi il README principale e `timewall-app/docs/architecture.md`, `android-compatibility.md`, `testing.md` e `artwork-provenance.md` a seconda dell'intervento.
+
+## Idee future
+
+- Valutare un'opzione «Proteggi con password» per cifrare l'intero file di backup delle impostazioni della Dashboard. Il ripristino deve funzionare anche dopo una reinstallazione o su un altro dispositivo. Questa è una proposta per il futuro.

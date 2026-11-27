@@ -224,4 +224,18 @@
   <string name="calendar_limit">Se actualizan hasta %1$d calendarios.</string>
   <string name="background_blur">Desenfoque del fondo: %1$s</string>
   <string name="starts_in_moments">Empieza en unos instantes</string>
+    <string name="backup_title">Copia de seguridad y restauración</string>
+    <string name="backup_hint">Guarda los ajustes del panel. El archivo puede contener enlaces privados a calendarios. Guárdalo en un lugar seguro.</string>
+    <string name="backup_export">Crear copia de seguridad</string>
+    <string name="backup_import">Restaurar desde un archivo</string>
+    <string name="backup_confirm">¿Sustituir los ajustes guardados del panel con esta copia? Se perderán los cambios sin guardar.</string>
+    <string name="backup_exported">Copia guardada</string>
+    <string name="backup_restored">Ajustes restaurados</string>
+    <string name="backup_invalid">El archivo no es una copia válida de TimeWall.</string>
+    <string name="backup_newer">Esta copia requiere una versión más reciente de TimeWall.</string>
+    <string name="backup_error">No se pudo completar la operación.</string>
+    <string name="focus_heading">En primer plano</string>
+    <string name="focus_later">Más tarde · Hoy a las %1$s</string>
+    <string name="focus_no_events">No hay eventos programados para hoy</string>
+    <string name="focus_no_other_events">No hay más eventos hoy</string>
 </resources>

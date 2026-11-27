@@ -169,6 +169,7 @@ public class WhatsNextWidget extends AppWidgetProvider {
     private static void renderAll(Context context, Class<?> provider) {
         AppWidgetManager manager = AppWidgetManager.getInstance(context);
         boolean agenda = provider == AgendaWidget.class;
+        boolean inlineAgenda = agenda && Build.VERSION.SDK_INT >= 35;
         int[] ids = manager.getAppWidgetIds(new ComponentName(context, provider));
         AlarmManager alarms = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         PendingIntent alarm =
@@ -191,6 +192,7 @@ public class WhatsNextWidget extends AppWidgetProvider {
             Set<String> filter = widgets.getStringSet(Integer.toString(id), null);
             if (filter == null) continue;
             List<CalendarEvent> events = new ArrayList<>();
+            List<CalendarEvent> agendaEvents = inlineAgenda ? new ArrayList<>() : null;
             boolean hasCalendars = false;
             boolean hasCache = false;
             for (Feed feed : feeds) {
@@ -202,6 +204,7 @@ public class WhatsNextWidget extends AppWidgetProvider {
                 List<CalendarEvent> snapshot = snapshots.get(feed.address);
                 if (snapshot != null) {
                     hasCache = true;
+                    if (inlineAgenda) agendaEvents.addAll(snapshot);
                     for (CalendarEvent event : snapshot) {
                         if (TodayEvents.intersectsDay(event, today, tomorrow)) events.add(event);
                     }
@@ -213,7 +216,10 @@ public class WhatsNextWidget extends AppWidgetProvider {
             if (agenda && (selection.next != null || selection.active != null)) {
                 nextChange = Math.min(nextChange, now + 60_000L - now % 60_000L);
             }
-            if (!agenda && selection.featured != null) {
+            if (!agenda
+                    && selection.featured != null
+                    && (selection.active != null
+                            || TodayEvents.isImminent(selection.featured.start, now))) {
                 long remaining =
                         (selection.active == null
                                         ? selection.featured.start
@@ -239,8 +245,9 @@ public class WhatsNextWidget extends AppWidgetProvider {
                                     ? AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT
                                     : AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT,
                             110);
-            manager.updateAppWidget(
-                    id,
+            DashboardFont font = selectedFont(widgets, dashboard, id);
+            WidgetText text = new WidgetText(context, font, width);
+            RemoteViews view =
                     widget(
                             context,
                             dashboard,
@@ -248,21 +255,35 @@ public class WhatsNextWidget extends AppWidgetProvider {
                             id,
                             selection,
                             now,
-                            hasCalendarMessage(context, hasCalendars, hasCache),
+                            focusMessage(context, selection, hasCalendars, hasCache),
                             transparency(widgets, id),
                             !agenda && enlargedText(widgets, id),
                             height,
-                            new WidgetText(context, selectedFont(widgets, dashboard, id), width)));
-            if (agenda) manager.notifyAppWidgetViewDataChanged(id, R.id.widget_agenda);
+                            text);
+            if (inlineAgenda) {
+                AgendaWidgetService.Api35.setCollection(
+                        context,
+                        view,
+                        agendaEvents,
+                        hasCalendars,
+                        hasCache,
+                        dashboard,
+                        text,
+                        font != DashboardFont.SYSTEM_ROBOTO,
+                        width);
+            }
+            manager.updateAppWidget(id, view);
+            if (agenda && !inlineAgenda)
+                manager.notifyAppWidgetViewDataChanged(id, R.id.widget_agenda);
         }
         alarms.set(AlarmManager.RTC, nextChange, alarm);
     }
 
-    private static String hasCalendarMessage(
-            Context context, boolean hasCalendars, boolean hasCache) {
+    private static String focusMessage(
+            Context context, TodayEvents selection, boolean hasCalendars, boolean hasCache) {
         if (!hasCalendars) return context.getString(R.string.no_calendars);
-        return context.getString(
-                hasCache ? R.string.widget_no_imminent : R.string.widget_cache_empty);
+        if (!hasCache) return context.getString(R.string.widget_cache_empty);
+        return I18n.text(context, TimeDisplay.focusEmptyKey(selection));
     }
 
     static List<CalendarEvent> readEvents(Context context, Feed feed) {
@@ -304,14 +325,16 @@ public class WhatsNextWidget extends AppWidgetProvider {
                 126);
 
         if (agenda) {
-            Intent adapter =
-                    new Intent(context, AgendaWidgetService.class)
-                            .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)
-                            .setData(Uri.parse("timewall-widget://agenda/" + id));
             view.setViewVisibility(R.id.widget_agenda, View.VISIBLE);
             view.setViewVisibility(R.id.widget_events, View.GONE);
             view.setViewVisibility(R.id.widget_empty, View.GONE);
-            view.setRemoteAdapter(R.id.widget_agenda, adapter);
+            if (Build.VERSION.SDK_INT < 35) {
+                Intent adapter =
+                        new Intent(context, AgendaWidgetService.class)
+                                .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)
+                                .setData(Uri.parse("timewall-widget://agenda/" + id));
+                view.setRemoteAdapter(R.id.widget_agenda, adapter);
+            }
             view.setPendingIntentTemplate(
                     R.id.widget_agenda,
                     PendingIntent.getActivity(
@@ -324,78 +347,49 @@ public class WhatsNextWidget extends AppWidgetProvider {
             CalendarEvent featured = selection.featured;
             int titleSp = enlarged ? DashboardStyle.FEATURED_TITLE_SP : 16;
             int detailSp = enlarged ? DashboardStyle.FEATURED_DETAIL_SP : 15;
-            int visibleAllDay;
-            if (enlarged) {
-                int availableHeight = Math.max(1, heightDp - 56);
-                boolean hasFeatured = featured != null;
-                int linesHeight = text.heightDp(titleSp, detailSp, hasFeatured);
-                if (linesHeight + 12 > availableHeight) {
-                    float scale = Math.max(0.1f, (availableHeight - 12f) / linesHeight);
-                    titleSp = Math.max(16, (int) (titleSp * scale));
-                    detailSp = Math.max(15, (int) (detailSp * scale));
-                }
-                int featuredHeight = hasFeatured ? text.heightDp(titleSp, detailSp, true) + 12 : 0;
-                int allDayHeight = text.heightDp(titleSp, detailSp, false) + 12;
-                int capacity =
-                        Math.max(
-                                hasFeatured ? 0 : 1,
-                                (availableHeight - featuredHeight) / allDayHeight);
-                visibleAllDay = Math.min(selection.allDay.size(), Math.min(12, capacity));
-            } else {
-                int availableHeight = heightDp - 56 - (featured == null ? 0 : 20);
-                int capacity = Math.max(1, Math.min(12, availableHeight / 52));
-                visibleAllDay =
-                        Math.min(selection.allDay.size(), capacity - (featured == null ? 0 : 1));
-            }
-            for (int index = 0; index < visibleAllDay; index++) {
-                CalendarEvent event = selection.allDay.get(index);
-                view.addView(
-                        R.id.widget_events,
-                        eventCard(
-                                context,
-                                event,
-                                "",
-                                context.getString(R.string.all_day),
-                                true,
-                                true,
-                                palette,
-                                theme.legacy,
-                                text,
-                                titleSp,
-                                detailSp));
-            }
             if (featured != null) {
-                String time = TimeDisplay.time(context, dashboard, featured.start);
-                if (featured.end > featured.start) {
-                    time += " – " + TimeDisplay.time(context, dashboard, featured.end);
+                if (enlarged) {
+                    int availableHeight = Math.max(1, heightDp - 56);
+                    int linesHeight = text.heightDp(titleSp, detailSp, true);
+                    if (linesHeight + 12 > availableHeight) {
+                        float scale = Math.max(0.1f, (availableHeight - 12f) / linesHeight);
+                        titleSp = Math.max(16, (int) (titleSp * scale));
+                        detailSp = Math.max(15, (int) (detailSp * scale));
+                    }
+                }
+                CalendarEvent shown = featured;
+                boolean active = selection.active != null;
+                String time = TimeDisplay.time(context, dashboard, shown.start);
+                if (shown.end > shown.start) {
+                    time += " – " + TimeDisplay.time(context, dashboard, shown.end);
                 }
                 String status =
-                        selection.active != null
+                        active
                                 ? I18n.text(
                                         context,
                                         "ends_in",
-                                        TimeDisplay.countdownDuration(context, featured.end - now))
-                                : TimeDisplay.startsIn(context, featured.start - now);
+                                        TimeDisplay.countdownDuration(context, shown.end - now))
+                                : TimeDisplay.focusStart(
+                                        context,
+                                        shown.start,
+                                        now,
+                                        dashboard.getBoolean(TimeDisplay.HOUR_24, true));
                 view.addView(
                         R.id.widget_events,
                         eventCard(
                                 context,
-                                featured,
+                                shown,
                                 status,
                                 time,
-                                selection.active != null,
-                                selection.active != null,
+                                active,
+                                active,
                                 palette,
                                 theme.legacy,
                                 text,
                                 titleSp,
                                 detailSp));
             }
-            int hidden = selection.allDay.size() - visibleAllDay;
-            String footer =
-                    hidden > 0
-                            ? "+" + hidden
-                            : selection.allDay.isEmpty() && featured == null ? emptyMessage : "";
+            String footer = featured == null ? emptyMessage : "";
             text.show(
                     view,
                     R.id.widget_empty,

@@ -224,4 +224,18 @@
   <string name="calendar_limit">É possível atualizar até %1$d calendários.</string>
   <string name="background_blur">Desfoque do fundo: %1$s</string>
   <string name="starts_in_moments">Começa dentro de instantes</string>
+    <string name="backup_title">Cópia de segurança e restauro</string>
+    <string name="backup_hint">Guarde as definições do painel. O ficheiro pode conter ligações privadas para calendários. Guarde-o num local seguro.</string>
+    <string name="backup_export">Criar cópia de segurança</string>
+    <string name="backup_import">Restaurar a partir de um ficheiro</string>
+    <string name="backup_confirm">Substituir as definições guardadas do painel? As alterações não guardadas serão perdidas.</string>
+    <string name="backup_exported">Cópia guardada</string>
+    <string name="backup_restored">Definições restauradas</string>
+    <string name="backup_invalid">O ficheiro não é uma cópia válida do TimeWall.</string>
+    <string name="backup_newer">Esta cópia requer uma versão mais recente do TimeWall.</string>
+    <string name="backup_error">Não foi possível concluir a operação.</string>
+    <string name="focus_heading">Em destaque</string>
+    <string name="focus_later">Mais tarde · Hoje às %1$s</string>
+    <string name="focus_no_events">Não há eventos programados para hoje</string>
+    <string name="focus_no_other_events">Não há mais eventos hoje</string>
 </resources>

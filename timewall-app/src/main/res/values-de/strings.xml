@@ -224,4 +224,18 @@
   <string name="calendar_limit">Es werden höchstens %1$d Kalender aktualisiert.</string>
   <string name="background_blur">Hintergrundunschärfe: %1$s</string>
   <string name="starts_in_moments">Beginnt in Kürze</string>
+    <string name="backup_title">Sichern und wiederherstellen</string>
+    <string name="backup_hint">Sichere die gespeicherten Dashboard-Einstellungen. Die Datei kann private Kalenderlinks enthalten. Bewahre sie sicher auf.</string>
+    <string name="backup_export">Sicherung erstellen</string>
+    <string name="backup_import">Aus Datei wiederherstellen</string>
+    <string name="backup_confirm">Gespeicherte Dashboard-Einstellungen durch diese Sicherung ersetzen? Ungespeicherte Änderungen gehen verloren.</string>
+    <string name="backup_exported">Sicherung gespeichert</string>
+    <string name="backup_restored">Einstellungen wiederhergestellt</string>
+    <string name="backup_invalid">Diese Datei ist keine gültige TimeWall-Sicherung.</string>
+    <string name="backup_newer">Diese Sicherung benötigt eine neuere Version von TimeWall.</string>
+    <string name="backup_error">Der Sicherungsvorgang konnte nicht abgeschlossen werden.</string>
+    <string name="focus_heading">Im Blick</string>
+    <string name="focus_later">Später · Heute um %1$s</string>
+    <string name="focus_no_events">Heute sind keine Termine geplant</string>
+    <string name="focus_no_other_events">Heute keine weiteren Termine</string>
 </resources>
