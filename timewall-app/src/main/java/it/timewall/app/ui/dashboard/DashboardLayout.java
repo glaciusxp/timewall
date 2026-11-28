@@ -365,6 +365,7 @@ public final class DashboardLayout {
         private final LinearLayout panel = views.column();
         private static final int PRIMARY_TEXT_SIZE_SP = 16;
         private static final int SECONDARY_TEXT_SIZE_SP = 14;
+        private final ImageView weatherIcon = new ImageView(activity);
         private final TextView temperature = views.label("", PRIMARY_TEXT_SIZE_SP, false);
         private final TextView summary = views.label("", PRIMARY_TEXT_SIZE_SP, false);
         private final TextView place = views.secondaryLabel("", SECONDARY_TEXT_SIZE_SP);
@@ -385,6 +386,12 @@ public final class DashboardLayout {
             LinearLayout compact = new LinearLayout(activity);
             compact.setGravity(Gravity.CENTER_VERTICAL);
             compactSlot.addView(compact, new FrameLayout.LayoutParams(-2, -2, Gravity.CENTER));
+            weatherIcon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            int iconSize = views.dp(22);
+            LinearLayout.LayoutParams iconLayout =
+                    new LinearLayout.LayoutParams(iconSize, iconSize);
+            iconLayout.setMarginEnd(views.dp(4));
+            compact.addView(weatherIcon, iconLayout);
             temperature.setSingleLine(true);
             temperature.setPadding(0, 0, views.dp(6), 0);
             compact.addView(temperature);
@@ -440,13 +447,11 @@ public final class DashboardLayout {
                             ? null
                             : iconState.newDrawable(activity.getResources()).mutate();
             if (icon != null) {
-                int size = views.dp(22);
-                icon.setBounds(0, 0, size, size);
                 icon.setColorFilter(
                         temperature.getCurrentTextColor(), android.graphics.PorterDuff.Mode.SRC_IN);
             }
-            temperature.setCompoundDrawablePadding(views.dp(4));
-            temperature.setCompoundDrawables(icon, null, null, null);
+            weatherIcon.setImageDrawable(icon);
+            weatherIcon.setVisibility(icon == null ? View.GONE : View.VISIBLE);
         }
     }
 
