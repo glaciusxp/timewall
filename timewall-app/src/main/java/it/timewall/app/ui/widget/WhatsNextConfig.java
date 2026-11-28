@@ -10,7 +10,6 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
@@ -159,16 +158,8 @@ public final class WhatsNextConfig extends Activity {
                 });
         views.addSettingHeading(form, getString(R.string.font), false);
         DashboardFont[] fonts = DashboardFont.values();
-        String[] names = new String[fonts.length];
-        for (int index = 0; index < fonts.length; index++) {
-            names[index] =
-                    fonts[index] == DashboardFont.SYSTEM_ROBOTO
-                            ? I18n.text(this, fonts[index].label)
-                            : fonts[index].label;
-        }
-        ArrayAdapter<String> fontChoices = views.settingChoices(names);
         Spinner fontPicker = new Spinner(this);
-        fontPicker.setAdapter(fontChoices);
+        fontPicker.setAdapter(views.fontChoices(fonts));
         fontPicker.setSelection(WhatsNextWidget.selectedFont(widgets, dashboard, id).ordinal());
         form.addView(fontPicker);
 

@@ -261,13 +261,20 @@ public final class SettingsScreen {
                         collator.compare(
                                 I18n.text(activity, first.name), I18n.text(activity, second.name)));
         themes.add(DashboardTheme.CUSTOM);
+        int[] savedCustomColors = CustomThemeEditor.loadColors(preferences);
+        Palette customPreview =
+                savedCustomColors == null
+                        ? palette
+                        : CustomThemeEditor.customPalette(savedCustomColors);
         String[] names = new String[themes.size()];
+        Palette[] themePreviews = new Palette[themes.size()];
         for (int index = 0; index < themes.size(); index++) {
-            names[index] = I18n.text(activity, themes.get(index).name);
+            DashboardTheme theme = themes.get(index);
+            names[index] = I18n.text(activity, theme.name);
+            themePreviews[index] = theme == DashboardTheme.CUSTOM ? customPreview : theme.palette;
         }
         Spinner themePicker = new Spinner(activity);
-        ArrayAdapter<String> choices = views.settingChoices(names);
-        themePicker.setAdapter(choices);
+        themePicker.setAdapter(views.themeChoices(names, themePreviews));
         themePicker.setSelection(themes.indexOf(selectedTheme));
         fields.addView(themePicker);
 
@@ -281,16 +288,8 @@ public final class SettingsScreen {
         fields = sections[0];
         views.addSettingHeading(fields, I18n.text(activity, "font"), false);
         DashboardFont[] fonts = DashboardFont.values();
-        String[] fontNames = new String[fonts.length];
-        for (int index = 0; index < fonts.length; index++) {
-            fontNames[index] =
-                    fonts[index] == DashboardFont.SYSTEM_ROBOTO
-                            ? I18n.text(activity, fonts[index].label)
-                            : fonts[index].label;
-        }
         Spinner fontPicker = new Spinner(activity);
-        ArrayAdapter<String> fontChoices = views.settingChoices(fontNames);
-        fontPicker.setAdapter(fontChoices);
+        fontPicker.setAdapter(views.fontChoices(fonts));
         fontPicker.setSelection(Arrays.asList(fonts).indexOf(selectedFont));
         fields.addView(fontPicker);
         fields = sections[4];

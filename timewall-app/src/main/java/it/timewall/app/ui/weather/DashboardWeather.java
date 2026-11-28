@@ -43,6 +43,7 @@ public final class DashboardWeather {
     private final SharedPreferences preferences;
     private final View display;
     private final View refreshButton;
+    private final int lastUpdateFormat, iconSize;
     private final TextView locationLabel,
             temperatureLabel,
             summaryLabel,
@@ -82,7 +83,9 @@ public final class DashboardWeather {
      * @param precipitationLabel label della probabilità di precipitazione
      * @param precipitationAmountLabel label dei millimetri di precipitazione
      * @param lastUpdateLabel label dell’ultima rilevazione o dell’aggiornamento in corso
+     * @param lastUpdateFormat risorsa del formato localizzato dell’ultima rilevazione
      * @param refreshButton pulsante di aggiornamento da collegare al controller
+     * @param iconSize dimensione di base dell’icona meteo in dp
      * @param onWeatherRendered callback eseguito dopo aver aggiornato le viste meteo
      */
     public DashboardWeather(
@@ -98,7 +101,9 @@ public final class DashboardWeather {
             TextView precipitationLabel,
             TextView precipitationAmountLabel,
             TextView lastUpdateLabel,
+            int lastUpdateFormat,
             View refreshButton,
+            int iconSize,
             Runnable onWeatherRendered) {
         this.activity = activity;
         this.preferences = preferences;
@@ -108,6 +113,8 @@ public final class DashboardWeather {
         refreshButton.setOnClickListener(view -> requestWeather(true));
         this.locationLabel = locationLabel;
         this.lastUpdateLabel = lastUpdateLabel;
+        this.lastUpdateFormat = lastUpdateFormat;
+        this.iconSize = iconSize;
         this.windLabel = windLabel;
         this.apparentLabel = apparentLabel;
         this.precipitationAmountLabel = precipitationAmountLabel;
@@ -276,7 +283,7 @@ public final class DashboardWeather {
                             .getIdentifier(conditions.icon, "drawable", activity.getPackageName());
             if (id != 0) {
                 icon = activity.getResources().getDrawable(id).mutate();
-                icon.setBounds(0, 0, dp(60), dp(60));
+                icon.setBounds(0, 0, dp(iconSize), dp(iconSize));
                 icon.setColorFilter(
                         new PorterDuffColorFilter(
                                 temperatureLabel.getCurrentTextColor(), PorterDuff.Mode.SRC_IN));
@@ -313,7 +320,7 @@ public final class DashboardWeather {
         lastUpdateLabel.setVisibility(lastUpdate > 0 ? View.VISIBLE : View.GONE);
         if (lastUpdate > 0) {
             String time = TimeDisplay.time(activity, preferences, lastUpdate);
-            lastUpdateLabel.setText(I18n.text(activity, "last_update", time));
+            lastUpdateLabel.setText(activity.getString(lastUpdateFormat, time));
         }
     }
 

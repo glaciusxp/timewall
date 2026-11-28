@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import it.timewall.app.R;
 import it.timewall.app.configuration.Palette;
 import it.timewall.app.localization.I18n;
 import it.timewall.app.platform.images.BackgroundBlur;
@@ -60,7 +61,6 @@ public final class DashboardLayout {
     private final int accentColor;
     private final Typeface menuIcons;
     private static final int COLUMN_INSET = 12, WEATHER_DETAIL_TEXT_SP = 16;
-    private static final int DATE_TEXT_SIZE_SP = 28;
     private static final String BACKGROUND_URI = "dashboardBackgroundUri";
     private static final String ICON_SLIDERS = "\uf1de", ICON_ELLIPSIS_VERTICAL = "\uf142";
     public final FrameLayout dashboardHost;
@@ -215,9 +215,10 @@ public final class DashboardLayout {
         TextView weatherWind = addWeatherMetric(weatherLeft, false, "\uf72e");
         TextView weatherApparent = addWeatherMetric(weatherLeft, false, "\uf2c9", "\uf183");
 
-        TextView weatherTemperature = views.label("", 44, false);
+        int weatherIconSize = portrait ? 50 : 60;
+        TextView weatherTemperature = views.label("", portrait ? 38 : 44, false);
         weatherTemperature.setSingleLine(true);
-        weatherTemperature.setMinHeight(views.dp(68));
+        weatherTemperature.setMinHeight(views.dp(weatherIconSize + 8));
         weatherTemperature.setGravity(Gravity.CENTER);
         weatherTemperature.setPadding(views.dp(12), 0, views.dp(12), 0);
         weatherGrid.addView(weatherTemperature, new LinearLayout.LayoutParams(-2, -2));
@@ -258,7 +259,9 @@ public final class DashboardLayout {
                         weatherPrecipitation,
                         weatherPrecipitationAmount,
                         weatherLastUpdate,
+                        portrait ? R.string.widget_weather_last_update : R.string.last_update,
                         weatherRefresh,
+                        weatherIconSize,
                         () -> {
                             if (compactWeather != null) {
                                 compactWeather.render(
@@ -270,7 +273,11 @@ public final class DashboardLayout {
                             clockArea.setGravity(
                                     showing ? Gravity.CENTER_HORIZONTAL : Gravity.CENTER);
                         });
-        clock = customColors == null ? views.label("", 74, true) : accentLabel("", 74, true);
+        int clockTextSize = portrait ? 37 : 74;
+        clock =
+                customColors == null
+                        ? views.label("", clockTextSize, true)
+                        : accentLabel("", clockTextSize, true);
         if (customColors != null && customColors.length > CustomThemeEditor.DATE_COLOR_INDEX) {
             clock.setTextColor(customColors[CustomThemeEditor.CLOCK_COLOR_INDEX]);
         }
@@ -280,13 +287,13 @@ public final class DashboardLayout {
         clock.setSingleLine(true);
         clock.setGravity(Gravity.CENTER);
         clockArea.addView(clock);
-        date = accentLabel("", DATE_TEXT_SIZE_SP, false);
+        date = accentLabel("", portrait ? 24 : 28, false);
         if (customColors != null && customColors.length > CustomThemeEditor.DATE_COLOR_INDEX) {
             date.setTextColor(customColors[CustomThemeEditor.DATE_COLOR_INDEX]);
         }
         date.setGravity(Gravity.CENTER);
         clockArea.addView(date);
-        clockArea.bind(weatherDisplay, weatherTemperature, clock, date);
+        clockArea.bind(weatherDisplay, weatherTemperature, clock, date, weatherIconSize);
 
         if (portrait) {
             TextView agendaTitle = accentLabel(I18n.text(activity, "agenda"), 24, true);
@@ -356,9 +363,10 @@ public final class DashboardLayout {
 
     private final class CompactWeatherHeader {
         private final LinearLayout panel = views.column();
-        private static final int SECONDARY_TEXT_SIZE_SP = 25;
-        private final TextView temperature = views.label("", DATE_TEXT_SIZE_SP, false);
-        private final TextView summary = views.label("", DATE_TEXT_SIZE_SP, false);
+        private static final int PRIMARY_TEXT_SIZE_SP = 16;
+        private static final int SECONDARY_TEXT_SIZE_SP = 14;
+        private final TextView temperature = views.label("", PRIMARY_TEXT_SIZE_SP, false);
+        private final TextView summary = views.label("", PRIMARY_TEXT_SIZE_SP, false);
         private final TextView place = views.secondaryLabel("", SECONDARY_TEXT_SIZE_SP);
 
         CompactWeatherHeader(LinearLayout details) {
@@ -432,7 +440,7 @@ public final class DashboardLayout {
                             ? null
                             : iconState.newDrawable(activity.getResources()).mutate();
             if (icon != null) {
-                int size = views.dp(39);
+                int size = views.dp(22);
                 icon.setBounds(0, 0, size, size);
                 icon.setColorFilter(
                         temperature.getCurrentTextColor(), android.graphics.PorterDuff.Mode.SRC_IN);
@@ -446,6 +454,7 @@ public final class DashboardLayout {
         private LinearLayout weather;
         private TextView temperature, clock, date;
         private float temperatureSize, clockSize, dateSize;
+        private int weatherIconSize;
         private final float density;
         private final TextPaint measurementPaint = new TextPaint();
 
@@ -455,7 +464,13 @@ public final class DashboardLayout {
             density = getResources().getDisplayMetrics().density;
         }
 
-        void bind(LinearLayout weather, TextView temperature, TextView clock, TextView date) {
+        void bind(
+                LinearLayout weather,
+                TextView temperature,
+                TextView clock,
+                TextView date,
+                int weatherIconSize) {
+            this.weatherIconSize = weatherIconSize;
             this.weather = weather;
             this.temperature = temperature;
             this.clock = clock;
@@ -510,7 +525,7 @@ public final class DashboardLayout {
                     }
                     setSize(temperature, temperatureSize * scale);
                     resizeWeatherIcon(scale);
-                    int minimum = dp(Math.round((68 - 4 * spacingStep) * scale));
+                    int minimum = dp(Math.round((weatherIconSize + 8 - 4 * spacingStep) * scale));
                     if (temperature.getMinHeight() != minimum) {
                         temperature.setMinHeight(minimum);
                     }
@@ -559,14 +574,14 @@ public final class DashboardLayout {
             measurementPaint.setTextSize(temperatureSize);
             float width = Layout.getDesiredWidth(temperature.getText(), measurementPaint);
             if (temperature.getCompoundDrawables()[0] != null) {
-                width += dp(60) + temperature.getCompoundDrawablePadding();
+                width += dp(weatherIconSize) + temperature.getCompoundDrawablePadding();
             }
             return width;
         }
 
         private void resizeWeatherIcon(float scale) {
             Drawable icon = temperature.getCompoundDrawables()[0];
-            int size = dp(Math.round(60 * scale));
+            int size = dp(Math.round(weatherIconSize * scale));
             if (icon != null && icon.getBounds().width() != size) {
                 icon.setBounds(0, 0, size, size);
                 temperature.setCompoundDrawables(icon, null, null, null);

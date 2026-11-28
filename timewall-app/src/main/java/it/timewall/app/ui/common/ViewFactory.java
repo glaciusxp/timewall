@@ -11,7 +11,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import it.timewall.app.configuration.DashboardFont;
 import it.timewall.app.configuration.Palette;
+import it.timewall.app.localization.I18n;
 
 /** Stateless presentation helpers shared only inside the official application. */
 public final class ViewFactory {
@@ -67,6 +69,56 @@ public final class ViewFactory {
         return new SettingChoices(labels);
     }
 
+    public ArrayAdapter<String> themeChoices(String[] labels, Palette[] palettes) {
+        return new SettingChoices(labels) {
+            @Override
+            protected TextView styleChoice(TextView row, int position) {
+                super.styleChoice(row, position);
+                Palette preview = palettes[position];
+                row.setBackgroundColor(preview.background);
+                row.setTextColor(preview.text);
+                row.setPaddingRelative(dp(12), row.getPaddingTop(), dp(12), row.getPaddingBottom());
+                setCalendarDot(row, preview.accent, 12);
+                return row;
+            }
+        };
+    }
+
+    public ArrayAdapter<String> fontChoices(DashboardFont[] fonts) {
+        String[] labels = new String[fonts.length];
+        for (int index = 0; index < fonts.length; index++) {
+            DashboardFont font = fonts[index];
+            labels[index] =
+                    font == DashboardFont.SYSTEM_ROBOTO
+                            ? I18n.text(activity, font.label)
+                            : font.label;
+        }
+        return new SettingChoices(labels) {
+            private final Typeface[] previews = new Typeface[fonts.length];
+
+            @Override
+            protected TextView styleChoice(TextView row, int position) {
+                super.styleChoice(row, position);
+                if (previews[position] == null) {
+                    previews[position] = loadPreview(fonts[position]);
+                }
+                row.setTypeface(previews[position]);
+                return row;
+            }
+        };
+    }
+
+    private Typeface loadPreview(DashboardFont font) {
+        if (!font.file.isEmpty()) {
+            try {
+                return Typeface.createFromAsset(activity.getAssets(), font.file);
+            } catch (RuntimeException unavailableFont) {
+                // Keep the option readable even when its asset cannot be loaded.
+            }
+        }
+        return Typeface.create("sans-serif", Typeface.NORMAL);
+    }
+
     public class SettingChoices extends ArrayAdapter<String> {
         public SettingChoices(String[] labels) {
             super(activity, android.R.layout.simple_spinner_item, labels);
@@ -75,12 +127,17 @@ public final class ViewFactory {
 
         @Override
         public View getView(int position, View recycled, ViewGroup parent) {
-            return styleSettingInput((TextView) super.getView(position, recycled, parent));
+            return styleChoice((TextView) super.getView(position, recycled, parent), position);
         }
 
         @Override
         public View getDropDownView(int position, View recycled, ViewGroup parent) {
-            return styleSettingInput((TextView) super.getDropDownView(position, recycled, parent));
+            return styleChoice(
+                    (TextView) super.getDropDownView(position, recycled, parent), position);
+        }
+
+        protected TextView styleChoice(TextView row, int position) {
+            return styleSettingInput(row);
         }
     }
 
