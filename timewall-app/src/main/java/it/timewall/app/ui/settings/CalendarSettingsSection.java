@@ -1,30 +1,39 @@
 package it.timewall.app.ui.settings;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.os.Build;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import it.timewall.app.BuildConfig;
 import it.timewall.app.data.calendar.CalendarFeed;
+import it.timewall.app.data.calendar.DeviceCalendars;
 import it.timewall.app.domain.model.Feed;
 import it.timewall.app.localization.I18n;
 import it.timewall.app.ui.common.ViewFactory;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /** Calendar configuration editor: never persists changes until the parent screen saves. */
 public final class CalendarSettingsSection {
     private final Activity activity;
     private final ViewFactory views;
+    private final Executor worker;
+    private Runnable reloadDeviceCalendars;
 
     /**
      * Collega il contesto e il generatore di viste usati per modificare i calendari della bozza,
@@ -32,10 +41,16 @@ public final class CalendarSettingsSection {
      *
      * @param activity Activity proprietaria delle viste e dei servizi Android
      * @param views factory dei componenti coerenti con il tema
+     * @param worker executor per le query al calendario del dispositivo
      */
-    public CalendarSettingsSection(Activity activity, ViewFactory views) {
+    public CalendarSettingsSection(Activity activity, ViewFactory views, Executor worker) {
         this.activity = activity;
         this.views = views;
+        this.worker = worker;
+    }
+
+    void permissionChanged() {
+        if (reloadDeviceCalendars != null) reloadDeviceCalendars.run();
     }
 
     private static final int[] COLORS = {
@@ -136,18 +151,50 @@ public final class CalendarSettingsSection {
         Feed existing = index < 0 ? null : pendingFeeds.get(index);
         LinearLayout fields = views.column();
         fields.setPadding(views.dp(16), views.dp(8), views.dp(16), 0);
+        views.addSettingHeading(fields, I18n.text(activity, "calendar_source"), true);
+        Spinner source = new Spinner(activity, Spinner.MODE_DROPDOWN);
+        source.setAdapter(
+                views.settingChoices(
+                        I18n.text(activity, "calendar_source_url"),
+                        I18n.text(activity, "calendar_source_device")));
+        fields.addView(source);
+
         EditText name = new EditText(activity);
         name.setSingleLine(true);
-        views.addSettingHeading(fields, I18n.text(activity, "name"), true);
+        views.addSettingHeading(fields, I18n.text(activity, "name"), false);
         views.styleSettingInput(name);
         fields.addView(name);
-        views.addSettingHeading(fields, I18n.text(activity, "ical_address"), false);
+        LinearLayout urlFields = views.column();
+        fields.addView(urlFields);
+        views.addSettingHeading(urlFields, I18n.text(activity, "ical_address"), false);
         EditText address = new EditText(activity);
         views.styleSettingInput(address);
         address.setSingleLine(true);
         address.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
         address.setSaveEnabled(false);
-        fields.addView(address);
+        urlFields.addView(address);
+
+        LinearLayout deviceFields = views.column();
+        fields.addView(deviceFields);
+        views.addSettingHeading(deviceFields, I18n.text(activity, "calendar_source_device"), false);
+        Spinner devicePicker = new Spinner(activity, Spinner.MODE_DROPDOWN);
+        deviceFields.addView(devicePicker);
+        TextView deviceStatus = views.secondaryLabel("", 15);
+        deviceFields.addView(deviceStatus);
+        Button permission = new Button(activity);
+        permission.setText(I18n.text(activity, "calendar_grant_access"));
+        deviceFields.addView(permission);
+        permission.setOnClickListener(
+                view -> {
+                    if (Build.VERSION.SDK_INT >= 23) {
+                        activity.requestPermissions(
+                                new String[] {Manifest.permission.READ_CALENDAR},
+                                DeviceCalendars.REQUEST_READ);
+                    }
+                });
+        List<DeviceCalendars.Choice> available = new ArrayList<>();
+        ScrollView scroll = new ScrollView(activity);
+        scroll.addView(fields);
         views.addSettingHeading(fields, I18n.text(activity, "calendar_color"), false);
         Spinner colors = new Spinner(activity, Spinner.MODE_DROPDOWN);
         ColorLabelAdapter adapter =
@@ -161,7 +208,8 @@ public final class CalendarSettingsSection {
         fields.addView(colors);
         if (existing != null) {
             name.setText(existing.name);
-            address.setText(existing.address);
+            source.setSelection(existing.isDeviceCalendar() ? 1 : 0);
+            if (!existing.isDeviceCalendar()) address.setText(existing.address);
             for (int color = 0; color < COLORS.length; color++) {
                 if (COLORS[color] == existing.color) {
                     colors.setSelection(color);
@@ -174,7 +222,7 @@ public final class CalendarSettingsSection {
                                 I18n.text(
                                         activity,
                                         existing == null ? "add_calendar" : "edit_calendar"))
-                        .setView(fields)
+                        .setView(scroll)
                         .setNegativeButton(I18n.text(activity, "cancel"), null)
                         .setPositiveButton(I18n.text(activity, "save"), null);
         if (existing != null) {
@@ -186,25 +234,131 @@ public final class CalendarSettingsSection {
                     });
         }
         AlertDialog dialog = builder.show();
+        dialog.getWindow()
+                .setSoftInputMode(
+                        android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+                                | android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        reloadDeviceCalendars =
+                () -> {
+                    if (!dialog.isShowing() || source.getSelectedItemPosition() != 1) return;
+                    boolean allowed = DeviceCalendars.canRead(activity);
+                    permission.setVisibility(
+                            !allowed && Build.VERSION.SDK_INT >= 23 ? View.VISIBLE : View.GONE);
+                    String previous =
+                            devicePicker.getSelectedItemPosition() >= 0
+                                            && devicePicker.getSelectedItemPosition()
+                                                    < available.size()
+                                    ? available.get(devicePicker.getSelectedItemPosition())
+                                            .feed
+                                            .address
+                                    : existing == null ? "" : existing.address;
+                    available.clear();
+                    devicePicker.setVisibility(View.GONE);
+                    deviceStatus.setText(
+                            I18n.text(
+                                    activity, allowed ? "refreshing" : "calendar_access_required"));
+                    if (!allowed) return;
+                    worker.execute(
+                            () -> {
+                                List<DeviceCalendars.Choice> calendars = null;
+                                try {
+                                    calendars = DeviceCalendars.list(activity);
+                                } catch (RuntimeException unavailable) {
+                                    // Show a recoverable error without exposing provider data.
+                                }
+                                List<DeviceCalendars.Choice> found = calendars;
+                                activity.runOnUiThread(
+                                        () -> {
+                                            if (!dialog.isShowing()
+                                                    || source.getSelectedItemPosition() != 1)
+                                                return;
+                                            available.clear();
+                                            if (found == null || found.isEmpty()) {
+                                                deviceStatus.setText(
+                                                        I18n.text(
+                                                                activity,
+                                                                found == null
+                                                                        ? "calendar_device_unavailable"
+                                                                        : "no_calendars"));
+                                                return;
+                                            }
+                                            available.addAll(found);
+                                            String[] labels = new String[available.size()];
+                                            int selected = 0;
+                                            for (int i = 0; i < labels.length; i++) {
+                                                DeviceCalendars.Choice calendar = available.get(i);
+                                                labels[i] =
+                                                        calendar.label.isEmpty()
+                                                                ? I18n.text(activity, "calendar")
+                                                                : calendar.label;
+                                                if (calendar.feed.address.equals(previous))
+                                                    selected = i;
+                                            }
+                                            devicePicker.setAdapter(views.settingChoices(labels));
+                                            devicePicker.setSelection(selected);
+                                            devicePicker.setVisibility(View.VISIBLE);
+                                            deviceStatus.setText("");
+                                        });
+                            });
+                };
+        Runnable showSource =
+                () -> {
+                    boolean local = source.getSelectedItemPosition() == 1;
+                    urlFields.setVisibility(local ? View.GONE : View.VISIBLE);
+                    deviceFields.setVisibility(local ? View.VISIBLE : View.GONE);
+                    if (local) permissionChanged();
+                };
+        source.setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(
+                            AdapterView<?> parent, View view, int position, long id) {
+                        showSource.run();
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {}
+                });
+        dialog.setOnDismissListener(ignored -> reloadDeviceCalendars = null);
+        urlFields.setVisibility(
+                existing != null && existing.isDeviceCalendar() ? View.GONE : View.VISIBLE);
+        deviceFields.setVisibility(
+                existing != null && existing.isDeviceCalendar() ? View.VISIBLE : View.GONE);
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(
                         view -> {
-                            String url = address.getText().toString().trim();
-                            String title = name.getText().toString().trim();
-                            if (!CalendarFeed.accepts(url)) {
-                                address.setError(I18n.text(activity, "invalid_calendar_url"));
-                                return;
+                            boolean local = source.getSelectedItemPosition() == 1;
+                            int position = devicePicker.getSelectedItemPosition();
+                            Feed device =
+                                    local && position >= 0 && position < available.size()
+                                            ? available.get(position).feed
+                                            : null;
+                            String url;
+                            if (local) {
+                                if (device == null || !DeviceCalendars.canRead(activity)) return;
+                                url = device.address;
+                            } else {
+                                url = address.getText().toString().trim();
+                                if (!CalendarFeed.accepts(url)) {
+                                    address.setError(I18n.text(activity, "invalid_calendar_url"));
+                                    return;
+                                }
                             }
+                            String title = name.getText().toString().trim();
                             for (Feed feed : pendingFeeds) {
                                 if (feed != existing && feed.address.equals(url)) {
-                                    address.setError(I18n.text(activity, "duplicate_calendar"));
+                                    String duplicate = I18n.text(activity, "duplicate_calendar");
+                                    if (local) deviceStatus.setText(duplicate);
+                                    else address.setError(duplicate);
                                     return;
                                 }
                             }
                             Feed feed =
                                     new Feed(
                                             title.isEmpty()
-                                                    ? I18n.text(activity, "calendar")
+                                                    ? device != null && !device.name.isEmpty()
+                                                            ? device.name
+                                                            : I18n.text(activity, "calendar")
                                                     : title,
                                             url,
                                             COLORS[colors.getSelectedItemPosition()]);

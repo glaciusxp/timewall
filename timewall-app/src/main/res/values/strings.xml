@@ -239,4 +239,10 @@ Build: %2$d"</string>
     <string name="focus_later">Later · Today at %1$s</string>
     <string name="focus_no_events">No events scheduled for today</string>
     <string name="focus_no_other_events">No other events today</string>
+    <string name="calendar_source">Calendar source</string>
+    <string name="calendar_source_url">Public iCal URL</string>
+    <string name="calendar_source_device">Device calendar</string>
+    <string name="calendar_grant_access">Allow calendar access</string>
+    <string name="calendar_access_required">Allow calendar access to read calendars on this device.</string>
+    <string name="calendar_device_unavailable">Device calendars are unavailable.</string>
 </resources>

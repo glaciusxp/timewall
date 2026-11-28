@@ -238,4 +238,10 @@
     <string name="focus_later">Más tarde · Hoy a las %1$s</string>
     <string name="focus_no_events">No hay eventos programados para hoy</string>
     <string name="focus_no_other_events">No hay más eventos hoy</string>
+    <string name="calendar_source">Origen del calendario</string>
+    <string name="calendar_source_url">URL pública de iCal</string>
+    <string name="calendar_source_device">Calendario del dispositivo</string>
+    <string name="calendar_grant_access">Permitir acceso a calendarios</string>
+    <string name="calendar_access_required">Permite el acceso para leer los calendarios del dispositivo.</string>
+    <string name="calendar_device_unavailable">Los calendarios del dispositivo no están disponibles.</string>
 </resources>

@@ -1,5 +1,6 @@
 package it.timewall.app.data.calendar;
 
+import android.content.Context;
 import android.os.SystemClock;
 
 import java.io.File;
@@ -17,7 +18,8 @@ public final class CalendarRefreshWorker {
 
     private CalendarRefreshWorker() {}
 
-    public static CalendarRepository open(File directory, long requestedAt) {
+    public static CalendarRepository open(Context context, long requestedAt) {
+        File directory = context.getFilesDir();
         return new CalendarRepository(
                 address -> download(directory, address, requestedAt),
                 new CalendarRepository.Store() {
@@ -36,11 +38,12 @@ public final class CalendarRefreshWorker {
                             throws Exception {
                         CalendarDiskCache.write(directory, address, body, generation);
                     }
-                });
+                },
+                (feed, day) -> DeviceCalendars.events(context, feed, day));
     }
 
-    public static CalendarRepository open(File directory) {
-        return open(directory, Long.MAX_VALUE);
+    public static CalendarRepository open(Context context) {
+        return open(context, Long.MAX_VALUE);
     }
 
     private static byte[] download(File directory, String address, long requestedAt)

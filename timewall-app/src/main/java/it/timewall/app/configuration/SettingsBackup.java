@@ -1,6 +1,7 @@
 package it.timewall.app.configuration;
 
 import it.timewall.app.data.calendar.CalendarFeed;
+import it.timewall.app.domain.model.Feed;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -70,10 +71,22 @@ public final class SettingsBackup {
             }
         }
         if (preferences.containsKey(FEEDS)) {
-            values.put(FEEDS, new JSONArray((String) preferences.get(FEEDS)));
+            JSONArray feeds = new JSONArray((String) preferences.get(FEEDS));
+            JSONArray portable = new JSONArray();
+            for (int index = 0; index < feeds.length(); index++) {
+                JSONObject feed = feeds.getJSONObject(index);
+                if (Feed.deviceId(feed.getString("address")) < 0) portable.put(feed);
+            }
+            values.put(FEEDS, portable);
         }
         if (preferences.containsKey(FILTER)) {
-            values.put(FILTER, new JSONArray((Set<?>) preferences.get(FILTER)));
+            JSONArray portable = new JSONArray();
+            for (Object address : (Set<?>) preferences.get(FILTER)) {
+                if (address instanceof String && Feed.deviceId((String) address) < 0) {
+                    portable.put(address);
+                }
+            }
+            values.put(FILTER, portable);
         }
         return new JSONObject()
                 .put("format", FORMAT)

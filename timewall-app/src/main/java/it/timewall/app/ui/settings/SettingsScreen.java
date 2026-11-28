@@ -100,6 +100,7 @@ public final class SettingsScreen {
     private final java.util.concurrent.ExecutorService worker;
     private BackgroundImageEditor backgroundSettings;
     private BackupSettingsSection backupSettings;
+    private CalendarSettingsSection calendarSettings;
     private Runnable closeSettings, requestSettingsExit;
     private AlertDialog settingsExitDialog;
 
@@ -173,6 +174,10 @@ public final class SettingsScreen {
                 || requestCode == BackupSettingsSection.IMPORT;
     }
 
+    public void calendarPermissionChanged() {
+        if (calendarSettings != null) calendarSettings.permissionChanged();
+    }
+
     public void selectBackupDocument(int requestCode, Uri uri) {
         if (backupSettings != null) backupSettings.selected(requestCode, uri);
     }
@@ -224,7 +229,7 @@ public final class SettingsScreen {
                 });
         LinearLayout calendarList = views.column();
         sections[1].addView(calendarList);
-        CalendarSettingsSection calendarSettings = new CalendarSettingsSection(activity, views);
+        calendarSettings = new CalendarSettingsSection(activity, views, worker);
         calendarSettings.render(calendarList, pendingFeeds);
         TextView cacheHint = views.secondaryLabel(I18n.text(activity, "calendar_cache_hint"), 15);
         views.addSettingView(sections[1], cacheHint, false, 6);
@@ -456,6 +461,7 @@ public final class SettingsScreen {
                     imageSettings.dispose();
                     backupSettings.dispose();
                     backupSettings = null;
+                    calendarSettings = null;
                     if (backgroundSettings == imageSettings) {
                         backgroundSettings = null;
                     }

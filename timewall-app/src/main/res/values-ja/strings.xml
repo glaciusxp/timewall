@@ -236,4 +236,10 @@
     <string name="focus_later">このあと · 今日 %1$s</string>
     <string name="focus_no_events">今日の予定はありません</string>
     <string name="focus_no_other_events">今日はほかに予定がありません</string>
+    <string name="calendar_source">カレンダーの取得元</string>
+    <string name="calendar_source_url">公開 iCal URL</string>
+    <string name="calendar_source_device">端末のカレンダー</string>
+    <string name="calendar_grant_access">カレンダーへのアクセスを許可</string>
+    <string name="calendar_access_required">端末のカレンダーを読み取るにはアクセスを許可してください。</string>
+    <string name="calendar_device_unavailable">端末のカレンダーを利用できません。</string>
 </resources>

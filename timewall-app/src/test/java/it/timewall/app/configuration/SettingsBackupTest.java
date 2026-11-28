@@ -42,6 +42,23 @@ public class SettingsBackupTest {
     }
 
     @Test
+    public void keepsRemoteFeedsAndOmitsDeviceLocalCalendarReferences() throws Exception {
+        Map<String, Object> saved = new HashMap<>();
+        saved.put(
+                "feeds",
+                "[{\"address\":\"device:42\",\"name\":\"Local\",\"color\":-1},"
+                    + "{\"address\":\"https://example.org/cal.ics\",\"name\":\"Remote\",\"color\":-1}]");
+        java.util.Set<String> excluded = new java.util.HashSet<>();
+        excluded.add("device:42");
+        excluded.add("https://example.org/cal.ics");
+        saved.put("excluded_calendars", excluded);
+        String json = SettingsBackup.encode(saved, "");
+        assertFalse(json.contains("device:42"));
+        assertTrue(json.contains("https://example.org/cal.ics"));
+        assertTrue(SettingsBackup.decode(json).settings.containsKey("feeds"));
+    }
+
+    @Test
     public void missingAndRetiredFieldsLeaveAppDefaultsInEffect() throws Exception {
         SettingsBackup backup = SettingsBackup.decode(document(1, "{\"obsolete\":42}"));
         assertTrue(backup.settings.isEmpty());

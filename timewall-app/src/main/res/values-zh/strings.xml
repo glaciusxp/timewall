@@ -236,4 +236,10 @@
     <string name="focus_later">稍后 · 今天 %1$s</string>
     <string name="focus_no_events">今天没有安排</string>
     <string name="focus_no_other_events">今天没有其他安排</string>
+    <string name="calendar_source">日历来源</string>
+    <string name="calendar_source_url">公开 iCal 网址</string>
+    <string name="calendar_source_device">设备日历</string>
+    <string name="calendar_grant_access">允许访问日历</string>
+    <string name="calendar_access_required">请授权读取此设备上的日历。</string>
+    <string name="calendar_device_unavailable">设备日历不可用。</string>
 </resources>

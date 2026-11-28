@@ -41,6 +41,7 @@ import it.timewall.app.data.calendar.CalendarDiskCache;
 import it.timewall.app.data.calendar.CalendarFeed;
 import it.timewall.app.data.calendar.CalendarRefreshWorker;
 import it.timewall.app.data.calendar.CalendarRepository;
+import it.timewall.app.data.calendar.DeviceCalendars;
 import it.timewall.app.data.weather.WeatherForecast;
 import it.timewall.app.domain.alerts.EventAlerts;
 import it.timewall.app.domain.model.CalendarEvent;
@@ -256,7 +257,7 @@ public final class DashboardActivity extends Activity {
                 .addFlags(
                         WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
                                 | WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        calendars = CalendarRefreshWorker.open(getFilesDir());
+        calendars = CalendarRefreshWorker.open(this);
         loadFeeds();
         pruneCalendarCache();
         excludedCalendars.addAll(
@@ -1090,6 +1091,14 @@ public final class DashboardActivity extends Activity {
      * salvataggio. Dopo il salvataggio riallinea calendari, filtri e formato data/ora, ricreando
      * l’Activity soltanto quando serve.
      */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
+        super.onRequestPermissionsResult(requestCode, permissions, results);
+        if (requestCode == DeviceCalendars.REQUEST_READ && settingsScreen != null) {
+            settingsScreen.calendarPermissionChanged();
+        }
+    }
+
     private void showSettings() {
         showSettings(false);
     }
@@ -1382,7 +1391,7 @@ public final class DashboardActivity extends Activity {
             for (int index = 0; index < array.length(); index++) {
                 JSONObject item = array.getJSONObject(index);
                 String address = item.getString("address");
-                if (CalendarFeed.accepts(address)) {
+                if (CalendarFeed.accepts(address) || Feed.deviceId(address) > 0) {
                     feeds.add(new Feed(item.getString("name"), address, item.getInt("color")));
                 }
             }

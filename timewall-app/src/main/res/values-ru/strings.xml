@@ -242,4 +242,10 @@
     <string name="focus_later">Позже · Сегодня в %1$s</string>
     <string name="focus_no_events">На сегодня ничего не запланировано</string>
     <string name="focus_no_other_events">Сегодня больше нет событий</string>
+    <string name="calendar_source">Источник календаря</string>
+    <string name="calendar_source_url">Общедоступный URL iCal</string>
+    <string name="calendar_source_device">Календарь устройства</string>
+    <string name="calendar_grant_access">Разрешить доступ к календарям</string>
+    <string name="calendar_access_required">Разрешите чтение календарей на устройстве.</string>
+    <string name="calendar_device_unavailable">Календари устройства недоступны.</string>
 </resources>

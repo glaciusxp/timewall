@@ -71,6 +71,11 @@ public final class CalendarRepository {
         void loaded(List<CalendarEvent> events, int failures);
     }
 
+    public interface LocalSource {
+        List<CalendarEvent> read(Feed feed, long day);
+    }
+
+    private final LocalSource localSource;
     private final Transport transport;
     private final Store store;
     private final Map<String, Snapshot> cache = new HashMap<>();
@@ -115,6 +120,16 @@ public final class CalendarRepository {
      * @param store dipendenza che legge e scrive la cache persistita
      */
     public CalendarRepository(Transport transport, Store store) {
+        this(
+                transport,
+                store,
+                (feed, day) -> {
+                    throw new IllegalStateException("No local source");
+                });
+    }
+
+    public CalendarRepository(Transport transport, Store store, LocalSource localSource) {
+        this.localSource = localSource;
         this.transport = transport;
         this.store = store;
     }
@@ -151,6 +166,7 @@ public final class CalendarRepository {
         boolean foundCache = false;
         for (Feed feed : feeds) {
             if (!isCurrent(generation)) return;
+            if (feed.isDeviceCalendar()) continue;
             Snapshot snapshot = cache.get(feed.address);
             if (snapshot == null || snapshot.color != feed.color || snapshot.day != day) {
                 try {
@@ -171,6 +187,14 @@ public final class CalendarRepository {
         int failures = 0;
         for (Feed feed : feeds) {
             if (!isCurrent(generation)) return;
+            if (feed.isDeviceCalendar()) {
+                try {
+                    loaded.addAll(localSource.read(feed, day));
+                } catch (RuntimeException unavailable) {
+                    failures++;
+                }
+                continue;
+            }
             Snapshot previous = cache.get(feed.address);
             Snapshot current = previous;
             try {

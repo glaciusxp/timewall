@@ -26,6 +26,7 @@ import it.timewall.app.configuration.Palette;
 import it.timewall.app.configuration.SettingsStore;
 import it.timewall.app.data.calendar.CalendarDiskCache;
 import it.timewall.app.data.calendar.CalendarFeed;
+import it.timewall.app.data.calendar.DeviceCalendars;
 import it.timewall.app.data.calendar.IcalendarParser;
 import it.timewall.app.domain.model.CalendarEvent;
 import it.timewall.app.domain.model.Feed;
@@ -96,7 +97,7 @@ public class WhatsNextWidget extends AppWidgetProvider {
                 JSONObject item = array.optJSONObject(i);
                 if (item == null) continue;
                 String address = item.optString("address");
-                if (CalendarFeed.accepts(address)) {
+                if (CalendarFeed.accepts(address) || Feed.deviceId(address) > 0) {
                     feeds.add(new Feed(item.optString("name"), address, item.optInt("color")));
                 }
             }
@@ -288,6 +289,7 @@ public class WhatsNextWidget extends AppWidgetProvider {
 
     static List<CalendarEvent> readEvents(Context context, Feed feed) {
         try {
+            if (feed.isDeviceCalendar()) return DeviceCalendars.events(context, feed);
             byte[] bytes = CalendarDiskCache.read(context.getFilesDir(), feed.address);
             return bytes == null ? null : IcalendarParser.parse(bytes, feed.color, feed.address);
         } catch (Exception ignored) {

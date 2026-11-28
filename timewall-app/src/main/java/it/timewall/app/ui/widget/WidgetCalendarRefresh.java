@@ -55,8 +55,7 @@ public final class WidgetCalendarRefresh {
         }
 
         long requestedAt = work.getLongExtra(REQUESTED_AT, SystemClock.elapsedRealtime());
-        CalendarRepository repository =
-                CalendarRefreshWorker.open(context.getFilesDir(), requestedAt);
+        CalendarRepository repository = CalendarRefreshWorker.open(context, requestedAt);
         repository.refresh(
                 filtered,
                 false,
