@@ -27,12 +27,12 @@ jobs:
         id: tag
         shell: bash
         run: |
-          if [[ ! "$GITHUB_REF_NAME" =~ ^site-v([0-9]+([.][0-9]+)+([.]alpha-[0-9]+)?)(-test([.][0-9]+)?)?$ ]]; then
-            echo "::error::Use site-vVERSION, for example site-v1.0.alpha-1. Append -test or -test.N for build-only checks."
+          if [[ ! "$GITHUB_REF_NAME" =~ ^site-v([0-9]+([.][0-9]+)+([.](alpha|beta)-[0-9]+)?)(-test([.][0-9]+)?)?$ ]]; then
+            echo "::error::Use site-vVERSION, for example site-v1.0.beta-1. Append -test or -test.N for build-only checks."
             exit 1
           fi
           echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          echo "test_suffix=${BASH_REMATCH[4]}" >> "$GITHUB_OUTPUT"
+          echo "test_suffix=${BASH_REMATCH[5]}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Java 17
         uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
