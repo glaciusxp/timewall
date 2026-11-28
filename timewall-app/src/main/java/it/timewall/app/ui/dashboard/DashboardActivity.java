@@ -19,6 +19,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,6 +59,7 @@ import it.timewall.app.ui.info.InfoScreen;
 import it.timewall.app.ui.settings.CustomThemeEditor;
 import it.timewall.app.ui.settings.SettingsScreen;
 import it.timewall.app.ui.weather.DashboardWeather;
+import it.timewall.app.ui.widget.DeviceCalendarObserver;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -120,6 +122,8 @@ public final class DashboardActivity extends Activity {
     private Set<String> pulsingEvents = Collections.emptySet();
     private ValueAnimator eventPulse;
     private int revision;
+    private int deviceRevision;
+    private long nextFeedRefresh;
     private boolean darkTheme;
     private boolean automaticCardText;
     private DashboardTheme selectedTheme;
@@ -127,6 +131,7 @@ public final class DashboardActivity extends Activity {
     private int accentColor;
     private Button refreshButton;
     private boolean haveInitialEvents;
+    private boolean haveDeviceEvents;
     private DashboardWeather weather;
     private SettingsScreen settingsScreen;
     private View infoScreen;
@@ -149,6 +154,7 @@ public final class DashboardActivity extends Activity {
                     date.setText(clockDate(now));
                     Set<String> alerts = eventAlerts.tick(events, lastTick, now);
                     showEventAlert(alerts);
+                    if (midnight(lastTick) != midnight(now)) refreshDeviceCalendars();
                     if (!alerts.isEmpty()
                             || displayedDay != midnight(now)
                             || now >= nextChange
@@ -161,6 +167,7 @@ public final class DashboardActivity extends Activity {
             };
 
     private final Runnable refresh = this::refreshFeeds;
+    private final Runnable refreshDevice = this::refreshDeviceCalendars;
 
     /**
      * Apre esplicitamente le preferenze storiche della dashboard, così il nuovo package
@@ -349,7 +356,9 @@ public final class DashboardActivity extends Activity {
         lastTick = System.currentTimeMillis();
         eventAlerts.check(events, null, lastTick, lastTick);
         tick.run();
-        refreshFeeds();
+        refreshDeviceCalendars();
+        updateCalendarWidgets();
+        scheduleFeedRefresh();
         if (weather != null) weather.resume();
     }
 
@@ -360,6 +369,8 @@ public final class DashboardActivity extends Activity {
     @Override
     protected void onPause() {
         resumed = false;
+        DeviceCalendarObserver.detachDashboard(refreshDevice);
+        deviceRevision++;
         releaseEventSound();
         if (eventPulse != null) {
             eventPulse.cancel();
@@ -780,26 +791,68 @@ public final class DashboardActivity extends Activity {
         return event.title.isEmpty() ? I18n.text(this, "untitled") : event.title;
     }
 
-    /**
-     * Annulla il refresh pianificato e avvia sul worker il caricamento cache-prima-rete dei
-     * calendari configurati. Assegna una revisione alla richiesta e pianifica il check successivo
-     * dopo cinque minuti.
-     */
+    private List<Feed> calendarSources(boolean device) {
+        List<Feed> selected = new ArrayList<>();
+        for (int i = 0; i < Math.min(feeds.size(), BuildConfig.CALENDAR_LIMIT); i++) {
+            Feed feed = feeds.get(i);
+            if (feed.isDeviceCalendar() == device) selected.add(feed);
+        }
+        return selected;
+    }
+
+    private void refreshDeviceCalendars() {
+        List<Feed> configured = calendarSources(true);
+        int requestedRevision = ++deviceRevision;
+        if (configured.isEmpty()) {
+            DeviceCalendarObserver.detachDashboard(refreshDevice);
+            return;
+        }
+        DeviceCalendarObserver.attachDashboard(this, refreshDevice);
+        worker.execute(
+                () -> {
+                    long day = midnight(System.currentTimeMillis());
+                    List<CalendarEvent> loaded = new ArrayList<>();
+                    for (Feed feed : configured) {
+                        try {
+                            loaded.addAll(DeviceCalendars.events(this, feed, day));
+                        } catch (RuntimeException unavailable) {
+                            // Other calendars can still be displayed when one cannot be read.
+                        }
+                    }
+                    handler.post(
+                            () -> {
+                                if (!resumed
+                                        || isDestroyed()
+                                        || requestedRevision != deviceRevision) return;
+                                replaceCalendarEvents(loaded, true, haveDeviceEvents);
+                                haveDeviceEvents = true;
+                            });
+                });
+    }
+
+    private void scheduleFeedRefresh() {
+        handler.removeCallbacks(refresh);
+        long delay = nextFeedRefresh - SystemClock.elapsedRealtime();
+        if (delay <= 0 || calendarSources(false).isEmpty()) {
+            refreshFeeds();
+        } else {
+            handler.postDelayed(refresh, delay);
+        }
+    }
+
     private void refreshFeeds() {
         handler.removeCallbacks(refresh);
         int requestedRevision = ++revision;
-        List<Feed> configured =
-                new ArrayList<>(
-                        feeds.subList(0, Math.min(feeds.size(), BuildConfig.CALENDAR_LIMIT)));
+        List<Feed> configured = calendarSources(false);
+        refreshButton.setVisibility(configured.isEmpty() ? View.GONE : View.VISIBLE);
         refreshButton.setEnabled(false);
         if (configured.isEmpty()) {
-            updateCalendarWidgets();
+            nextFeedRefresh = 0;
             status.setText("");
-            events = Collections.emptyList();
-            haveInitialEvents = true;
-            render(System.currentTimeMillis(), true);
+            replaceCalendarEvents(Collections.emptyList(), false, false);
             return;
         }
+        nextFeedRefresh = SystemClock.elapsedRealtime() + REFRESH_MS;
         status.setText(I18n.text(DashboardActivity.this, "refreshing_calendars"));
         boolean showCachedEvents = !haveInitialEvents;
         long cacheGeneration = calendars.generation();
@@ -834,7 +887,7 @@ public final class DashboardActivity extends Activity {
                                     }
                                 },
                                 cacheGeneration));
-        handler.postDelayed(refresh, REFRESH_MS);
+        if (resumed) handler.postDelayed(refresh, REFRESH_MS);
     }
 
     private void updateCalendarWidgets() {
@@ -858,33 +911,38 @@ public final class DashboardActivity extends Activity {
      *     sola cache
      */
     private void publishEvents(int requestedRevision, List<CalendarEvent> loaded, int failures) {
-        Collections.sort(loaded, (first, second) -> Long.compare(first.start, second.start));
         handler.post(
                 () -> {
                     if (isDestroyed() || requestedRevision != revision) {
                         return;
                     }
                     if (failures >= 0) {
-                        refreshButton.setEnabled(!feeds.isEmpty());
+                        refreshButton.setEnabled(!calendarSources(false).isEmpty());
                         status.setText(
                                 failures == 0
                                         ? ""
                                         : I18n.text(this, "calendar_failures", failures));
                     }
-                    long now = System.currentTimeMillis();
-                    if (resumed) {
-                        showEventAlert(
-                                eventAlerts.check(
-                                        loaded,
-                                        haveInitialEvents && failures >= 0 ? events : null,
-                                        lastTick,
-                                        now));
-                    }
+                    replaceCalendarEvents(loaded, false, haveInitialEvents && failures >= 0);
                     haveInitialEvents = true;
-                    events = loaded;
                     if (failures >= 0) updateCalendarWidgets();
-                    render(now, false);
                 });
+    }
+
+    private void replaceCalendarEvents(
+            List<CalendarEvent> loaded, boolean device, boolean notifyNewEvents) {
+        List<CalendarEvent> merged = new ArrayList<>(loaded);
+        for (CalendarEvent event : events) {
+            if ((Feed.deviceId(event.feedAddress) > 0) != device) merged.add(event);
+        }
+        Collections.sort(merged, (first, second) -> Long.compare(first.start, second.start));
+        long now = System.currentTimeMillis();
+        if (resumed) {
+            showEventAlert(
+                    eventAlerts.check(merged, notifyNewEvents ? events : null, lastTick, now));
+        }
+        events = merged;
+        render(now, false);
     }
 
     /**
@@ -1046,9 +1104,8 @@ public final class DashboardActivity extends Activity {
         long generation = CalendarDiskCache.invalidate();
         java.io.File directory = getFilesDir();
         CalendarRepository repository = calendars;
-        events = Collections.emptyList();
+        replaceCalendarEvents(Collections.emptyList(), false, false);
         haveInitialEvents = false;
-        render(System.currentTimeMillis(), true);
         status.setText(I18n.text(this, "clearing_calendar_cache"));
         CalendarRefreshWorker.EXECUTOR.execute(
                 () -> {
@@ -1079,8 +1136,10 @@ public final class DashboardActivity extends Activity {
                                 if (success) refreshFeeds();
                                 else {
                                     status.setText(I18n.text(this, "calendar_cache_error"));
-                                    refreshButton.setEnabled(!feeds.isEmpty());
-                                    handler.postDelayed(refresh, REFRESH_MS);
+                                    boolean hasFeeds = !calendarSources(false).isEmpty();
+                                    refreshButton.setEnabled(hasFeeds);
+                                    if (hasFeeds && resumed)
+                                        handler.postDelayed(refresh, REFRESH_MS);
                                 }
                             });
                 });
@@ -1223,7 +1282,10 @@ public final class DashboardActivity extends Activity {
                                 if (refreshActivity) recreate();
                                 else {
                                     render(System.currentTimeMillis(), false);
-                                    if (calendarsChanged) refreshFeeds();
+                                    if (calendarsChanged) {
+                                        refreshDeviceCalendars();
+                                        refreshFeeds();
+                                    }
                                 }
                             }
                         },

@@ -47,7 +47,7 @@ public final class WidgetCalendarRefresh {
         if (selected == null || selected.isEmpty()) return;
         List<Feed> filtered = new ArrayList<>();
         for (Feed feed : WhatsNextWidget.feeds(SettingsStore.open(context, Context.MODE_PRIVATE))) {
-            if (selected.contains(feed.address)) filtered.add(feed);
+            if (!feed.isDeviceCalendar() && selected.contains(feed.address)) filtered.add(feed);
         }
         if (filtered.isEmpty()) {
             WhatsNextWidget.requestUpdate(context);

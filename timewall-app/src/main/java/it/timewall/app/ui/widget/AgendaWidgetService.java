@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.view.View;
@@ -27,7 +28,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-/** Supplies scrollable, independently filtered agenda rows from the shared iCal cache. */
+/**
+ * Supplies scrollable, independently filtered agenda rows from the configured device calendars and
+ * iCal cache.
+ */
 public final class AgendaWidgetService extends RemoteViewsService {
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
@@ -87,6 +91,16 @@ public final class AgendaWidgetService extends RemoteViewsService {
 
         @Override
         public void onDataSetChanged() {
+            // The launcher calls this over Binder. Read calendars with TimeWall's permissions.
+            long identity = Binder.clearCallingIdentity();
+            try {
+                loadRows();
+            } finally {
+                Binder.restoreCallingIdentity(identity);
+            }
+        }
+
+        private void loadRows() {
             rows.clear();
             SharedPreferences dashboard = SettingsStore.open(context, Context.MODE_PRIVATE);
             I18n.apply(context, dashboard);

@@ -25,7 +25,9 @@ import it.timewall.app.localization.I18n;
 import it.timewall.app.ui.common.ViewFactory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /** Calendar configuration editor: never persists changes until the parent screen saves. */
@@ -210,7 +212,18 @@ public final class CalendarSettingsSection {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         colors.setAdapter(adapter);
         fields.addView(colors);
-        if (existing != null) {
+        if (existing == null) {
+            Set<Integer> usedColors = new HashSet<>();
+            for (Feed feed : pendingFeeds) {
+                usedColors.add(feed.color);
+            }
+            for (int color = 0; color < COLORS.length; color++) {
+                if (!usedColors.contains(COLORS[color])) {
+                    colors.setSelection(color);
+                    break;
+                }
+            }
+        } else {
             name.setText(existing.name);
             if (!existing.isDeviceCalendar()) address.setText(existing.address);
             for (int color = 0; color < COLORS.length; color++) {
@@ -257,6 +270,7 @@ public final class CalendarSettingsSection {
                                             .address
                                     : existing == null ? "" : existing.address;
                     available.clear();
+                    name.setHint(null);
                     devicePicker.setVisibility(View.GONE);
                     deviceStatus.setText(
                             I18n.text(
@@ -305,12 +319,34 @@ public final class CalendarSettingsSection {
                                         });
                             });
                 };
+        devicePicker.setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(
+                            AdapterView<?> parent, View view, int position, long id) {
+                        name.setHint(
+                                source.getSelectedItemPosition() == SOURCE_DEVICE
+                                                && position >= 0
+                                                && position < available.size()
+                                        ? available.get(position).feed.name
+                                        : null);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        name.setHint(null);
+                    }
+                });
         Runnable showSource =
                 () -> {
                     boolean local = source.getSelectedItemPosition() == SOURCE_DEVICE;
                     urlFields.setVisibility(local ? View.GONE : View.VISIBLE);
                     deviceFields.setVisibility(local ? View.VISIBLE : View.GONE);
-                    if (local) permissionChanged();
+                    if (local) {
+                        permissionChanged();
+                    } else {
+                        name.setHint(null);
+                    }
                 };
         source.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {

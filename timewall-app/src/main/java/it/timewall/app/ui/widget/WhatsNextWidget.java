@@ -195,10 +195,13 @@ public class WhatsNextWidget extends AppWidgetProvider {
             List<CalendarEvent> events = new ArrayList<>();
             List<CalendarEvent> agendaEvents = inlineAgenda ? new ArrayList<>() : null;
             boolean hasCalendars = false;
+            boolean hasIcal = false;
             boolean hasCache = false;
             for (Feed feed : feeds) {
                 if (!filter.contains(feed.address)) continue;
                 hasCalendars = true;
+                if (feed.isDeviceCalendar()) DeviceCalendarObserver.observe(context);
+                else hasIcal = true;
                 if (!snapshots.containsKey(feed.address)) {
                     snapshots.put(feed.address, readEvents(context, feed));
                 }
@@ -260,7 +263,8 @@ public class WhatsNextWidget extends AppWidgetProvider {
                             transparency(widgets, id),
                             !agenda && enlargedText(widgets, id),
                             height,
-                            text);
+                            text,
+                            hasIcal);
             if (inlineAgenda) {
                 AgendaWidgetService.Api35.setCollection(
                         context,
@@ -308,7 +312,8 @@ public class WhatsNextWidget extends AppWidgetProvider {
             int transparency,
             boolean enlarged,
             int heightDp,
-            WidgetText text) {
+            WidgetText text,
+            boolean hasIcal) {
         RemoteViews view = new RemoteViews(context.getPackageName(), R.layout.whats_next_widget);
 
         boolean agenda = provider == AgendaWidget.class;
@@ -413,7 +418,8 @@ public class WhatsNextWidget extends AppWidgetProvider {
                 new Intent(context, provider)
                         .setAction(REFRESH)
                         .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
-        view.setImageViewBitmap(R.id.widget_refresh, refreshIcon(context));
+        view.setViewVisibility(R.id.widget_refresh, hasIcal ? View.VISIBLE : View.GONE);
+        if (hasIcal) view.setImageViewBitmap(R.id.widget_refresh, refreshIcon(context));
         if (settingsIcon == null) settingsIcon = buttonIcon(context, "\uf013");
         view.setImageViewBitmap(R.id.widget_settings, settingsIcon);
         tint(view, R.id.widget_refresh, palette.text);
