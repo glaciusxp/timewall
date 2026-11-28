@@ -30,6 +30,8 @@ import java.util.concurrent.Executor;
 
 /** Calendar configuration editor: never persists changes until the parent screen saves. */
 public final class CalendarSettingsSection {
+    private static final int SOURCE_DEVICE = 0;
+    private static final int SOURCE_ICAL = 1;
     private final Activity activity;
     private final ViewFactory views;
     private final Executor worker;
@@ -155,8 +157,10 @@ public final class CalendarSettingsSection {
         Spinner source = new Spinner(activity, Spinner.MODE_DROPDOWN);
         source.setAdapter(
                 views.settingChoices(
-                        I18n.text(activity, "calendar_source_url"),
-                        I18n.text(activity, "calendar_source_device")));
+                        I18n.text(activity, "calendar_source_device"),
+                        I18n.text(activity, "calendar_source_url")));
+        boolean initialDeviceSource = existing == null || existing.isDeviceCalendar();
+        source.setSelection(initialDeviceSource ? SOURCE_DEVICE : SOURCE_ICAL);
         fields.addView(source);
 
         EditText name = new EditText(activity);
@@ -208,7 +212,6 @@ public final class CalendarSettingsSection {
         fields.addView(colors);
         if (existing != null) {
             name.setText(existing.name);
-            source.setSelection(existing.isDeviceCalendar() ? 1 : 0);
             if (!existing.isDeviceCalendar()) address.setText(existing.address);
             for (int color = 0; color < COLORS.length; color++) {
                 if (COLORS[color] == existing.color) {
@@ -240,7 +243,8 @@ public final class CalendarSettingsSection {
                                 | android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         reloadDeviceCalendars =
                 () -> {
-                    if (!dialog.isShowing() || source.getSelectedItemPosition() != 1) return;
+                    if (!dialog.isShowing() || source.getSelectedItemPosition() != SOURCE_DEVICE)
+                        return;
                     boolean allowed = DeviceCalendars.canRead(activity);
                     permission.setVisibility(
                             !allowed && Build.VERSION.SDK_INT >= 23 ? View.VISIBLE : View.GONE);
@@ -270,8 +274,8 @@ public final class CalendarSettingsSection {
                                 activity.runOnUiThread(
                                         () -> {
                                             if (!dialog.isShowing()
-                                                    || source.getSelectedItemPosition() != 1)
-                                                return;
+                                                    || source.getSelectedItemPosition()
+                                                            != SOURCE_DEVICE) return;
                                             available.clear();
                                             if (found == null || found.isEmpty()) {
                                                 deviceStatus.setText(
@@ -303,7 +307,7 @@ public final class CalendarSettingsSection {
                 };
         Runnable showSource =
                 () -> {
-                    boolean local = source.getSelectedItemPosition() == 1;
+                    boolean local = source.getSelectedItemPosition() == SOURCE_DEVICE;
                     urlFields.setVisibility(local ? View.GONE : View.VISIBLE);
                     deviceFields.setVisibility(local ? View.VISIBLE : View.GONE);
                     if (local) permissionChanged();
@@ -320,14 +324,12 @@ public final class CalendarSettingsSection {
                     public void onNothingSelected(AdapterView<?> parent) {}
                 });
         dialog.setOnDismissListener(ignored -> reloadDeviceCalendars = null);
-        urlFields.setVisibility(
-                existing != null && existing.isDeviceCalendar() ? View.GONE : View.VISIBLE);
-        deviceFields.setVisibility(
-                existing != null && existing.isDeviceCalendar() ? View.VISIBLE : View.GONE);
+        urlFields.setVisibility(initialDeviceSource ? View.GONE : View.VISIBLE);
+        deviceFields.setVisibility(initialDeviceSource ? View.VISIBLE : View.GONE);
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(
                         view -> {
-                            boolean local = source.getSelectedItemPosition() == 1;
+                            boolean local = source.getSelectedItemPosition() == SOURCE_DEVICE;
                             int position = devicePicker.getSelectedItemPosition();
                             Feed device =
                                     local && position >= 0 && position < available.size()
