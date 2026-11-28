@@ -19,6 +19,8 @@ public final class SettingsBackup {
     public static final String IMAGE_URI = "dashboardBackgroundUri";
     public static final String IMAGE_NAME = "dashboardBackgroundName";
     public static final String IMAGE_BLUR = "dashboardBackgroundBlur";
+    public static final String THEME_BACKGROUND_MIGRATED = "themeBackgroundMigrated";
+    public static final String CUSTOM_THEME_BORDER = "customTheme.border";
     private static final String FORMAT = "timewall-dashboard-settings";
     private static final int VERSION = 1;
     private static final String FEEDS = "feeds";
@@ -36,10 +38,15 @@ public final class SettingsBackup {
         "customTheme.text",
         "customTheme.secondaryText",
         "customTheme.clock",
-        "customTheme.date"
+        "customTheme.date",
+        CUSTOM_THEME_BORDER
     };
     private static final String[] BOOLEANS = {
-        "clock.showSeconds", "clock.use24Hour", "weather.enabled", "weather.fahrenheit"
+        "clock.showSeconds",
+        "clock.use24Hour",
+        "weather.enabled",
+        "weather.fahrenheit",
+        THEME_BACKGROUND_MIGRATED
     };
     private static final String[] INTEGERS = {
         "theme", "clock.dateFormat", IMAGE_BLUR, "weather.refreshMinutes"

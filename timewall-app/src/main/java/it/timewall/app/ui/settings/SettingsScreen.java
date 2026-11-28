@@ -524,6 +524,7 @@ public final class SettingsScreen {
                             themes.get(themePicker.getSelectedItemPosition())
                                     == DashboardTheme.CUSTOM;
                     customTheme.setVisibility(custom ? View.VISIBLE : View.GONE);
+                    imageSettings.view.setVisibility(custom ? View.VISIBLE : View.GONE);
                     save.setEnabled(
                             !imageSettings.loading
                                     && (!custom || customTheme.readColors() != null));

@@ -200,7 +200,7 @@
     <string name="credits_summary">気象データ：Open-Meteo 提供、CC BY 4.0。場所検索：GeoNames データを使用する Open-Meteo。以下は同梱フォントの著作権とライセンスです。システムの Roboto は Android が提供します。</string>
     <string name="font_conversion_notice">Android 4.4 に対応するため、新しい可変フォントを静的な Regular フォントに変換しました。Raleway 派生フォントの内部名は TW Rale です。Roboto Slab は Apache 2.0、その他の同梱フォントは SIL OFL 1.1 です。</string>
     <string name="licenses_unavailable">一部のライセンス表示を読み込めませんでした。</string>
-    <string name="original_assets_credit">天気アイコン、アプリアイコン、通知音：人工知能ツールを使用して TimeWall 用に作成されたリソースです。</string>
+    <string name="original_assets_credit">天気アイコン、アプリアイコン、通知音、およびプリセットテーマのすべての背景画像：人工知能ツールを使用して TimeWall 用に作成されたリソースです。</string>
     <string name="interface_icons_credit">FontAwesome Free：画面のボタンとメニュー用のアイコンフォント。SIL OFL 1.1。</string>
     <string name="clear_calendar_cache">カレンダーキャッシュを消去</string>
     <string name="calendar_cache_hint">保存済みカレンダーのローカルコピーを削除して更新を開始します。この画面の変更は保存しません。</string>

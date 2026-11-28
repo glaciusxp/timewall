@@ -22,7 +22,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import it.timewall.app.R;
+import it.timewall.app.configuration.DashboardTheme;
 import it.timewall.app.configuration.Palette;
+import it.timewall.app.configuration.SettingsBackup;
 import it.timewall.app.localization.I18n;
 import it.timewall.app.platform.images.BackgroundBlur;
 import it.timewall.app.platform.images.ImageDocuments;
@@ -61,7 +63,6 @@ public final class DashboardLayout {
     private final int accentColor;
     private final Typeface menuIcons;
     private static final int COLUMN_INSET = 12, WEATHER_DETAIL_TEXT_SP = 16;
-    private static final String BACKGROUND_URI = "dashboardBackgroundUri";
     private static final String ICON_SLIDERS = "\uf1de", ICON_ELLIPSIS_VERTICAL = "\uf142";
     public final FrameLayout dashboardHost;
     public final View dashboardContent;
@@ -124,13 +125,21 @@ public final class DashboardLayout {
         dashboard.addView(background, new FrameLayout.LayoutParams(-1, -1));
         dashboard.addView(root, new FrameLayout.LayoutParams(-1, -1));
         activity.setContentView(dashboard);
-        String backgroundUri = preferences.getString(BACKGROUND_URI, "");
-        if (!backgroundUri.isEmpty()) {
+        String backgroundUri =
+                style.theme == DashboardTheme.CUSTOM
+                        ? preferences.getString(SettingsBackup.IMAGE_URI, "")
+                        : "";
+        String backgroundAsset = style.theme.backgroundAsset;
+        if (!backgroundUri.isEmpty() || backgroundAsset != null) {
             int blurLevel = preferences.getInt(BackgroundBlur.PREFERENCE, 0);
             Uri uri = Uri.parse(backgroundUri);
             worker.execute(
                     () -> {
-                        Bitmap bitmap = ImageDocuments.readBackground(activity, uri, blurLevel);
+                        Bitmap bitmap =
+                                backgroundAsset == null
+                                        ? ImageDocuments.readBackground(activity, uri, blurLevel)
+                                        : ImageDocuments.readBackgroundAsset(
+                                                activity, backgroundAsset);
                         if (bitmap != null) {
                             activity.runOnUiThread(
                                     () -> {

@@ -43,6 +43,14 @@ public final class ImageDocuments {
         }
     }
 
+    public static Bitmap readBackgroundAsset(Activity activity, String name) {
+        try (InputStream input = activity.getAssets().open(name)) {
+            return BitmapFactory.decodeStream(input);
+        } catch (IOException | RuntimeException exception) {
+            return null;
+        }
+    }
+
     private static Bitmap decode(Activity activity, Uri uri, int longestSideLimit) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;

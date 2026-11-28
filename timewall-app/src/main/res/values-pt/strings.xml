@@ -202,7 +202,7 @@
     <string name="credits_summary">Dados meteorológicos fornecidos pelo Open-Meteo — CC BY 4.0. Pesquisa de localidades: Open-Meteo com dados GeoNames. Seguem os direitos e as licenças das fontes incluídas; o Roboto do sistema é fornecido pelo Android.</string>
     <string name="font_conversion_notice">As novas fontes variáveis foram convertidas em versões estáticas Regular para Android 4.4. A derivada de Raleway usa o nome interno TW Rale. Roboto Slab: Apache 2.0; as outras fontes incluídas: SIL OFL 1.1.</string>
     <string name="licenses_unavailable">Não foi possível carregar alguns avisos de licença.</string>
-    <string name="original_assets_credit">Ícones meteorológicos, ícone da aplicação e som de notificação: recursos criados para TimeWall com ferramentas de inteligência artificial.</string>
+    <string name="original_assets_credit">Ícones meteorológicos, ícone da aplicação, som de notificação e todos os fundos dos temas predefinidos: recursos criados para TimeWall com ferramentas de inteligência artificial.</string>
     <string name="interface_icons_credit">FontAwesome Free — fonte de ícones dos botões e menus da interface — SIL OFL 1.1.</string>
     <string name="clear_calendar_cache">Limpar cache dos calendários</string>
     <string name="calendar_cache_hint">Elimina as cópias locais dos calendários guardados e inicia uma atualização. Não guarda as alterações deste ecrã.</string>

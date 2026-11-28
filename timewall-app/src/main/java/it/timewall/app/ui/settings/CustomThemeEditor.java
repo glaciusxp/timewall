@@ -20,11 +20,14 @@ import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import it.timewall.app.configuration.DashboardTheme;
 import it.timewall.app.configuration.HexColor;
 import it.timewall.app.configuration.Palette;
+import it.timewall.app.configuration.SettingsBackup;
 import it.timewall.app.localization.I18n;
 import it.timewall.app.ui.common.ViewFactory;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 public final class CustomThemeEditor extends LinearLayout {
@@ -41,6 +44,7 @@ public final class CustomThemeEditor extends LinearLayout {
     };
 
     private final EditText[] inputs = new EditText[KEYS.length];
+    private final String savedBorder;
 
     private Runnable onChange = () -> {};
 
@@ -55,6 +59,7 @@ public final class CustomThemeEditor extends LinearLayout {
     public CustomThemeEditor(Activity activity, ViewFactory views, SharedPreferences preferences) {
         super(activity);
         setOrientation(VERTICAL);
+        savedBorder = preferences.getString(SettingsBackup.CUSTOM_THEME_BORDER, "");
         views.addSettingHeading(this, I18n.text(activity, "palette"), true);
         for (int index = 0; index < inputs.length; index++) {
             String name = I18n.text(activity, LABELS[index]);
@@ -167,7 +172,9 @@ public final class CustomThemeEditor extends LinearLayout {
                 legacy ? automaticText : colors[5],
                 colors[2],
                 colors[3],
-                automaticText == Color.WHITE ? 0x55ffffff : 0x55000000);
+                colors.length > KEYS.length
+                        ? colors[KEYS.length]
+                        : automaticText == Color.WHITE ? 0x55ffffff : 0x55000000);
     }
 
     /**
@@ -190,7 +197,43 @@ public final class CustomThemeEditor extends LinearLayout {
             }
             colors[index] = HexColor.parse(value);
         }
-        return colors;
+        return withBorder(colors, preferences.getString(SettingsBackup.CUSTOM_THEME_BORDER, ""));
+    }
+
+    public static DashboardTheme migratePresetBackground(
+            SharedPreferences preferences, DashboardTheme theme) {
+        if (preferences.getBoolean(SettingsBackup.THEME_BACKGROUND_MIGRATED, false)) return theme;
+        SharedPreferences.Editor editor =
+                preferences.edit().putBoolean(SettingsBackup.THEME_BACKGROUND_MIGRATED, true);
+        if (theme != DashboardTheme.CUSTOM
+                && !preferences.getString(SettingsBackup.IMAGE_URI, "").isEmpty()) {
+            Palette palette = theme.palette;
+            saveColors(
+                    editor,
+                    new int[] {
+                        palette.accent,
+                        palette.background,
+                        // Legacy presets used fully opaque event surfaces.
+                        palette.card | 0xff000000,
+                        palette.highlight | 0xff000000,
+                        palette.text,
+                        palette.secondaryText,
+                        palette.text,
+                        palette.accent,
+                        palette.border
+                    });
+            theme = DashboardTheme.CUSTOM;
+            editor.putInt("theme", theme.id);
+        }
+        editor.apply();
+        return theme;
+    }
+
+    private static int[] withBorder(int[] colors, String border) {
+        if (!validHex(border)) return colors;
+        int[] fullPalette = Arrays.copyOf(colors, KEYS.length + 1);
+        fullPalette[KEYS.length] = HexColor.parse(border);
+        return fullPalette;
     }
 
     /**
@@ -225,7 +268,7 @@ public final class CustomThemeEditor extends LinearLayout {
             }
             colors[index] = HexColor.parse(value);
         }
-        return colors;
+        return withBorder(colors, savedBorder);
     }
 
     /**
@@ -236,8 +279,11 @@ public final class CustomThemeEditor extends LinearLayout {
      * @param colors colori ARGB delle voci o della palette nell’ordine previsto
      */
     public static void saveColors(SharedPreferences.Editor editor, int[] colors) {
-        for (int index = 0; index < colors.length; index++) {
+        for (int index = 0; index < Math.min(colors.length, KEYS.length); index++) {
             editor.putString(KEYS[index], hex(colors[index]));
+        }
+        if (colors.length > KEYS.length) {
+            editor.putString(SettingsBackup.CUSTOM_THEME_BORDER, hex(colors[KEYS.length]));
         }
     }
 

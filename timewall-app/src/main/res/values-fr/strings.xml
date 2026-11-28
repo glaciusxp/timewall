@@ -202,7 +202,7 @@
     <string name="credits_summary">Données météo fournies par Open-Meteo — CC BY 4.0. Recherche de lieux : Open-Meteo avec les données GeoNames. Les droits et licences des polices incluses figurent ci-dessous ; Roboto système est fourni par Android.</string>
     <string name="font_conversion_notice">Les nouvelles polices variables ont été converties en versions statiques Regular pour Android 4.4. La police dérivée de Raleway porte le nom interne TW Rale. Roboto Slab : Apache 2.0 ; les autres polices incluses : SIL OFL 1.1.</string>
     <string name="licenses_unavailable">Certains avis de licence n’ont pas pu être chargés.</string>
-    <string name="original_assets_credit">Icônes météo, icône de l’application et son de notification : ressources créées pour TimeWall avec des outils d’intelligence artificielle.</string>
+    <string name="original_assets_credit">Icônes météo, icône de l’application, son de notification et tous les arrière-plans des thèmes prédéfinis : ressources créées pour TimeWall avec des outils d’intelligence artificielle.</string>
     <string name="interface_icons_credit">FontAwesome Free — police des icônes des boutons et menus de l’interface — SIL OFL 1.1.</string>
     <string name="clear_calendar_cache">Vider le cache des calendriers</string>
     <string name="calendar_cache_hint">Supprime les copies locales des calendriers enregistrés et lance une mise à jour. N’enregistre pas les modifications de cet écran.</string>

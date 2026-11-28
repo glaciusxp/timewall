@@ -200,7 +200,7 @@
     <string name="credits_summary">天气数据由 Open-Meteo 提供，采用 CC BY 4.0 许可。地点搜索由 Open-Meteo 提供，使用 GeoNames 数据。以下是所含字体的版权和许可；系统 Roboto 由 Android 提供。</string>
     <string name="font_conversion_notice">为兼容 Android 4.4，新增的可变字体已转换为静态 Regular 字体。Raleway 衍生字体的内部名称为 TW Rale。Roboto Slab 使用 Apache 2.0；其他所含字体使用 SIL OFL 1.1。</string>
     <string name="licenses_unavailable">部分许可声明无法加载。</string>
-    <string name="original_assets_credit">天气图标、应用图标和通知音：使用人工智能工具为 TimeWall 创建的资源。</string>
+    <string name="original_assets_credit">天气图标、应用图标、通知音和所有预设主题背景：使用人工智能工具为 TimeWall 创建的资源。</string>
     <string name="interface_icons_credit">FontAwesome Free：界面按钮和菜单的图标字体，采用 SIL OFL 1.1 许可。</string>
     <string name="clear_calendar_cache">清空日历缓存</string>
     <string name="calendar_cache_hint">删除已保存日历的本地副本并开始更新。不会保存此页面中的更改。</string>

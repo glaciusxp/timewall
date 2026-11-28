@@ -189,7 +189,9 @@ public final class DashboardActivity extends Activity {
         dates = new DashboardDates(this);
         DashboardTheme defaultTheme = DashboardTheme.SLATE_AZURE_DARK;
         int savedTheme = preferences.getInt("theme", defaultTheme.id);
-        selectedTheme = DashboardTheme.fromSavedId(savedTheme);
+        selectedTheme =
+                CustomThemeEditor.migratePresetBackground(
+                        preferences, DashboardTheme.fromSavedId(savedTheme));
         int[] customColors =
                 selectedTheme == DashboardTheme.CUSTOM
                         ? CustomThemeEditor.loadColors(preferences)

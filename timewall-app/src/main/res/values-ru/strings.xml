@@ -206,7 +206,7 @@
     <string name="credits_summary">Данные о погоде предоставлены Open-Meteo — CC BY 4.0. Поиск мест: Open-Meteo с данными GeoNames. Ниже приведены авторские права и лицензии включённых шрифтов; системный Roboto предоставляется Android.</string>
     <string name="font_conversion_notice">Для Android 4.4 новые вариативные шрифты преобразованы в статические версии Regular. Производный шрифт Raleway имеет внутреннее имя TW Rale. Roboto Slab: Apache 2.0; остальные включённые шрифты: SIL OFL 1.1.</string>
     <string name="licenses_unavailable">Не удалось загрузить некоторые лицензионные уведомления.</string>
-    <string name="original_assets_credit">Значки погоды, значок приложения и звук уведомления: ресурсы, созданные для TimeWall с помощью инструментов искусственного интеллекта.</string>
+    <string name="original_assets_credit">Значки погоды, значок приложения, звук уведомления и все фоновые изображения предустановленных тем: ресурсы, созданные для TimeWall с помощью инструментов искусственного интеллекта.</string>
     <string name="interface_icons_credit">FontAwesome Free — шрифт значков кнопок и меню интерфейса — SIL OFL 1.1.</string>
     <string name="clear_calendar_cache">Очистить кеш календарей</string>
     <string name="calendar_cache_hint">Удаляет локальные копии сохранённых календарей и запускает обновление. Не сохраняет изменения на этом экране.</string>

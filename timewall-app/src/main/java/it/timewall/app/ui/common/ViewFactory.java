@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -70,18 +71,60 @@ public final class ViewFactory {
     }
 
     public ArrayAdapter<String> themeChoices(String[] labels, Palette[] palettes) {
-        return new SettingChoices(labels) {
+        return new ArrayAdapter<String>(activity, android.R.layout.simple_spinner_item, labels) {
             @Override
-            protected TextView styleChoice(TextView row, int position) {
-                super.styleChoice(row, position);
-                Palette preview = palettes[position];
-                row.setBackgroundColor(preview.background);
-                row.setTextColor(preview.text);
-                row.setPaddingRelative(dp(12), row.getPaddingTop(), dp(12), row.getPaddingBottom());
-                setCalendarDot(row, preview.accent, 12);
+            public View getView(int position, View recycled, ViewGroup parent) {
+                ThemeChoiceRow row =
+                        recycled instanceof ThemeChoiceRow
+                                ? (ThemeChoiceRow) recycled
+                                : new ThemeChoiceRow();
+                row.bind(getItem(position), palettes[position]);
                 return row;
             }
+
+            @Override
+            public View getDropDownView(int position, View recycled, ViewGroup parent) {
+                return getView(position, recycled, parent);
+            }
         };
+    }
+
+    private final class ThemeChoiceRow extends LinearLayout {
+        private final TextView name = styleSettingInput(new TextView(activity));
+        private final TextView preview = new TextView(activity);
+        private final GradientDrawable swatch = new GradientDrawable();
+        private final GradientDrawable accentDot = new GradientDrawable();
+
+        ThemeChoiceRow() {
+            super(activity);
+            setGravity(Gravity.CENTER_VERTICAL);
+            setPaddingRelative(dp(12), 0, dp(12), 0);
+            name.setMaxLines(2);
+            name.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            addView(name, new LayoutParams(0, -2, 1));
+
+            swatch.setCornerRadius(dp(6));
+            swatch.setStroke(dp(1), palette.border);
+            preview.setBackground(swatch);
+            preview.setText("Aa");
+            preview.setTextSize(14);
+            preview.setGravity(Gravity.CENTER);
+            preview.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            accentDot.setShape(GradientDrawable.OVAL);
+            accentDot.setBounds(0, 0, dp(8), dp(8));
+            preview.setCompoundDrawablesRelative(null, null, accentDot, null);
+            preview.setPaddingRelative(dp(6), 0, dp(8), 0);
+            LayoutParams previewParams = new LayoutParams(dp(58), dp(28));
+            previewParams.setMarginStart(dp(8));
+            addView(preview, previewParams);
+        }
+
+        void bind(String label, Palette colors) {
+            name.setText(label);
+            swatch.setColor(colors.background);
+            preview.setTextColor(colors.text);
+            accentDot.setColor(colors.accent);
+        }
     }
 
     public ArrayAdapter<String> fontChoices(DashboardFont[] fonts) {
